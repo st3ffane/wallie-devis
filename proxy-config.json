@@ -1,0 +1,12 @@
+{
+  "/wp-admin/*": {
+    "target": {
+        "host": "www.devis.local",
+        "protocol": "http:",
+        "port": 80
+      },
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug"
+  }
+}
