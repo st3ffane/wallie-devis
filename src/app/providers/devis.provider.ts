@@ -88,14 +88,7 @@ export class DevisProvider {
            
                     fi = this.devis_infos[key];
                     if(fi["key"]){
-                        //OK, les données d'un formulaire
-                        console.log("Recupere des données en memoire....");
-
-                        //NOTE: DOIT VERIFIER SI LE FORMULAIRE EST ENCORE VALIDE OU PAS
-
-
-
-                        //sauvegarde l'URL dans l'history 
+                         //sauvegarde l'URL dans l'history 
                         window.history.replaceState(fi['url'],'a title');//ajoute juste l'url demandé au state....
                         this.last_visited_url_LS = fi["url"];//...et dans le LS
                         // console.log(fi);
@@ -111,7 +104,7 @@ export class DevisProvider {
             // console.log(window.history.state);
             // console.log(this._history_state);
             // console.log(this.last_visited_url_LS);
-            console.log(url);
+            
 
             if (url!="undefined"){
                 // console.log("charge depuis une url");
@@ -189,8 +182,7 @@ export class DevisProvider {
         
         //genere l'url de endpoint 
         let url = endpoint  ? endpoint :    ENDPOINT + this.create_url(group,form);  
-
-
+        
 
         return this._http.get(url)
         .toPromise()
@@ -216,7 +208,7 @@ export class DevisProvider {
 
                 //NOTE: DOIT VERIFIER SI LE FORMULAIRE et LES DONNEES SONT ENCORE VALIDES OU PAS
                 //peut: verifier URL, verifier si group==global,...
-                if (url != this.devis_infos[form_name].url){
+                if (group=="global" || url != this.devis_infos[form_name].url){
                     //le formulaire semble different....
                     console.log("Le formulaire semble different, ne repopulate pas...");
                 } else {
@@ -248,7 +240,7 @@ export class DevisProvider {
 
     load_next_page_url_async(group:string="",form:string="", endpoint?:string){
         return this.load_form_datas_async(group,form).then( (fi)=>{
-
+            console.log(fi);
             if(!fi) return null;//pas de données
 
 
@@ -291,10 +283,8 @@ export class DevisProvider {
 
         //recupere les données du formulaire pour envoie au webservice 
         let details = {};
-        console.log("debug devis details");
-
+        
         for (let key of Object.keys(this.devis_infos)){
-            console.log("Formulaire: "+key);
             
             let form = this.devis_infos[key];
             if(form.fields == null) continue;
@@ -307,24 +297,23 @@ export class DevisProvider {
 
 
             for (let field of form.fields){
-                console.log("field: "+field.id+", value:"+field.value)
+                
                 form_fields[field.id] = field.value;
                 field_count ++;
                 field_id = field.id;
             }
 
             if(field_count > 1){
-                console.log("multi form: cree un objet");
+                
                 details[key] = form_fields;
             } else {
                 //un seul field dans le formulaire, renvoie directement la valeur 
-                console.log("un seul field, compact");
+                
                 details[key] = form_fields[field_id];
             }
 
         }
 
-        console.log(details);
 
         let cred = "action=generate_quote&app_datas="+JSON.stringify(details);
 
@@ -346,8 +335,7 @@ export class DevisProvider {
      * si tu a besoin de reprendre le code de l'appli pour autre chose, pense a modifier ca...
      */
     create_url(group:string,form:string):string{
-        console.log("createURL");
-        console.log(group+","+form);
+        
          //formulaire courant
         if (form === "") return "";//demande a charger le premier formulaire
 
@@ -396,6 +384,10 @@ export class DevisProvider {
         }
     }
 
+    /**
+     * Afin de sauvegarder le maximum de place sur l'appareil de l'utilisateur,
+     * on compacte les données pour ne sauvegarder que l'essentiel
+     */
     private compact_datas(devis){
         let dt = {};
             for (let frm of Object.keys(devis)){
@@ -420,12 +412,15 @@ export class DevisProvider {
             }
         return dt;
     }
-    //sauvegarde le devis en local, uniquement les données du devis...
+
+
+    //sauvegarde le devis en local (DB), uniquement les données du devis...
     save_current_devis(){
         return this.open_DB().then ( (db)=>{
             return this.save_to_sgbd(db, this.devis_infos);
         });
     }
+    //pour savoit si on a acces a une BDD sur la machine
     has_IDB(){return window.indexedDB!=null; }
     private open_DB(){
 
@@ -450,17 +445,19 @@ export class DevisProvider {
         });
         
     }
+
+    
     private save_to_sgbd(db, devis){
         return new Promise ( (resolve, reject)=>{
 
-            console.log("Sauvegarde en SGBD");
+           
                 if (this.has_IDB()) {
                     //OK
                     let dt = this.compact_datas(devis);
                     dt["date"]=Date.now();
                     dt["sgbd_title"]="voir a gnerer un titre explicite....";
                     let save_data = {
-                        "id" : devis["date"],
+                        "id" : dt["date"],
                         "v":dt
                     }
                    
@@ -507,8 +504,6 @@ export class DevisProvider {
                var cursor = event.target.result;
                
                if (cursor) {
-                   console.log("Get datas!!!");
-                   console.log(cursor);
                    results.push(cursor.value.v);
                    cursor.continue();
                }

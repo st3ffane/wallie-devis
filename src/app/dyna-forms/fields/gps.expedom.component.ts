@@ -1,6 +1,6 @@
 import {Component, OnInit, Input} from "@angular/core";
 import {FormGroup, FormControl, Validators} from "@angular/forms";
-
+import {GmapGeocodeProvider} from "../providers/gmap.geocode.provider";
 /**
  * Un composant pour gerer l'affichage des informations GPS 
  * pour l'application expedom
@@ -27,69 +27,110 @@ import {FormGroup, FormControl, Validators} from "@angular/forms";
     selector:"dyna-gps",
     template:`
     <div [formGroup]="form">
-        <div *ngFor="let qfilter of question.options">
-            <label>
-            <input type="radio" [(ngModel)]="filter" 
-                [formControlName]="filter_form_ctrl"
-                [attr.name]="filter_form_ctrl"
-                [value]="qfilter.label"                
-                #trigger>
-            {{qfilter.label}}</label>
-            <p>{{qfilter.description}}</p>
-            <div *ngIf="qfilter.useGeo  && trigger.checked">
-                <span>Vous avez ete localisé a: {{position?.latitude+","+position?.longitude}}</span>
-                <div >
-                    <h4>Choisir un autre Departement</h4>
-                    <input type="text" value="Un autre departement">
-                </div>
-                
-            </div>
 
-            <div *ngIf="qfilter.locations && trigger.checked">
-                <input *ngIf="question['use-text-filter']" 
 
-                        type="text" 
-                        list="choices"
-                        [(ngModel)]="search" 
-                        [formControlName]="search_form_ctrl"
-                        placeholder="Entrez les premieres lettres">
-                <datalist id="choices">
-                    <option *ngFor="let l of filtered_datalist" [value]="l">
-                </datalist>
-            </div>
+        <div *ngIf="!position">
+            <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>
         </div>
+        <div *ngIf="position">
+            
+                    <span *ngIf="!position.zipcode">
+                        <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre numero de département</p>
+                    </span>
+                    <span *ngIf="position.zipcode">Vous avez été géolocalisé: <strong>{{position.name+"("+position.zipcode+")"}}</strong></span>
+                    <div >
+                        <h4>Choisir un autre Departement</h4>
+                        <input type="text" value="Un autre departement" #zipcode [value]="position.zipcode || '' "><button type="button" (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+                    </div>
+                    
+                
+            
+         </div>
+
+
+
+            <!-- pour pouvoir filtrer les reponses -->
+            <div *ngFor="let qfilter of question.options">
+                <label>
+                <input type="radio" [(ngModel)]="filter" 
+                    [formControlName]="filter_form_ctrl"
+                    [attr.name]="filter_form_ctrl"
+                    [value]="qfilter.label"                
+                    #trigger>
+                {{qfilter.label}}</label>
+                <p>{{qfilter.description}}</p>
+                
+                
+
+                <div *ngIf="qfilter.locations && trigger.checked">
+                    <input *ngIf="question['use-text-filter']" 
+
+                            type="text" 
+                            list="choices"
+                            [(ngModel)]="search" 
+                            [formControlName]="search_form_ctrl"
+                            placeholder="Entrez les premieres lettres">
+                    <datalist id="choices">
+                        <option *ngFor="let l of filtered_datalist" [value]="l">
+                    </datalist>
+                </div>
+            </div>
+
+       
+
+
+
+
+
         
 
-        <sebm-google-map [latitude]="position?.latitude " [longitude]="position?.longitude"
+        <sebm-google-map [latitude]="position?.lat || question?.default_location.lat" [longitude]="position?.long || question?.default_location.lat"
             [zoom]="def_zoom">
             <div *ngFor="let opt of filtered_options">
 
+                    
+                    <div *ngIf="position">
+                        <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->
+                        <sebm-google-map-info-window  [latitude]="position?.lat" [longitude]="position?.long" [isOpen]="'true'">
+                            <strong>Retrait/livraison à domicile</strong>
+                            <p>Une description?</p>
 
-                    <div *ngIf="opt.useGeo">
-                        <!-- DOMICILE -->
-                        <sebm-google-map-info-window  [latitude]="position?.latitude" [longitude]="position?.longitude" [isOpen]="'true'">
-                            <strong>{{opt.label}}</strong>
-                            <p>{{opt.description}}</p>
-                            <input [formControlName]="question.id"                        
+                            <fieldset>
+                                <label  *ngFor="let price of position?.options">
+                                    <input [formControlName]="question.id"                        
+                                    type="radio" 
+                                    [(ngModel)]="question.value"
+                                    [value]="price.value"
+                                    class="form-check-input"
+                                    required>{{price.description}}
+                                </label>
+                            </fieldset>
+
+
+                            <!--input [formControlName]="question.id"                        
                             type="radio" 
                             [(ngModel)]="question.value"
                             [value]="opt.value"
                             class="form-check-input"
                             required
-                            >Selectionne
+                            >Selectionne -->
                         </sebm-google-map-info-window> 
                     </div>
-            <div *ngIf="opt.locations.length">
-                <sebm-google-map-marker  *ngFor="let m of opt.locations"
+            
+
+
+            
+                <!-- les ports et les depots -->
+                <sebm-google-map-marker  *ngFor="let m of opt.locations; let count = opt.locations.length"
                     [latitude]="m?.lat" [longitude]="m?.lng" [label]="m?.id | slice:0:1 | uppercase">
 
-                    
-                    <sebm-google-map-info-window >
+                    <!-- si une seule reponse, affiche directement l'infos window???  -->
+                    <sebm-google-map-info-window [isOpen]="count == 1">
                         <div class="infos">
                             <strong>{{m?.label}}</strong>
                             <p>{{m?.description}}</p>
-                            <fieldset *ngFor="let price of m?.options">
-                                <label>
+                            <fieldset>
+                                <label  *ngFor="let price of m?.options">
                                     <input [formControlName]="question.id"                        
                                     type="radio" 
                                     [(ngModel)]="question.value"
@@ -102,7 +143,7 @@ import {FormGroup, FormControl, Validators} from "@angular/forms";
                     </sebm-google-map-info-window>   
 
                 </sebm-google-map-marker>
-            </div>
+            
 
             </div>
             
@@ -123,13 +164,13 @@ import {FormGroup, FormControl, Validators} from "@angular/forms";
 export class GPSExpedomComponent{
     @Input()question:any;
     @Input() form:FormGroup;
+    noGeo: boolean = false;
 
+    is_localising:boolean = true;//par defaut, tente de se localiser...
+
+    constructor(private _gmap:GmapGeocodeProvider){}
     //position GPS de l'utilisateur
-    position:any = {
-        //des positions par defaut le tps de geolocaliser....
-        "lat":49.4812929,
-		"lng":0.1047474
-    };
+    position:any = null;
     def_zoom = 6;//niveau de zoom de la map par defaut
 
 
@@ -171,21 +212,81 @@ export class GPSExpedomComponent{
         this.remap_options();
         
         //recupere les coordonnées GPS si dispo, sinon????
-        if(navigator.geolocation){
-            console.log("geolocalisation ON");
-            navigator.geolocation.getCurrentPosition((pos)=>{
-                if(pos.coords)  this.position = pos.coords;
-                else console.log("no coords");
-            },
-            (err)=>{
-                console.log(err);
-            });
-        } else {
-            console.log("geolocalisation OFF");
-        }
+        this.geolocalise().then( (pos)=> {
+            this.position = pos;
+            //demande le nom du patelin 
+            return this._gmap.get_departement_from_coords_async(this.position.latitude,this.position.longitude);
+
+        }).then( (rep)=>{
+
+            //VERIFIE SI LE PAYS EST BON.....
+            this.position = rep;
+            this.is_localising = false;
+
+            return true;
+        })
+        .then ( (good)=>{
+            if(good){
+                //recupere la table des prix
+            } else {
+                //une erreur
+            }
+        }).catch( (err)=>{
+            
+             this.position = {};//remet a zero??? ou garde l'ancien????
+             this.is_localising = false;
+        });
 
         
    
+    }
+
+
+
+    localise_from_zipcode(zipcode){
+        console.log("recherche localisation...");
+        console.log("zipcode:"+zipcode);
+        this.is_localising = true;
+        this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
+            // VERIFIE SI PAYS OK
+
+
+            this.position = rep;
+            this.is_localising = false;
+
+            return true;
+        }).then ( (good)=>{
+            if(good){
+                //recupere la table des prix
+            } else {
+                //une erreur
+            }
+        }).catch( (err)=>{
+            console.log(err);
+            
+            this.position = {};//remet a zero??? ou garde l'ancien????
+            this.is_localising = false;
+        });
+
+    }
+    private geolocalise(){
+        return new Promise ( (resolve, reject)=>{
+             if(navigator.geolocation){
+                console.log("geolocalisation ON");
+                navigator.geolocation.getCurrentPosition((pos)=>{
+                    if(pos.coords){
+                        resolve(pos.coords);
+                        console.log(this.position);
+                    }  
+                    else reject("no coords");
+                },
+                (err)=>{
+                    reject(err);
+                });
+            } else {
+                reject("geolocalisation OFF");
+            }
+        });
     }
 
     /**

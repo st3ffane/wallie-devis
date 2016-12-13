@@ -14,9 +14,9 @@ import {DynaFormItemComponent} from "./dyna.form.item.component";
 import {DynaArborescenceComponent} from "./fields/dyna.arborescence.component";
 import {GPSExpedomComponent} from "./fields/gps.expedom.component";
 
+import {GmapGeocodeProvider} from "./providers/gmap.geocode.provider";
 
-
-
+import {GMAP_KEY} from "../gmap.key";
 /**
 * Permet, a partir des proprietes d'un objet de generer un formulaire
 * pour pouvoir modifier les valeurs
@@ -28,9 +28,10 @@ et   properties:waahg-svg/datas/Abstractproperty
 */
 @NgModule({
     imports:[CommonModule, ReactiveFormsModule,AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038'
+      apiKey: GMAP_KEY//'AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038'
     })],
     declarations:[DynamicFormComponent,DynaFormItemComponent,DynaArborescenceComponent,GPSExpedomComponent],
+   providers:[GmapGeocodeProvider],
     exports:[DynamicFormComponent]
 })
 export class DynaFormsModule{}

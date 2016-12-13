@@ -28,7 +28,7 @@ export class AppComponent{
   @HostListener('window:beforeunload', [ '$event' ])
   beforeUnloadHander(event) {
     // enregistre les datas du formulaire courant???
-   this._devis.save_to_LS();
+   //this._devis.save_to_LS();
   }
 
 
