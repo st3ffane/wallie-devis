@@ -118,7 +118,7 @@ export class DynFormsComponent implements OnInit{
     this.group = this.route.snapshot.params['group']; //recup imediatement les données  
     this.form = this.route.snapshot.params['form']; //recup imediatement les données
      
-    
+    console.log("RELOAD to page "+this.group+","+this.form);
     //demande au providers la description de ce formulaire 
     this._devis.get_form_descriptor(this.group, this.form).then( (fi) =>{
 

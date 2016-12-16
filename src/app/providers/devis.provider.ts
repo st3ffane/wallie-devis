@@ -178,6 +178,7 @@ export class DevisProvider {
     /**
      * passe a la prochaine partie du workflow,
      * lance le chargement sur le serveur
+     * NOTE N'A BESOIN QUE DES INFOS D'URLS
      * 
      * ?? en fin de process, passe a la page de resultat.
      * @param form: le nom du formulaire a recuperer...
@@ -185,8 +186,7 @@ export class DevisProvider {
      */
     next(group?:string,form?:string){
 
-        //A TESTER!!!
-        console.log("next");
+        
         let key = group+"/"+form;
         //let url =ENDPOINT + this.create_url(group, form);//verifie l'url que doit afficher (depend des données)
         let fi = this.devis_infos[form];
@@ -227,8 +227,6 @@ export class DevisProvider {
             if(this.devis_infos[key]){
                     
                     fi = this.devis_infos[key];
-                    console.log("connu");
-                    console.log(fi)
                     //if(fi["key"]){
                    
                     if(this.is_form_valid(fi,group)){
@@ -301,8 +299,9 @@ export class DevisProvider {
             
             
 
-            if (url!="undefined"){
+            if (url && url!="undefined"){
                 console.log("formulaire inconnu, charge")
+                console.log(url);
                 //page avec une navigation, recharge le formulaire 
                 return this.load_form_datas_async(null,null,url);//.then( (dt)=>{
                     //recupere les données du formulaire telechargées ET pre-remplie si possible
@@ -383,8 +382,7 @@ export class DevisProvider {
      * @return Promise<DynaForm>: le formulaire a afficher coté client
      */
     load_form_datas_async (group:string="",form:string="", endpoint?:string){
-        console.log("load");
-        //genere l'url de endpoint 
+         //genere l'url de endpoint 
         let url = endpoint  ? endpoint :    ENDPOINT + this.create_url(group,form);  
         
         return this._http.get(url)
@@ -584,6 +582,7 @@ export class DevisProvider {
     //probleme, comment accede a ca depuis le module dyna-forms????
     //Ou: comment sortir le gps du module???
     create_geolocation_url(zipcode:string){
+        console.log(this.devis_infos);
         let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise="+this.devis_infos["form_marchandise"].fields[0].value : "";
@@ -591,14 +590,22 @@ export class DevisProvider {
         request += this.devis_infos["form_to"] ? "&to="+this.devis_infos["form_to"].fields[0].value : "";
         request += this.devis_infos["form_motif"] ? "&motif="+this.devis_infos["form_motif"].fields[0].value : "";
         //la hauteur et largeur si existe 
-        request += this.devis_infos["form_details"] && this.devis_infos["form_details"]["length"] ? "&length="+this.devis_infos["form_details"]["length"].value : "";
-        request += this.devis_infos["form_details"] && this.devis_infos["form_details"]["height"] ? "&height="+this.devis_infos["form_details"]["height"].value : "";
+        request += this.get_field_by_id("form_precisions","longueur");// this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["longueur"] ? "&longueur="+this.devis_infos["form_precisions"]["longueur"].value : "";
+        request += this.get_field_by_id("form_precisions","hauteur");//this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["hauteur"] ? "&hauteur="+this.devis_infos["form_precisions"]["hauteur"].value : "";
 
         //lance le requete
         return request;
 
     }
-
+    private get_field_by_id(form, id){
+        if(this.devis_infos[form] && this.devis_infos[form]["fields"] ){
+            for (let field of this.devis_infos[form]["fields"]){
+                if(field["id"] == id) return "&"+id+"="+field["value"];
+            }
+            
+        }
+        return '';
+    }
 
 
 
@@ -615,6 +622,8 @@ export class DevisProvider {
         //recupere les dernieres données via le localstorage 
         if(window.localStorage){
             this._form_historic = JSON.parse(window.localStorage.getItem("historic")) || [];
+            //this.last_visited_url_LS = window.localStorage.getItem("last_url");
+            if(this._form_historic.length > 0) this.last_visited_url_LS = this._form_historic[this._form_historic.length -1].url;
             let devis = JSON.parse(window.localStorage.getItem("app_datas"));
             if(devis){
                 //donne au provider 
@@ -659,6 +668,7 @@ export class DevisProvider {
         //   delete(this.devis_infos["form_from"]);
         //   delete(this.devis_infos["form_to"]);
         //   delete(this.devis_infos["form_motif"]);
+        //window.localStorage.setItem("last_url",this.last_visited_url_LS);
            window.localStorage.setItem("app_datas",JSON.stringify(this.compact_datas(this.devis_infos)) );//pour l'instant, sauvegarde tout comme un porc...
         }
     }
