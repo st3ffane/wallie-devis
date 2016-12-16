@@ -9,25 +9,7 @@ import { Router, ActivatedRoute, Params, NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'devis-main',
-  template: `
-<div class="container">
-    <h2 class="app_title">Calculateur de devis</h2>
-    <div *ngIf="error">
-      <span>Oups, nous avons eu un probleme de chargement des informations....</span>
-      <a routerLink="/">Retour a l'acceuil</a>
-    </div>
-
-    <div *ngIf="infos">
-            <!-- test only, cree un formulaire a partir des infos passées par le js 
-            voir a mettre en forme les données.... -->
-            <div class="formulaire">
-                <dynamic-form [formulaire]="infos" (submit)="next()"></dynamic-form>
-            <div>
-           
-    </div>
-    
-</div>
-  `,
+  templateUrl:"dyn.forms.html",
   styles: [`
 .container{
     width: 100%;

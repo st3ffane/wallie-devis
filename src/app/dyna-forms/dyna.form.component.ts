@@ -19,32 +19,8 @@ import {DevisProvider} from "../providers/devis.provider";
 @Component({
     //moduleId: module.id,
     selector: 'dynamic-form',
-    template: `
-<div>
-    <div *ngIf="error">
-        {{error}}
-    </div>
-    <form #devisForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="form">
-        <h1>{{formulaire.title}}</h1>
-        <h2>{{formulaire.description}}</h2>
-        <div *ngFor='let field of formulaire.fields' class='form-row'>
-           <df-question [question]="field" [form]="form"></df-question>
-        </div>
-        <div class="next_step">
-            <button class="btn btn-primary wide" type="submit" [disabled]="devisForm.form?.valid == false">Next</button>
-        </div>
-    </form>
-</div>
-    `,
-    styles:[`
-    .next_step{
-        width: 100%;
-        text-align: right;
-    }
-    .wide{
-        min-width: 100%;
-    }
-    `]
+    templateUrl:"dyna.form.html",
+    styleUrls:["dyna.form.scss"]
 })
 export class DynamicFormComponent implements OnInit{
     @Input() formulaire:DynaForm; //les questions du formulaire a afficher

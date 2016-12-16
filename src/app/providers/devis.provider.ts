@@ -163,7 +163,7 @@ export class DevisProvider {
      * formulaires au besoin
      */
     create_new_devis(){
-        //ce serait bien de garder les données si besoin?
+        //supprime les données iportantes pour determiner les etapes suivante (pas de cache)
         this.devis_infos["form_marchandise"]=null// garde les données par defaut???
         this.devis_infos["form_from"]=null// garde les données par defaut???
         this.devis_infos["form_to"]=null// garde les données par defaut???
@@ -243,56 +243,6 @@ export class DevisProvider {
             }
 
 
-        //    let key =form; //clé du formulaire, unqieument le nom du focrmulaire
-
-        //     // console.log("recherche formulaire: "+key);
-
-
-        //     let fi = null;
-        //     //recherche dans les formulaires deja chargés...
-        //     if(this.devis_infos[key]){
-           
-        //             fi = this.devis_infos[key];
-        //             //si dispose d'une propriete "key", c'est un descripteur de formulaire!
-        //            // if(fi["key"]){
-        //                 let url =ENDPOINT + this.create_url(group, form);//verifie l'url que doit afficher (depend des données)
-
-        //                 console.log(url);
-        //                 // console.log(fi['url']);
-        //                 // console.log(group);
-
-        //                 //groupe "global": ne depend pas des données précedente, donc descripteur valide!
-        //                 //sinon, si url correspond (ie: meme parametres), recupere aussi le descripteur!
-
-
-        //                 //if (group!="global"  &&  url.startsWith(fi.url)){
-        //                 if(this.is_form_valid(fi,group,url)){
-        //                     //nouveau formulaire!!!
-
-
-        //                     //sauvegarde l'URL dans l'history 
-        //                     window.history.replaceState(fi['url'],'a title');//ajoute juste l'url demandé au state....
-        //                     this.last_visited_url_LS = fi["url"];//...et dans le LS                                                <== @DEPRECATED!
-
-                            
-        //                     for (let field of fi.fields) field.value = undefined;//remet a null au cas ou les données ne soient pas coherentes
-        //                     this.current_key = fi.key; //la clé du formulaire courant
-
-        //              //   }
-
-        //                 // console.log(fi);
-        //                 return Promise.resolve(fi);//renvoie le formulaire 
-
-        //           }
-
-        //             //si arrive ici, soit les données ne sont pas des descripteurs de formulaires (proviennent du cache)
-        //             //soit le formulaire n'est pas valide (url modifiée)
-
-        //             //va charger le descripteur a partir du webservice
-                    
-        //     }
-
-
             //pas de formulaire en memoire, regarde les données d'URL 
             //d'abord l'etat actuel, sinon celui chargé au load et sinon, celui du localStorage
             let url = window.history.state || this._history_state || this.last_visited_url_LS;
@@ -300,9 +250,7 @@ export class DevisProvider {
             
 
             if (url && url!="undefined"){
-                console.log("formulaire inconnu, charge")
-                console.log(url);
-                //page avec une navigation, recharge le formulaire 
+               //page avec une navigation, recharge le formulaire 
                 return this.load_form_datas_async(null,null,url);//.then( (dt)=>{
                     //recupere les données du formulaire telechargées ET pre-remplie si possible
 
@@ -336,34 +284,6 @@ export class DevisProvider {
 
     
 
-    /**
-     * passe a la prochaine partie du workflow,
-     * lance le chargement sur le serveur
-     * 
-     * ?? en fin de process, passe a la page de resultat.
-     * @param form: le nom du formulaire a recuperer...
-     * @return l'url pour affichage de la prochaine page
-     *
-    next(group?:string,form?:string){
-        let key = group+"/"+form;
-        //enregistre les clés au cas ou
-        // this.last_visited_url = {
-        //     "group":group,
-        //     "form":form
-        // }
-        
-        //si deja connu 
-        if(key && this.devis_infos[key] && this.devis_infos[key]["key"]){
-            //formulaire deja chargé, deja populaté, renvoie 
-            return Promise.resolve({"group":group,"form":form});//renvoie la route a suivre
-        } else {
-            //doit charger la description du formulaire 
-            return this.load_next_page_url_async(group,form);
-        }
-
-        
-        
-    }*/
 
     private is_form_valid(form,requestedGroup): boolean{
        

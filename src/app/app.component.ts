@@ -9,9 +9,10 @@ import { DevisProvider} from "./providers/devis.provider";
 
 @Component({
     selector:"app-root",
-    template: `<router-outlet></router-outlet>
-    <a routerLink="/test">dev test</a>
-    `
+    templateUrl:"app.component.html",// `<router-outlet></router-outlet>
+    //<a routerLink="/test">dev test</a>
+    //
+    styleUrls:["app.component.scss"]
 })
 export class AppComponent{
 

@@ -1,14 +1,4 @@
 
-<div class="container">
-    <h2 class="app_title">Calculateur de devis</h2>
-    <div *ngIf="infos">
-            <!-- test only, cree un formulaire a partir des infos passées par le js 
-            voir a mettre en forme les données.... -->
-            <div class="formulaire">
-                <dynamic-form [formulaire]="infos" (submit)="next()"></dynamic-form>
-            <div>
-        
-           
-        </div>
-    
+<div class="container-fluid app-container">
+    <router-outlet></router-outlet>    
 </div>

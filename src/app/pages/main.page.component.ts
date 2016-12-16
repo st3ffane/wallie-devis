@@ -13,28 +13,30 @@ import { Router } from "@angular/router";
  */
 @Component({
     selector:"hello-cmp",
-    template:`
-    <div>
-        <h1>Bienvenue dans l'application de generation de devis</h1>
-        <p>lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>
+    templateUrl:'main.page.html',
+    styleUrls:['main.page.scss']
+    // template:`
+    // <div>
+    //     <h1>Bienvenue dans l'application de generation de devis</h1>
+    //     <p>lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>
 
-        <div *ngIf="reload">
-        <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>
-        <button (click)="reload_devis()">Reprendre</button>
-        </div>
-        <button (click)="create_devis()">Commencer</button>
+    //     <div *ngIf="reload">
+    //     <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>
+    //     <button (click)="reload_devis()">Reprendre</button>
+    //     </div>
+    //     <button (click)="create_devis()">Commencer</button>
 
-        <div *ngIf="saved_devis.length > 0">
-            <h3>Vos anciens devis sauvegardés:</h3>
-            <ul>
-                <li *ngFor="let saved of saved_devis" >
-                    <span>{{saved.date | date:mediumDate}}</span> <a  (click)="to_generated( saved )">{{saved.title || "un titre"}}</a>
-                </li>
+    //     <div *ngIf="saved_devis.length > 0">
+    //         <h3>Vos anciens devis sauvegardés:</h3>
+    //         <ul>
+    //             <li *ngFor="let saved of saved_devis" >
+    //                 <span>{{saved.date | date:mediumDate}}</span> <a  (click)="to_generated( saved )">{{saved.title || "un titre"}}</a>
+    //             </li>
 
-            </ul>
-        </div>
-    </div>
-    `
+    //         </ul>
+    //     </div>
+    // </div>
+    // `
 })
 export class MainPageComponent{
     

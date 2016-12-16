@@ -1,0 +1,142 @@
+<div [formGroup]="form" >
+      <div [ngSwitch]="question.type">
+
+
+
+        <div *ngSwitchCase="'text'" class="form-group">
+            <label [attr.for]="question.id">{{question.title}}</label>
+            
+            <input  [formControlName]="question.id"
+                    [id]="question.id" type="text" [(ngModel)]="question.__value"
+                    class='form-control form-control-lg' required>
+                    
+        </div>
+
+
+
+        <div *ngSwitchCase="'number'" class="form-group">
+            <label>{{question.title}}</label>
+            <input  [formControlName]="question.id"
+                    [id]="question.id" type="number" [(ngModel)]="question.__value"
+                    class='form-control form-control-lg'
+                    required
+                    >
+        </div>
+
+
+
+        <div *ngSwitchCase="'email'" class="form-group">
+            <label [attr.for]="question.id">{{question.title}}</label>
+            <input  [formControlName]="question.id"
+                    [id]="question.id" type="email" [(ngModel)]="question.__value"
+                    class='form-control form-control-lg'
+                    required
+                    >
+
+            
+        </div>
+
+
+        <div *ngSwitchCase="'textarea'" class="form-group">
+            <label [attr.for]="question.id">{{question.title}}</label>
+            <textarea [formControlName]="question.id"
+                    [id]="question.id" [(ngModel)]="question.__value"
+                    class='form-control form-control-lg' required
+                    ></textarea>
+        </div>
+
+
+
+        <div *ngSwitchCase="'select'" class="form-group">
+            <label [attr.for]="question.id">{{question.title}}</label>
+            <select [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
+             class="form-control" required>
+                <option *ngFor="let opt of question.options" [value]="opt.value">{{opt.label}}</option>
+            </select>
+        </div>
+
+
+
+
+        
+
+        
+        <div *ngSwitchCase="'radio'">
+              
+                  <h3>{{question.title}}</h3>
+                  <div class="option-button" *ngFor="let it of question.options">                                       
+                      <label class="form-check-label"> 
+                        <input  [formControlName]="question.id"                        
+                         type="radio" 
+                         [(ngModel)]="question.__value"
+                         [value]="it.value"
+                         required
+                            class="form-check-input">
+                        {{it.label}}</label>    
+
+                  </div>
+              
+           
+            
+        </div>
+
+        <div *ngSwitchCase="'arbo-radio'">
+                <df-arbo-question [question]="question" [groupName]="'trigger'" [options]="question" [form]="form"></df-arbo-question>            
+        </div>
+
+        <div *ngSwitchCase="'gps'">
+            <dyna-gps [question]="question" [form]="form"></dyna-gps>
+        </div>
+
+
+
+        <div class="row options-group" *ngSwitchCase="'category-radio'">
+              
+            <div class="form-check" *ngFor="let it of question.options">
+                
+                  <h3 class="panel-heading">{{it.label}}</h3>
+                      <label class="form-check-label" *ngFor="let opt of it.options">              
+                        <input [formControlName]="question.id"                        
+                         type="radio" 
+                         [(ngModel)]="question.__value"
+                         [value]="opt.value"
+                         required
+                            class="form-check-input">
+                        {{opt.label}}</label>    
+                                     
+            </div>
+              
+           
+            
+        </div>
+      </div>
+      <div *ngIf="isValid"  class="alert alert-danger">
+        <ul>
+            <li *ngIf="error.required">
+            Ce champs doit obligatoirement etre renseigné!
+            </li>
+            <li *ngIf="error.minlength">
+            Ce champs doit faire plus de <span>{{error.minlength.requiredLength}}</span> caractères.
+            </li>
+            <li *ngIf="error.maxlength">
+            Ce champs doit faire moins de <span>{{error.maxlength.requiredLength}}</span> caractères.
+            </li>
+            <li *ngIf="error.pattern">
+            Le contenu de ce champs n'est pas valide!
+            </li>
+
+            <li *ngIf="error.email">
+            Merci d'indiquer une adresse mail valide.
+            </li>
+
+            <li *ngIf="error.min">
+            Vous devez renseigner un nombre superieur à <span>{{error.min.requiredValue}}</span>.
+            </li>
+             <li *ngIf="error.max">
+            Vous devez renseigner un nombre inferieur à <span>{{error.max.requiredValue}}</span>.
+            </li>
+        </ul>
+      </div>
+    
+        
+    </div>
