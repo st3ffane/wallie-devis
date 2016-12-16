@@ -208,6 +208,7 @@ export class DevisProvider {
     /**
      * renvoie le descripteur de formulaire associé a l'url
      * appellé lors du chargment de la page.
+     * Recupere les parametres de l'URL pour savoir quel formulaire afficher
      */
     get_form_descriptor (group:string, form:string){
         //3 cas:
@@ -284,7 +285,10 @@ export class DevisProvider {
 
     
 
-
+    /**
+     * m'indique si le formulaire en memoire est toujours valide,
+     * ie meme groupe, meme URL (parametres marchandise, from, to et motif)
+     */
     private is_form_valid(form,requestedGroup): boolean{
        
         let request = this.get_param("form_from","from");
@@ -329,7 +333,7 @@ export class DevisProvider {
             if(this.devis_infos[form_name]){
 
                 if (group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    console.log("form global ou connue, repopulate")
+                    // console.log("form global ou connue, repopulate")
 
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
@@ -357,6 +361,10 @@ export class DevisProvider {
 
     }
 
+    /**
+     * Recupere les parametres d'url pour afficher le formulaire suivant
+     * uniquement appellé par next()
+     */
     load_next_page_url_async(group:string="",form:string="", endpoint?:string){
         return this.load_form_datas_async(group,form).then( (fi)=>{
             // console.log(fi);
@@ -488,6 +496,10 @@ export class DevisProvider {
         return request;
 
     }
+    /**
+     * helper: recupere la valeur d'un field d'un formulaire 
+     * si inconnu, renvoie une chaine vide
+     */
     private get_param(form, name){
         if(this.devis_infos[form] ){
             let frm = this.devis_infos[form];
@@ -517,6 +529,10 @@ export class DevisProvider {
         return request;
 
     }
+    /**
+     * Helper methode
+     * permet de recupere la valeur d'un champs de formulaire via son id 
+     */
     private get_field_by_id(form, id){
         if(this.devis_infos[form] && this.devis_infos[form]["fields"] ){
             for (let field of this.devis_infos[form]["fields"]){

@@ -5,10 +5,11 @@
 
         <div *ngSwitchCase="'text'" class="form-group">
             <label [attr.for]="question.id">{{question.title}}</label>
-            
+            <span><small>{{question.description}}</small></span>
             <input  [formControlName]="question.id"
                     [id]="question.id" type="text" [(ngModel)]="question.__value"
-                    class='form-control form-control-lg' required>
+                    class='form-control form-control-lg' required
+                     >
                     
         </div>
 
@@ -16,6 +17,7 @@
 
         <div *ngSwitchCase="'number'" class="form-group">
             <label>{{question.title}}</label>
+            <span><small>{{question.description}}</small></span>
             <input  [formControlName]="question.id"
                     [id]="question.id" type="number" [(ngModel)]="question.__value"
                     class='form-control form-control-lg'
@@ -27,6 +29,7 @@
 
         <div *ngSwitchCase="'email'" class="form-group">
             <label [attr.for]="question.id">{{question.title}}</label>
+            <span><small>{{question.description}}</small></span>
             <input  [formControlName]="question.id"
                     [id]="question.id" type="email" [(ngModel)]="question.__value"
                     class='form-control form-control-lg'
@@ -39,6 +42,7 @@
 
         <div *ngSwitchCase="'textarea'" class="form-group">
             <label [attr.for]="question.id">{{question.title}}</label>
+            <span><small>{{question.description}}</small></span>
             <textarea [formControlName]="question.id"
                     [id]="question.id" [(ngModel)]="question.__value"
                     class='form-control form-control-lg' required
@@ -49,6 +53,7 @@
 
         <div *ngSwitchCase="'select'" class="form-group">
             <label [attr.for]="question.id">{{question.title}}</label>
+            <span><small>{{question.description}}</small></span>
             <select [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
              class="form-control" required>
                 <option *ngFor="let opt of question.options" [value]="opt.value">{{opt.label}}</option>
@@ -68,6 +73,25 @@
                       <label class="form-check-label"> 
                         <input  [formControlName]="question.id"                        
                          type="radio" 
+                         [(ngModel)]="question.__value"
+                         [value]="it.value"
+                         required
+                            class="form-check-input">
+                        {{it.label}}</label>    
+
+                  </div>
+              
+           
+            
+        </div>
+         <div *ngSwitchCase="'checkbox'">
+              
+                  <h3>{{question.title}}</h3>
+                  <span><small>{{question.description}}</small></span>
+                  <div class="option-button" *ngFor="let it of question.options">                                       
+                      <label class="form-check-label"> 
+                        <input  [formControlName]="question.id"                        
+                         type="checkbox" 
                          [(ngModel)]="question.__value"
                          [value]="it.value"
                          required
