@@ -12,7 +12,9 @@
         <h3>Vos anciens devis sauvegardés:</h3>
         <ul>
             <li *ngFor="let saved of saved_devis" >
-                <span>{{saved.date | date:mediumDate}}</span> <a  (click)="to_generated( saved )">{{saved.title || "un titre"}}</a>
+                <span>{{saved.date | date:mediumDate}}</span> <a  (click)="to_generated( saved )">Export de <span>{{saved | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}
+                    </span> depuis: <span>{{saved | GetDevisDetailsPipe:"form_from":"from"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:"form_to":"to"}}</span>
+                </a>
             </li>
 
         </ul>

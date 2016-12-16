@@ -86,18 +86,17 @@
         </div>
          <div *ngSwitchCase="'checkbox'">
               
-                  <h3>{{question.title}}</h3>
-                  <span><small>{{question.description}}</small></span>
-                  <div class="option-button" *ngFor="let it of question.options">                                       
-                      <label class="form-check-label"> 
+                  
+                  
+                  <div class="checkbox">                                       
+                      <label> 
                         <input  [formControlName]="question.id"                        
                          type="checkbox" 
                          [(ngModel)]="question.__value"
-                         [value]="it.value"
+                         [value]="question.selected"
                          required
-                            class="form-check-input">
-                        {{it.label}}</label>    
-
+                    >{{question.title}}</label>    
+                    <span><small>{{question.description}}</small></span>
                   </div>
               
            

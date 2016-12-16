@@ -42,15 +42,15 @@ import {DevisProvider} from "../../providers/devis.provider";
                         <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre numero de département</p>
                     </span>
                     <span *ngIf="position.zipcode">Vous avez été géolocalisé: <strong>{{position.name+"("+position.zipcode+")"}}</strong></span>
-                    <div >
-                        <h4>Choisir un autre Departement</h4>
-                        <input type="text" value="Un autre departement" #zipcode [value]="position.zipcode || '' "><button type="button" (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
-                    </div>
                     
                 
             
          </div>
-
+         <div >
+            <h4>Choisir un autre Departement</h4>
+            <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || '' "><button type="button" (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+        </div>
+                    
 
 
             <!-- pour pouvoir filtrer les reponses -->
@@ -167,6 +167,8 @@ export class GPSExpedomComponent{
     @Input() form:FormGroup; // le formulaire (angular)
     noGeo: boolean = false; //@deprecated
 
+
+    srch_zipcode: string; //le zip  a rechercher
     is_localising:boolean = true;//par defaut, tente de se localiser...si false: localisation achevée (success ou error)
 
     constructor(private _gmap:GmapGeocodeProvider,

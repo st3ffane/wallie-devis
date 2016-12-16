@@ -110,13 +110,13 @@ export class MainPageComponent{
      * et relance une requete au webservice de calcul
      */
     to_generated(devis){
-        // console.log(devis);
-        this._devis.load_saved_devis(devis.id).then( (dt)=>{
-            this._devis.set_devis_from_localstorage(dt);
+        console.log(devis);
+      // this._devis.load_saved_devis(devis.id).then( (dt)=>{
+            this._devis.set_devis_from_localstorage(devis);
             return this._router.navigate(['/generated']);
-        }).catch ( (err)=>{
-            console.log(err);
-        });
+        // }).catch ( (err)=>{
+        //     console.log(err);
+        // });
         
     }
 }

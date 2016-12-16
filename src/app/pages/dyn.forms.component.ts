@@ -123,6 +123,10 @@ export class DynFormsComponent implements OnInit{
    *      a revoir !!!!!
    */
   next(evt:any){
+
+    
+
+
     this._devis.next(this.group,this.form).then( (fi)=>{
             //on est parti!!!
             console.log("ici");

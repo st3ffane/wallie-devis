@@ -9,7 +9,9 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({name: 'GetDevisDetailsPipe'})
 export class GetDevisDetailsPipe implements PipeTransform {
   transform(value: any, group: string, name:string): string {
-
+      console.log(value);
+      console.log(group);
+      console.log(name);
       
      let frm = value[group];
         if(frm) {

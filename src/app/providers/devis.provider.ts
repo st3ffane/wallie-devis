@@ -724,7 +724,7 @@ export class DevisProvider {
                     //OK
                     let dt = this.compact_datas(devis);
                     dt["date"]=Date.now();
-                    dt["sgbd_title"]="voir a gnerer un titre explicite....";
+                    //dt["sgbd_title"]="voir a gnerer un titre explicite....";
                     let save_data = {
                         "id" : dt["date"],
                         "v":dt
@@ -768,10 +768,10 @@ export class DevisProvider {
                
                if (cursor) {
                    console.log(cursor);
-                   let v = cursor.value.v.sgbd_title;//juste la description du formulaire
-                   let id = cursor.value.id;//la date d'enregistrement
+                   let v = cursor.value.v;
 
-                   results.push({"id":id,"title":v});
+                   //cree un titre pour l'entrée 
+                   results.push(v);
                    cursor.continue();
                }
                
@@ -795,6 +795,8 @@ export class DevisProvider {
             cursor.onsuccess = function(event) {
                var cursor = event.target.result;
                
+
+               console.log("")
                if (cursor) {
                    if(cursor.value.id == id) resolve(cursor.value.v);
                    return;
