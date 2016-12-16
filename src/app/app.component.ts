@@ -21,6 +21,10 @@ export class AppComponent{
     }
     //GESTION LOCALSTORAGE DE L'application
     ngOnInit() {
+
+        //demarrage de l'application, charge les données du LOCALSTORAGE
+        //  - le cache de données (les reponses precedentes au formulaire)
+        //  - l'historic (si present)
         this._devis.load_from_LS();
         
     }
@@ -28,7 +32,7 @@ export class AppComponent{
   @HostListener('window:beforeunload', [ '$event' ])
   beforeUnloadHander(event) {
     // enregistre les datas du formulaire courant???
-   //this._devis.save_to_LS();
+     this._devis.save_to_LS();
   }
 
 

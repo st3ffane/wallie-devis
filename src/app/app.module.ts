@@ -19,11 +19,28 @@ import {DynaTestComponent} from './pages/dyna.test.component';
 
 //import { DevisRestProvider} from "./providers/devis.rest.provider";
 import {DevisProvider} from "./providers/devis.provider";
-import {HistoryProvider} from "./providers/history.provider";
 // import {FormDetailResolve} from "./providers/guards/form.guard";
+// import {FormDeactiveGuard} from "./providers/guards/form.deactive.guard";
 
 import {DynaFormTestProvider} from "./providers/dyna.form.test.provider";
-import {DynaFormsModule} from "./dyna-forms/dyna.forms.module";
+//import {DynaFormsModule} from "./dyna-forms/dyna.forms.module";
+
+
+
+//reactive forms et generation dynamique des formulaires
+import {ReactiveFormsModule} from "@angular/forms";//formulaire dynamiques
+
+import { AgmCoreModule } from 'angular2-google-maps/core';
+
+import {DynamicFormComponent} from "./dyna-forms/dyna.form.component";
+import {DynaFormItemComponent} from "./dyna-forms/dyna.form.item.component";
+import {DynaArborescenceComponent} from "./dyna-forms/fields/dyna.arborescence.component";
+import {GPSExpedomComponent} from "./dyna-forms/fields/gps.expedom.component";
+
+import {GmapGeocodeProvider} from "./dyna-forms/providers/gmap.geocode.provider";
+import {GMAP_KEY} from "./gmap.key";
+
+import {GetDevisDetailsPipe} from "./pipes/get.devis.details.pipe";
 
 //normalement, je devrais definir un fichier special pour ca, mais vu qu'il y a pas
 //grand chose....
@@ -44,6 +61,7 @@ let routes = RouterModule.forRoot([
   {
     path: 'devis/:group/:form',
     component: DynFormsComponent,
+    //canDeactivate:[FormDeactiveGuard] n'empeche pas l'URL de changer...
     // resolve:{
     //   form_infos:FormDetailResolve
     // }
@@ -64,18 +82,30 @@ let routes = RouterModule.forRoot([
     DevisComponent,
     MainPageComponent,
 
-    //pour tester les types de fields, DEBUG ONLY
-    DynaTestComponent
+    
+    DynaTestComponent,
+    DynamicFormComponent,
+    DynaFormItemComponent,
+    DynaArborescenceComponent,
+    GPSExpedomComponent,
+
+    GetDevisDetailsPipe
+
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
     routes,
-    DynaFormsModule
+    //DynaFormsModule
+    ReactiveFormsModule,
+    AgmCoreModule.forRoot({
+      apiKey: GMAP_KEY//'AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038'
+    })
   ],
   providers: [DevisProvider,
-              HistoryProvider,
+              //FormDeactiveGuard,
+              GmapGeocodeProvider,
               // FormDetailResolve,
                DynaFormTestProvider],
   bootstrap: [AppComponent]

@@ -9,7 +9,8 @@ export class Field {
     
     key:string;//une clé pour retrouver la propriete
 
-    _value: any;//la valeur du champs, c'est ce qui sera bindé
+    value: any;//la valeur du champs, c'est ce qui sera bindé
+    __value:any;//pour les formulaires
     options: Array<any>;
 
 
@@ -21,8 +22,5 @@ export class Field {
         this.type = type;
     }
 
-    get value(){return this._value;}
-    set value(val:any){
-        this._value = val;
-    }
+    
 }

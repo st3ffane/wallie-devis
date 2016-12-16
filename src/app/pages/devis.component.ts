@@ -45,9 +45,9 @@ import { Router } from "@angular/router";
         <div id="recap">
         <span>Vous desirez expedier:</span>
         <ul>
-             <li> un/une <strong>{{get_devis_details("form_marchandise","marchandise")}}</strong> </li>
-             <li> depuis <strong>{{get_devis_details("form_from","from")}}</strong> vers <strong>{{get_devis_details("form_to","to")}}</strong></li>
-             <li> <strong>{{get_devis_details("form_assurance","assurance")}}</strong></li>
+             <li> un/une <strong>{{devis_infos | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}</strong> </li>
+             <li> depuis <strong>{{devis_infos | GetDevisDetailsPipe:"form_from":"from"}}</strong> vers <strong>{{devis_infos | GetDevisDetailsPipe:"form_to":"to"}}</strong></li>
+             <li> <strong>{{devis_infos | GetDevisDetailsPipe:"form_assurance":"assurance"}}</strong></li>
              <li> ...voir quoi mettre d'autre</li>
                 
         </ul>
@@ -90,20 +90,27 @@ import { Router } from "@angular/router";
         </div>`
 })
 export class DevisComponent implements OnInit{
-    devis_infos: any;
-    devis_details: any;
-    pdf_file:string;
+    devis_infos: any;//les informations du devis
+    devis_details: any; // le devis genere via le xwebservice de calcul
+    pdf_file:string; // url vers le fichier pdf genere
 
 
-    has_IDB: boolean = true;
+    has_IDB: boolean = true; // pour savoir si a un acces aux base de données
 
 
     constructor( private _devis:DevisProvider,
                 private _router:Router){}
+
+
     ngOnInit(){
         //chargement des données du devis....
         this.has_IDB = this._devis.has_IDB();
         this.devis_infos = this._devis.get_devis();
+
+        //pour l'historique, remet le current_key a null 
+        //@IMPORTANT: permet, si quitte l'application ici, de ne pas sauvegarder 
+        //l'historique du formulaire!!!!
+        this._devis.deactive_historic();
 
         this._devis.load_devis_details_async().then( (res)=>{
             console.log("fin chargment du devis...");
@@ -115,6 +122,8 @@ export class DevisComponent implements OnInit{
         });
     }
 
+   
+    //@DEPRECATED: remplacé par une pipe!
     get_devis_details(form: string, id:string){
         let frm = this.devis_infos[form];
         if(frm) {
@@ -128,14 +137,14 @@ export class DevisComponent implements OnInit{
         else return ("----");
     }
 
+    /**
+     * relance un tour de formulaire avec un nouveau devis 
+     */
     create_devis(){
         //rcreation d'un nouveau devis pour le formulaire
         this._devis.create_new_devis();
         this._devis.next("","").then( (fi)=>{
             //on est parti!!!
-            console.log("informations recues");
-            console.log(fi);
-            
             this._router.navigate(["/devis",fi.group,fi.form]);
         }).catch( (err)=>{
             console.log(err);
@@ -143,6 +152,10 @@ export class DevisComponent implements OnInit{
         
     }
 
+    /**
+     * Sauvegarde le devis courant en BdD pour pouvoir le 
+     * reafficher une autre fois
+     */
     save_devis(){
         //sauvegarde dans une SGBD an local 
         this._devis.save_current_devis().then( (success)=>{

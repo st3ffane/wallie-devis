@@ -24,7 +24,7 @@ import {FormGroup} from "@angular/forms";
             <label [attr.for]="question.id">{{question.title}}</label>
             
             <input  [formControlName]="question.id"
-                    [id]="question.id" type="text" [(ngModel)]="question.value"
+                    [id]="question.id" type="text" [(ngModel)]="question.__value"
                     class='form-control form-control-lg' required>
                     
         </div>
@@ -34,7 +34,7 @@ import {FormGroup} from "@angular/forms";
         <div *ngSwitchCase="'number'" class="form-group">
             <label>{{question.title}}</label>
             <input  [formControlName]="question.id"
-                    [id]="question.id" type="number" [(ngModel)]="question.value"
+                    [id]="question.id" type="number" [(ngModel)]="question.__value"
                     class='form-control form-control-lg'
                     required
                     >
@@ -45,7 +45,7 @@ import {FormGroup} from "@angular/forms";
         <div *ngSwitchCase="'email'" class="form-group">
             <label [attr.for]="question.id">{{question.title}}</label>
             <input  [formControlName]="question.id"
-                    [id]="question.id" type="email" [(ngModel)]="question.value"
+                    [id]="question.id" type="email" [(ngModel)]="question.__value"
                     class='form-control form-control-lg'
                     required
                     >
@@ -57,7 +57,7 @@ import {FormGroup} from "@angular/forms";
         <div *ngSwitchCase="'textarea'" class="form-group">
             <label [attr.for]="question.id">{{question.title}}</label>
             <textarea [formControlName]="question.id"
-                    [id]="question.id" [(ngModel)]="question.value"
+                    [id]="question.id" [(ngModel)]="question.__value"
                     class='form-control form-control-lg' required
                     ></textarea>
         </div>
@@ -66,7 +66,7 @@ import {FormGroup} from "@angular/forms";
 
         <div *ngSwitchCase="'select'" class="form-group">
             <label [attr.for]="question.id">{{question.title}}</label>
-            <select [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.value" 
+            <select [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
              class="form-control" required>
                 <option *ngFor="let opt of question.options" [value]="opt.value">{{opt.label}}</option>
             </select>
@@ -85,7 +85,7 @@ import {FormGroup} from "@angular/forms";
                       <label class="form-check-label"> 
                         <input  [formControlName]="question.id"                        
                          type="radio" 
-                         [(ngModel)]="question.value"
+                         [(ngModel)]="question.__value"
                          [value]="it.value"
                          required
                             class="form-check-input">
@@ -115,7 +115,7 @@ import {FormGroup} from "@angular/forms";
                       <label class="form-check-label" *ngFor="let opt of it.options">              
                         <input [formControlName]="question.id"                        
                          type="radio" 
-                         [(ngModel)]="question.value"
+                         [(ngModel)]="question.__value"
                          [value]="opt.value"
                          required
                             class="form-check-input">

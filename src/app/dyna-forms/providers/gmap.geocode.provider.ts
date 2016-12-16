@@ -9,6 +9,10 @@ const ENDPOINT = "https://maps.googleapis.com/maps/api/geocode/json?";
 // https://maps.googleapis.com/maps/api/geocode/json?latlng=43.6866578,-1.3520870999999999&result_type=locality&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 //https://maps.googleapis.com/maps/api/geocode/json?address=Landes&components=administrative_area_level_2&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 //https://maps.googleapis.com/maps/api/geocode/json?address=40180&components=postal_code&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
+
+/**
+ * Un simple provider pour me mapper les appels aux service geocode de google 
+ */
 @Injectable()
 export class GmapGeocodeProvider {
 
@@ -20,6 +24,12 @@ export class GmapGeocodeProvider {
     /**
      * Recupere, a partir des informations de latitude et longitude, les informations
      * sur la position du client (ie: nom du departement, zipcode,....)
+     * @param latitude, longitude: les coordonnées GPS de l'utilisateur 
+     * 
+     * @return les informations sur sa position {lat, long, name, zipcode, country}
+     * 
+     * NOTE: met en cache pour les appels suivant
+     * 
      */
     get_departement_from_coords_async(latitude:number, longitude: number ){
 
@@ -30,10 +40,10 @@ export class GmapGeocodeProvider {
         return this._http.get(url)
         .toPromise()
         .then ( (rep:any)=>{
-            console.log(rep);
+            // console.log(rep);
             rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                console.log("des reponses");
+                // console.log("des reponses");
                 let address = rep.results[0].address_components;//la plus precise
 
                 this.cached_position = {
@@ -54,10 +64,15 @@ export class GmapGeocodeProvider {
     /**
      * permet, a partir d'un numero de departement, de recuperer les informations de position 
      * du client (ie: latitude, longitude, pays...)
+     * 
+     * @param zipcode: le code postal a rechercher
+     * 
+     * @return les informations sur sa position {lat, long, name, zipcode, country}
+     * 
      */
     get_coords_from_departement_async(zipCode: string){
         if(this.cached_position && zipCode == this.cached_position.zipcode) return Promise.resolve(this.cached_position);
-        console.log("Recherche coords a partir du departement...");
+        // console.log("Recherche coords a partir du departement...");
 
         let url = ENDPOINT + "address="+zipCode+"&components=postal_code&key="+GMAP_KEY;
         return this._http.get(url)
@@ -65,13 +80,13 @@ export class GmapGeocodeProvider {
         .then ( (rep:any)=>{
              rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                console.log("des reponses");
+                // console.log("des reponses");
                 let address = rep.results[0].address_components;//la plus precise
                 let geo = rep.results[0].geometry.location;
 
                  this.cached_position = {
                      "lat":geo.lat,
-                     "long": geo.long,
+                     "long": geo.lng,
                     "name":this.get_type("administrative_area_level_2", address),
                     "zipcode":this.get_type("postal_code", address),
                     "country":this.get_type("postal_code", address)
