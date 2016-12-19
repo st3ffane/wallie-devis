@@ -1,16 +1,19 @@
 <div class="form-container">
+  <div *ngIf="loading" class="loading">Loading&#8230;</div>
     <h2 class="row text-center app_title">Calculateur de devis</h2>
-    <div *ngIf="error">
+    <div class="logo">&nbsp;</div>
+    <div *ngIf="error" class="error">
       <span>Oups, nous avons eu un probleme de chargement des informations....</span>
+      <span>{{error}}</span>
+      
       <a routerLink="/">Retour a l'acceuil</a>
     </div>
 
-    <div *ngIf="infos">
+    <div *ngIf="infos" class="container-fluid">
             <!-- test only, cree un formulaire a partir des infos passées par le js 
             voir a mettre en forme les données.... -->
-            <div class="formulaire">
-                <dynamic-form [formulaire]="infos" (submit)="next()"></dynamic-form>
-            <div>
+            <dynamic-form [formulaire]="infos" (submit)="next()"></dynamic-form>
+            
            
     </div>
     

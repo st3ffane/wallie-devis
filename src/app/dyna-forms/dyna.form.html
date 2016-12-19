@@ -3,16 +3,16 @@
         {{error}}
     </div>
     <form #devisForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="form">
-        <div class="row">
-            <h1 class="panel-heading">{{formulaire.title}}</h1>
-            <h2>{{formulaire.description}}</h2>
+        <div class="row panel-heading">
+            <div class="title">{{formulaire.title}}</div>
+            <p>{{formulaire.description}}</p>
         </div>
         <div class="center-block">
             <div *ngFor='let field of formulaire.fields' class='form-row' class="row options-group">
             <df-question [question]="field" [form]="form"></df-question>
             </div>
         </div>
-        <div class="next_step">
+        <div class="row next_step">
             <button class="btn btn-primary wide" type="submit" [disabled]="devisForm.form?.valid == false">Next</button>
         </div>
     </form>

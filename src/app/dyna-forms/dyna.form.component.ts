@@ -19,8 +19,8 @@ import {DevisProvider} from "../providers/devis.provider";
 @Component({
     //moduleId: module.id,
     selector: 'dynamic-form',
-    templateUrl:"dyna.form.html",
-    styleUrls:["dyna.form.scss"]
+    templateUrl:"./dyna.form.html",
+    styleUrls:["./dyna.form.scss"]
 })
 export class DynamicFormComponent implements OnInit{
     @Input() formulaire:DynaForm; //les questions du formulaire a afficher
@@ -77,6 +77,9 @@ export class DynamicFormComponent implements OnInit{
 
         //questions a ete modifié, met a jour le formulaire...
         let group:any = {};
+        let first: string = this.formulaire.fields? this.formulaire.fields[0].id : null;
+
+
         for (let question of this.formulaire.fields) {
 
             //decouple les données de traitement (ie value) des données de binding (ie __value)
@@ -92,11 +95,16 @@ export class DynamicFormComponent implements OnInit{
             if (group[key] === undefined)  {
                 //cree un nouveau control pour cette clé 
                 //si a des contraintes, ajoute les 
-                group[key] = new FormControl(question.value || '', this.get_validators_for_field(question));
+                let ctrl = new FormControl(question.value || '', this.get_validators_for_field(question));
+                group[key] = ctrl;
             }
             //sinon, groupe existe deja....
         }
         this.form = new FormGroup(group);//renvoie le groupe d'infos
+        //met le focus sur le premier input 
+        if(first && this.form.controls){
+            this.form.controls[first].enable();
+        }
     }
 
     /**

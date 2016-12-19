@@ -17,7 +17,7 @@ export class GetDevisDetailsPipe implements PipeTransform {
         if(frm) {
             //recherche le field
             for(let field of frm.fields){
-                if(name == field.id) return field.value;
+                if(name == field.id) return field.value || "-- --";
             }
             
             

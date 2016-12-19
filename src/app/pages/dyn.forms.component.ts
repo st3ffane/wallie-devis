@@ -1,6 +1,6 @@
 
 
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core';
 import { DevisProvider} from "../providers/devis.provider";
 
 
@@ -10,26 +10,27 @@ import { Router, ActivatedRoute, Params, NavigationEnd } from '@angular/router';
 @Component({
   selector: 'devis-main',
   templateUrl:"dyn.forms.html",
-  styles: [`
-.container{
-    width: 100%;
-}
-.formulaire{
-    width: 80%;
-    max-width: 700px;
-    min-width: 400px;
-    margin: 0 auto;
+  styleUrls:["dyn.forms.scss"]
+//   styles: [`
+// .container{
+//     width: 100%;
+// }
+// .formulaire{
+//     width: 80%;
+//     max-width: 700px;
+//     min-width: 400px;
+//     margin: 0 auto;
 
-    min-height: 90vh;
-    position: relative;
-}
-.app_title{
-    text-align:center;
-}
-.form-check{
-    display: flex;
-}
-  `]
+//     min-height: 90vh;
+//     position: relative;
+// }
+// .app_title{
+//     text-align:center;
+// }
+// .form-check{
+//     display: flex;
+// }
+//   `]
 
 
 
@@ -39,6 +40,9 @@ export class DynFormsComponent implements OnInit{
   infos:any = undefined; //la description du formulaire a afficher
   //devis:any = null;
   error:string;
+  loading:boolean = true;
+
+  
 
  //IMPORTANT
   group:string;//le groupe du formulaire (global, voitures,...)
@@ -48,7 +52,8 @@ export class DynFormsComponent implements OnInit{
   
   constructor(private _devis:DevisProvider,
             private route: ActivatedRoute,
-            private _router:Router){}
+            private _router:Router,
+            private _ref:ElementRef){}
 
 
   //indique si le changement a ete validé  @DEPRECATED
@@ -95,20 +100,31 @@ export class DynFormsComponent implements OnInit{
    * 
    */
   make_form_from_url(){
+    this.loading = true;
+
 
     //recupere les parametres de l'URL
     this.group = this.route.snapshot.params['group']; //recup imediatement les données  
     this.form = this.route.snapshot.params['form']; //recup imediatement les données
      
-    console.log("RELOAD to page "+this.group+","+this.form);
+    // console.log("RELOAD to page "+this.group+","+this.form);
     //demande au providers la description de ce formulaire 
     this._devis.get_form_descriptor(this.group, this.form).then( (fi) =>{
+        
+        if(fi) {
+          this.infos = fi;//affichage
+        this._ref.nativeElement.scrollIntoView();
+      }
 
-        if(fi) this.infos = fi;//affichage
+        
+        this.loading = false;
 
     }).catch( (err)=>{
       //erreur de chargement des données du formulaire, voir quoi faire...
       console.log(err);
+      this.loading = false;
+      this.error = err;
+      this.infos = null;
     });
     
   }
@@ -126,17 +142,17 @@ export class DynFormsComponent implements OnInit{
 
     
 
-
+    this.loading = true;
     this._devis.next(this.group,this.form).then( (fi)=>{
             //on est parti!!!
-            console.log("ici");
-            console.log(fi);
+            this.loading = false;
            if(fi) return  this._router.navigate(["/devis",fi.group,fi.form]);
            return this._router.navigate(["/generated"]); //resultat a afficher
 
         }).catch( (err)=>{
-          console.log("une erreur de navigation");
-            console.log(err);
+          this.loading = false;
+         this.error = err;
+      this.infos = null;
         })
 
 

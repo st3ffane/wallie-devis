@@ -61,10 +61,11 @@ export class DevisProvider {
     addToHistoric(group, form, url, datas?:any){
         //verifie si n'a pas deja ce nom de formulaire qqpart 
         
-        
+       
         let index = 0;
         let founded = false;
         for(let h of this._form_historic) {
+            
             if(h["form"] == form){
                 founded = true;
                 break;
@@ -75,7 +76,9 @@ export class DevisProvider {
         //si a qqchose
         if( founded){
             //supprime du tableau 
-            this._form_historic.slice(0,index);
+            
+            this._form_historic = this._form_historic.slice(0,index);
+            
         }
         //ajoute a l'historique
         if(datas) this._form_historic.push({"group":group,"form":form, "url":url,"datas":datas});
@@ -187,19 +190,19 @@ export class DevisProvider {
     next(group?:string,form?:string){
 
         
-        let key = group+"/"+form;
-        //let url =ENDPOINT + this.create_url(group, form);//verifie l'url que doit afficher (depend des données)
-        let fi = this.devis_infos[form];
+        // let key = group+"/"+form;//form actuel !!!!
+        // //let url =ENDPOINT + this.create_url(group, form);//verifie l'url que doit afficher (depend des données)
+        // let fi = this.devis_infos[form];
 
-        //si deja connu MAIS pas forcement valide....                                 <== A VOIR !!!!!
-        if(key && this.devis_infos[key] && this.devis_infos[key]["key"]){
-        //if(this.is_form_valid(fi,group,url)){
-            //formulaire deja chargé, redirige vers la page voulue
-            return Promise.resolve({"group":group,"form":form});//renvoie la route a suivre
-        } else {
+        // //si deja connu MAIS pas forcement valide....                                 <== A VOIR !!!!!
+        // if(key && this.devis_infos[key] && this.devis_infos[key]["key"]){
+        // //if(this.is_form_valid(fi,group,url)){
+        //     //formulaire deja chargé, redirige vers la page voulue
+        //     return Promise.resolve({"group":group,"form":form});//renvoie la route a suivre
+        // } else {
             //doit charger la description du formulaire 
             return this.load_next_page_url_async(group,form);
-        }
+        // }
 
         
         
@@ -225,21 +228,42 @@ export class DevisProvider {
             
             let fi = null;
             //recherche dans les formulaires deja chargés...
-            if(this.devis_infos[key]){
+            //probleme, peuvent etre du cache....
+            if(this.devis_infos[key] && this.devis_infos[key]["key"]){
                     
                     fi = this.devis_infos[key];
                     //if(fi["key"]){
-                   
-                    if(this.is_form_valid(fi,group)){
+                //    console.log("veridie si datas valides")
+                    if(group == 'global'){
+
+                        // console.log("form valide, repopulate")
                          //sauvegarde l'URL dans l'history 
                         window.history.replaceState(fi['url'],'a title');//ajoute juste l'url demandé au state....
                         this.last_visited_url_LS = fi["url"];//...et dans le LS
                         // console.log(fi);
+                        //verifie si datas valide: normalement, rien a faire????
+                        
+                            // console.log("form global ou connue, repopulate")
+
+                            // //meme url et parametres, accepte le cache
+                            // let cache = fi.fields;
+                            // let total = fi.fields.length; 
+                            // for (let i=0;i<total;i++){
+                            //     fi.fields[i]['value'] = cache[i]['value'] || '';//enregistre le cache
+
+                            //     let debug = fi.fields[i];
+                            //     // console.log(debug.id+":"+debug.value);
+                            // }
+                        
+                        // console.log(fi);
                         //for (let field of fi.fields) field.value = undefined;//remet a null au cas ou les données ne soient pas coherentes
-                        this.current_key = fi.key; //la clé du formulaire courant
-                        return Promise.resolve(fi);//renvoie le formulaire 
+                        
+
+                    } else {
 
                     }
+                    this.current_key = fi.key; //la clé du formulaire courant
+                        return Promise.resolve(fi);//renvoie le formulaire 
                     
             }
 
@@ -324,31 +348,40 @@ export class DevisProvider {
 
             //la clé complete du formulaire
             this.current_key = fi.key;
-
+            // console.log(this.current_key);
             let form_name:string  = this.current_key.split("/")[1];//just le nom
+            let group = this.current_key.split("/")[0];
+
+
+            console.log(form_name)
             fi["url"]  =  url; //sauvegarde l'url du formulaire demandé en cas de retour via l'historique de navigation du
             //navigateur
-            // console.log("verifie validité formulaire");
+            console.log("verifie validité formulaire");
             //populate datas a partir du cache de données...
             if(this.devis_infos[form_name]){
 
                 if (group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    // console.log("form global ou connue, repopulate")
-
+                    console.log("form global ou connue, repopulate")
+                    
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
-                    let total = fi.fields.length; 
-                    for (let i=0;i<total;i++){
-                        fi.fields[i]['value'] = cache[i]['value'] || '';//enregistre le cache
+                     console.log(cache);
+                     if(cache){
+                         let total = fi.fields.length; 
+                        for (let i=0;i<total;i++){
+                            fi.fields[i]['value'] = cache[i]['value'] || '';//enregistre le cache
 
-                        let debug = fi.fields[i];
-                        // console.log(debug.id+":"+debug.value);
-                    }
+                            let debug = fi.fields[i];
+                            console.log(debug.id+":"+debug.value);
+                        }
+                     }
+                    
                 }
                 
             }
+            // console.log(form_name);
             this.devis_infos[form_name] = fi;//enregistre avec la clé/nom du formulaire 
-            
+            // console.log(fi);
             //NOTE: pas besoin de mettre les infos dans l'history ou le LS:
             //soit elles y sont deja (vient avec BACK/PREC ou chargement du LS)
             //soit la methode est appellée avant le changement d'URL (dyn.forms.component.next()) 
@@ -582,16 +615,25 @@ export class DevisProvider {
             //tranforme les données du formulaire en quelquechose de plus digeste pour sauvegarde locale 
 
             //si current_key!=null, alors enregistre l'historique de navigation dans les formulaires
+            //force le formulaire courant comme dernier element de l'historique...
             if (this.current_key){
-                // console.log(this.current_key);
+                console.log("sauvegarde historique");
+                console.log(this.current_key);
                 let key = this.current_key.split('/');
                 let form = key[1];
+                let group = key[0];
+
+
                 //dans un formulaire, indique le dans l'historique 
                 let last_frm = this.devis_infos[key[1]];
-                
-                let dt = this.compact_form_datas(last_frm);//les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
+                let dt = null;
+                if(group == "global")dt = this.compact_datas(last_frm);//global, garde les données
+                else  dt = this.compact_form_datas(last_frm);//les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
 
-                this.addToHistoric(key[0],key[1],last_frm["url"], dt);//probleme: pas les données du formulaire courant....
+                this.addToHistoric(key[0],key[1],last_frm["url"], dt);
+                console.log("historique:");
+                console.log(this._form_historic);
+
                 window.localStorage.setItem('historic',JSON.stringify(this._form_historic));//l'historique de la navigation dans les formulaires 
             }
            else {

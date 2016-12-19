@@ -12,60 +12,27 @@ import {FormGroup, FormControl, Validators} from "@angular/forms";
  */
 @Component({
     selector:'df-arbo-question',
-    template: `
-              <fieldset  class="form-group" [formGroup]="form" >
-                  <div class="form-check" *ngFor="let it of options.options">  
-                    <!-- si une simple checkbox -->                    
-                      <label *ngIf="it.value" class="form-check-label" > 
-                      
-                        <input  [formControlName]="question.id"                        
-                         type="radio" 
-                         [(ngModel)]="question.__value"
-                         (change)="clear_groups()"
-                         [value]="it.value"
-                         [attr.name]="question.id"
-                            class="form-check-input"
-                            required
-                            >
-                        {{it.label}}</label>    
-
-                    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????-->
-                    <fieldset *ngIf="it.options" class="form-group" >
-                   
-                        <label >
-                        <input type="radio" [formControlName]="groupName" 
-                        [attr.name]="groupName"
-                        [(ngModel)]="groupValue"
-                        (change)="annul()" 
-                         [value]="it.label"
-                        #trigger
-                        >{{it.label}}</label>
-                        <span>{{trigger.checked}}</span>
-                        <df-arbo-question [question]="question" [groupName]="it.label" [options]="it" [form]="form" 
-                            [class.inert]="!trigger.checked"></df-arbo-question>
-                        
-                    </fieldset>         
-
-
-                  </div>
-              </fieldset>
-           
-    `
-    ,styles:[
-        `.label>input{
-            font-size: 1.1em;
-        }
-        .inert{
-            pointer-events:none;
-            color: #E3E3E3;
-        }`
+    templateUrl:"./dyna.arbo.html",
+    styleUrls:[
+        "./dyna.arbo.scss"
     ]
+    // ,styles:[
+    //     `.label>input{
+    //         font-size: 1.1em;
+    //     }
+    //     .inert{
+    //         pointer-events:none;
+    //         color: #E3E3E3;
+    //     }`
+    // ]
 })
 export class DynaArborescenceComponent{
     @Input()options:any; //les options pour mon groupe
     @Input()question:any;//la question a binder
     @Input() form:FormGroup;//le formulaire (pour validation par angular)
     @Input() groupName:string;//le nom du 'sous-groupe' auquel appartiennent les radios de ce niveau
+    @Input() ctrlActive:boolean;
+
     
     groupValue:string = "";//le binding pour les groupes de ce niveau
     

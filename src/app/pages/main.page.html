@@ -1,18 +1,26 @@
-<div class="row">
-    <h1 class="row text-center">Bienvenue dans l'application de generation de devis</h1>
-    <p class="row text-center">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>
+<div>
+    <div *ngIf="loading" class="loading">Loading&#8230;</div>
+    <h1 class="text-center">Bienvenue dans l'application de generation de devis EXPEDOM.com</h1>
+    <p class="text-center">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>
 
-    <div *ngIf="reload">
-    <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>
-    <button (click)="reload_devis()">Reprendre</button>
+    <div *ngIf='reload' class="overlay" [class.open]="reload">
+        <div >
+            <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>
+            <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}
+                    </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:"form_from":"from"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:"form_to":"to"}}</span></p>
+            <button class="btn btn-primary" (click)="reload_devis()">Reprendre mon ancien devis</button>
+            
+            <button class="btn btn-primary" (click)="annul_reload()">Non merci!</button>
+           
+        </div>
     </div>
-    <button class="btn btn-primary" (click)="create_devis()">Commencer</button>
+    <button class="btn btn-primary" (click)="create_devis()">Commencer un nouveau devis.</button>
 
-    <div *ngIf="saved_devis.length > 0">
+    <div class="old" *ngIf="saved_devis.length > 0">
         <h3>Vos anciens devis sauvegardés:</h3>
         <ul>
             <li *ngFor="let saved of saved_devis" >
-                <span>{{saved.date | date:mediumDate}}</span> <a  (click)="to_generated( saved )">Export de <span>{{saved | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}
+                <a  (click)="to_generated( saved )"><span>{{saved.date | date:mediumDate}}</span> Export de <span>{{saved | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}
                     </span> depuis: <span>{{saved | GetDevisDetailsPipe:"form_from":"from"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:"form_to":"to"}}</span>
                 </a>
             </li>

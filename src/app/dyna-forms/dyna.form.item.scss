@@ -1,0 +1,32 @@
+@import "./material/text.input";
+@import "./material/check";
+
+
+.text-center{
+  text-align: center;
+}
+.text-left{
+  text-align:left;
+  margin-bottom: 10px;
+  display:inline-block;
+  
+        margin: 20px  0;
+}
+
+.field{
+  margin-bottom: 40px;
+}
+
+.alert{
+  color: red;
+  position:relative;
+  top: -1em;
+  padding: 0;
+  ul{
+    list-style: none;
+  }
+}
+
+.schrink{
+    padding:0 8%;
+}

@@ -1,0 +1,235 @@
+@import "./colors";
+
+.choice-cmp{
+    
+    label{
+
+        display: block;
+        font-weight: 700;
+        font-size: 1.1em;
+        span{
+            display: inline-block;
+            width: 80%;
+            cursor: pointer;
+
+            
+        }
+        &+span{
+            small{
+                padding-left: 80px;
+                padding-right: 40px;
+                display: block;
+            }
+        }
+    }
+    
+}
+.inline{
+    
+        display: flex;
+        flex-wrap: wrap;
+        &>*{
+            flex-grow:1;
+            align-content: center;
+            align-items: center;
+            align-self: center;
+            width: 40%;
+            border: none;
+            &:nth-child(odd){
+                 border-right: 1px dashed #3E3E3E;
+            }
+           
+
+            &:last-child{
+                border-right: none;
+                // flex-grow:0;
+                // width: 50%;
+            }
+            &.check-container{
+                text-align:center;
+            }
+
+            @media screen and (max-width:700px){
+                width: 80%;
+                &:nth-child(odd){
+                    border-right: none;
+                }
+            }
+        }
+        span{
+            width: 60%!important;
+            @media screen and (max-width:700px){
+                width: 80%!important;
+            }
+        }
+    
+}
+
+$check-width:30px;
+.check-container {
+    
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  position: relative;
+  top: 13.33333px;
+  width: 40px;
+  height: 40px;
+  -webkit-transition: all 0.15s ease-out 0;
+  -moz-transition: all 0.15s ease-out 0;
+  transition: all 0.15s ease-out 0;
+  background: $color;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  outline: none;
+  position: relative;
+  margin-right: 0.5rem;
+  z-index: 1000;
+
+  margin-left: 40px;
+   &::before{
+       outline: none;
+          width: 40px;
+            height: 40px;
+            position: absolute;
+            content: '\2713';
+            display: inline-block;
+            font-size: 26.66667px;
+            text-align: center;
+            line-height: 40px;
+
+            
+
+      }
+  
+  &:focus{
+      outline: none;
+  }
+  &.group{
+      &::before{
+           content: '+';
+      }
+
+      
+  }
+ 
+  &.group:checked::before{
+          content:'-';
+          
+      }
+  
+  &:hover{
+      background: $hover_color;
+  }
+  &:checked{
+      background: $focus_color;
+      
+      &::before{
+          width: 40px;
+            height: 40px;
+            position: absolute;
+            content: '\2713';
+            display: inline-block;
+            font-size: 26.66667px;
+            text-align: center;
+            line-height: 40px;
+            color:#FFF;
+      }
+      &::after{
+           -webkit-animation: click-wave 0.5s;
+            -moz-animation: click-wave 0.5s;
+            animation: click-wave 0.5s;
+            background: $focus_color;
+            content: '';
+            display: block;
+            position: relative;
+            z-index: 100;
+      }
+  }
+
+  &.radio{
+      border-radius: 50%;
+      &::after{
+          border-radius: 50%;
+      }
+  }
+  &.check{
+      border-radius: 5%;
+      &::after{
+          border-radius: 5%;
+      }
+  }
+
+}
+
+
+
+/* animation type ripple */
+@-webkit-keyframes 
+click-wave { 0% {
+ width: 40px;
+ height: 40px;
+ opacity: 0.35;
+ position: relative;
+}
+ 100% {
+ width: 100px;
+ height: 100px;
+ margin-left: -30px;
+ margin-top: -30px;
+ opacity: 0.0;
+}
+}
+
+@-moz-keyframes 
+click-wave { 0% {
+ width: 40px;
+ height: 40px;
+ opacity: 0.35;
+ position: relative;
+}
+ 100% {
+ width: 100px;
+ height: 100px;
+ margin-left: -30px;
+ margin-top: -30px;
+ opacity: 0.0;
+}
+}
+
+@-o-keyframes 
+click-wave { 0% {
+ width: 40px;
+ height: 40px;
+ opacity: 0.35;
+ position: relative;
+}
+ 100% {
+ width: 100px;
+ height: 100px;
+ margin-left: -30px;
+ margin-top: -30px;
+ opacity: 0.0;
+}
+}
+
+@keyframes 
+click-wave { 0% {
+ width: 40px;
+ height: 40px;
+ opacity: 0.35;
+ position: relative;
+}
+ 100% {
+ width: 100px;
+ height: 100px;
+ margin-left: -30px;
+ margin-top: -30px;
+ opacity: 0.0;
+}
+}
+

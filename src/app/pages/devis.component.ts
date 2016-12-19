@@ -94,6 +94,7 @@ export class DevisComponent implements OnInit{
     devis_details: any; // le devis genere via le xwebservice de calcul
     pdf_file:string; // url vers le fichier pdf genere
 
+    loading:boolean = true;
 
     has_IDB: boolean = true; // pour savoir si a un acces aux base de données
 
@@ -111,14 +112,16 @@ export class DevisComponent implements OnInit{
         //@IMPORTANT: permet, si quitte l'application ici, de ne pas sauvegarder 
         //l'historique du formulaire!!!!
         this._devis.deactive_historic();
-
+        this.loading = true;
         this._devis.load_devis_details_async().then( (res)=>{
             console.log("fin chargment du devis...");
+            this.loading = false;
             this.devis_details = res.calculated_data;
             this.pdf_file = res.pdf_file;
 
         }).catch( (err) => {
             console.log(err);
+            this.loading = false;
         });
     }
 
@@ -158,9 +161,12 @@ export class DevisComponent implements OnInit{
      */
     save_devis(){
         //sauvegarde dans une SGBD an local 
+        this.loading = true;
         this._devis.save_current_devis().then( (success)=>{
+            this.loading = false;
             console.log("sauvegarde OK!!!");
         }).catch( (err)=>{
+            this.loading = false;
             console.log(err);
         })
 

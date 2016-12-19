@@ -42,6 +42,9 @@ export class MainPageComponent{
     
 
     reload = false;//un simple semaphore pour me dire si a des données en memoire
+    __reloaded: any = null;
+
+    loading:boolean = false;
 
     saved_devis = [];//les informations de devis chargés en BdD
 
@@ -56,7 +59,9 @@ export class MainPageComponent{
 
         //verifie si a un cache en memoire, si oui, propose de retourner en place 
         this.reload = Object.keys(this._devis._form_historic).length >0;
+        this.__reloaded = this._devis.get_devis();//normalement a ete chargé depuis le localstorage....
 
+        
 
         //charge les devis sauvegardés precedement (tous?)
         this._devis.get_all_saved_devis().then( (devis)=>{
@@ -75,12 +80,13 @@ export class MainPageComponent{
      */
     create_devis(){
         //rcreation d'un nouveau devis pour le formulaire
+        this.loading = true;
         this._devis.create_new_devis();
         this._devis.next("","").then( (fi)=>{
             //on est parti!!!
             // console.log("informations recues");
             // console.log(fi);
-            
+            this.loading = false;
             this._router.navigate(["/devis",fi.group,fi.form]);
         }).catch( (err)=>{
             console.log(err);
@@ -102,6 +108,10 @@ export class MainPageComponent{
         this._router.navigate(["/devis",fi.group,fi.form]);
        
         
+    }
+
+    annul_reload(){
+        this.reload = false;
     }
 
     /**

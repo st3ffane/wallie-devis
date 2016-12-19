@@ -42,6 +42,8 @@ import {GMAP_KEY} from "./gmap.key";
 
 import {GetDevisDetailsPipe} from "./pipes/get.devis.details.pipe";
 
+//bootstrap 
+//import { ButtonsModule } from 'ng2-bootstrap/ng2-bootstrap';
 //normalement, je devrais definir un fichier special pour ca, mais vu qu'il y a pas
 //grand chose....
 let routes = RouterModule.forRoot([
@@ -97,6 +99,7 @@ let routes = RouterModule.forRoot([
     FormsModule,
     HttpModule,
     routes,
+    //ButtonsModule,
     //DynaFormsModule
     ReactiveFormsModule,
     AgmCoreModule.forRoot({

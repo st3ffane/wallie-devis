@@ -1,5 +1,43 @@
 .form-container{
+
+    padding-bottom: 50px;
     .app_title{
         font-weight: 700;
+        margin: 20px 0;
+        font-size: 1.1em;
     }
+}
+
+.error{
+    text-align:center;
+    span{
+        font-size: 1.1em;
+        display:block;
+    }
+}
+.container{
+    width: 100%;
+}
+.formulaire{
+    margin: 0 auto;
+
+    min-height: 90vh;
+    position: relative;
+}
+.app_title{
+    text-align:center;
+    
+}
+.form-check{
+    display: flex;
+}
+
+.logo{
+    background-image: url("assets/logo-transitaire-EXPEDOM.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 80px;
+    background-position-y: -18px;
+    position: relative;
+    top: -16px;
 }

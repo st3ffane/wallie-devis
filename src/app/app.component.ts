@@ -29,6 +29,7 @@ export class AppComponent{
         this._devis.load_from_LS();
         
     }
+    
     //si l'application decide de quitter, tente de sauvegarder l'etat pour la prochaine fois
   @HostListener('window:beforeunload', [ '$event' ])
   beforeUnloadHander(event) {
