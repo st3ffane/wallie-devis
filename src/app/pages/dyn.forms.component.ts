@@ -148,6 +148,7 @@ export class DynFormsComponent implements OnInit{
             //on est parti!!!
             this.loading = false;
            if(fi) return  this._router.navigate(["/devis",fi.group,fi.form]);
+
            return this._router.navigate(["/generated"]); //resultat a afficher
 
         }).catch( (err)=>{

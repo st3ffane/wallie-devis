@@ -9,7 +9,7 @@ const ENDPOINT = "https://maps.googleapis.com/maps/api/geocode/json?";
 // https://maps.googleapis.com/maps/api/geocode/json?latlng=43.6866578,-1.3520870999999999&result_type=locality&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 //https://maps.googleapis.com/maps/api/geocode/json?address=Landes&components=administrative_area_level_2&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 //https://maps.googleapis.com/maps/api/geocode/json?address=40180&components=postal_code&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
-
+//https://maps.googleapis.com/maps/api/geocode/xml?address=Mamoudzou+YT&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 /**
  * Un simple provider pour me mapper les appels aux service geocode de google 
  */
@@ -31,9 +31,9 @@ export class GmapGeocodeProvider {
      * NOTE: met en cache pour les appels suivant
      * 
      */
-    get_departement_from_coords_async(latitude:number, longitude: number ){
+    get_departement_from_coords_async(latitude:number, longitude: number , force?:boolean){
 
-        if(this.cached_position) return Promise.resolve(this.cached_position);
+        if(force !== true && this.cached_position) return Promise.resolve(this.cached_position);
 
 
         let url = ENDPOINT + "latlng="+latitude+","+longitude+"&key="+GMAP_KEY;
@@ -47,6 +47,7 @@ export class GmapGeocodeProvider {
                 let address = rep.results[0].address_components;//la plus precise
 
                 this.cached_position = {
+                    "city": this.get_type("locality", address),
                     "lat":latitude,
                     "lng": longitude,
                     "name":this.get_type("administrative_area_level_2", address),
@@ -74,7 +75,7 @@ export class GmapGeocodeProvider {
         if(this.cached_position && zipCode == this.cached_position.zipcode) return Promise.resolve(this.cached_position);
         // console.log("Recherche coords a partir du departement...");
 
-        let url = ENDPOINT + "address="+zipCode+"&components=postal_code&key="+GMAP_KEY;
+        let url = ENDPOINT + "address="+zipCode+"&components=postal_code&region=YT&key="+GMAP_KEY;
         return this._http.get(url)
         .toPromise()
         .then ( (rep:any)=>{
@@ -96,6 +97,31 @@ export class GmapGeocodeProvider {
             } else throw ("Erreur recherche du departement");
         });
     
+    }
+
+    get_coords_from_departement_name_async(name:string, cctd:string){
+         let url = ENDPOINT + "address="+name+"+"+cctd+"&components=postal_code&region=YT&key="+GMAP_KEY;
+        return this._http.get(url)
+        .toPromise()
+        .then ( (rep:any)=>{
+             rep = JSON.parse(rep._body);
+            if(rep.status == "OK" && rep.results && rep.results.length){
+                // console.log("des reponses");
+                let address = rep.results[0].address_components;//la plus precise
+                let geo = rep.results[0].geometry.location;
+
+                 this.cached_position = {
+                     "city": this.get_type("locality", address),
+                     "lat":geo.lat,
+                     "lng": geo.lng,
+                    "name":this.get_type("administrative_area_level_2", address),
+                    "zipcode":this.get_type("postal_code", address),
+                    "country":this.get_type("country", address)
+                 }
+                return this.cached_position;//la plus precise
+                
+            } else throw ("Erreur recherche du departement");
+        });
     }
 
     //juste pour pouvoir recuperer les informations de types dans les donnéés

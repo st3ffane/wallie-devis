@@ -573,7 +573,7 @@ module.exports = function(it){
 "use strict";
 "use strict";
 var root_1 = __webpack_require__(49);
-var toSubscriber_1 = __webpack_require__(718);
+var toSubscriber_1 = __webpack_require__(720);
 var observable_1 = __webpack_require__(239);
 /**
  * A representation of any set of values over any amount of time. This the most basic building block
@@ -3074,7 +3074,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var isFunction_1 = __webpack_require__(388);
 var Subscription_1 = __webpack_require__(150);
-var Observer_1 = __webpack_require__(688);
+var Observer_1 = __webpack_require__(690);
 var rxSubscriber_1 = __webpack_require__(240);
 /**
  * Implements the {@link Observer} interface and extends the
@@ -5220,7 +5220,7 @@ function escapeRegExp(s) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_operator_concatAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_operator_concatAll__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_every__ = __webpack_require__(385);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_every___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_operator_every__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last__ = __webpack_require__(707);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last__ = __webpack_require__(709);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__ = __webpack_require__(102);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__);
@@ -7415,7 +7415,9 @@ var DevisProvider = (function () {
             .then(function (res) {
             //charge les infos depuis le serveur, par defaut, lance le premier etat de navigation
             var fi = res.json(); //les données recuperer du serveur
+            console.log(fi);
             if (fi["key"] === undefined) {
+                console.log("Affichage des resultats");
                 //redirige appli vers resultats
                 _this.current_key = null; //au cas ou...
                 return null;
@@ -7493,7 +7495,24 @@ var DevisProvider = (function () {
         });
     };
     /**
+     * Avec le probleme du cache et les formulaires qui peuvent changer en cours de route,
+     * demande avant affichage le nom des proprietes interressantes pour le calcul et
+     * affichage.
+     *
+     * Voir comment se passer de ca....
+    
+    load_requested_workflow(){
+        let url =  "/wp-admin/admin-ajax.php?action=get_workflow";
+        
+        return this._http.get(url)
+        .toPromise().then( (rep)=>{
+            return rep.json();//les données recuperer du serveur
+        });
+        
+    } */
+    /**
      * charge les informations du devis gneres via l'application
+     * @param workflow: nom des formulaires a recuperer
      * END OF WORK
      */
     DevisProvider.prototype.load_devis_details_async = function () {
@@ -7592,9 +7611,9 @@ var DevisProvider = (function () {
     //probleme, comment accede a ca depuis le module dyna-forms????
     //Ou: comment sortir le gps du module???
     DevisProvider.prototype.create_geolocation_url = function (position) {
-        var zipcode = position.zipcode.slice(0, 2); //juste le dep 
+        var zipcode = position.zipcode ? position.zipcode.slice(0, 2) : ""; //juste le dep 
         var request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code=" + zipcode
-            + "&lat=" + position.lat + "&lng=" + position.lng;
+            + "&lat=" + position.lat + "&lng=" + position.lng + "&city=" + position.city;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise=" + this.devis_infos["form_marchandise"].fields[0].value : "";
         request += this.devis_infos["form_from"] ? "&from=" + this.devis_infos["form_from"].fields[0].value : "";
@@ -7652,8 +7671,6 @@ var DevisProvider = (function () {
             //si current_key!=null, alors enregistre l'historique de navigation dans les formulaires
             //force le formulaire courant comme dernier element de l'historique...
             if (this.current_key) {
-                console.log("sauvegarde historique");
-                console.log(this.current_key);
                 var key = this.current_key.split('/');
                 var form = key[1];
                 var group = key[0];
@@ -7665,8 +7682,6 @@ var DevisProvider = (function () {
                 else
                     dt = this.compact_form_datas(last_frm); //les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
                 this.addToHistoric(key[0], key[1], last_frm["url"], dt);
-                console.log("historique:");
-                console.log(this._form_historic);
                 window.localStorage.setItem('historic', JSON.stringify(this._form_historic)); //l'historique de la navigation dans les formulaires 
             }
             else {
@@ -7703,8 +7718,17 @@ var DevisProvider = (function () {
                     "value": field["value"] || null,
                     "id": field["id"]
                 };
-                if (field["position"])
-                    obj['position'] = field["position"];
+                //certains fields utilise la geolocalisation et ont un field position a sauvegarder
+                if (field["position"]) {
+                    var pos = field["position"];
+                    obj['position'] = {
+                        'city': pos.city,
+                        'lat': pos.lat,
+                        'lng': pos.lng,
+                        'zipcode': pos.zipcode,
+                        'country': pos.country
+                    };
+                }
                 fds.push(obj);
             }
             dt[frm] = {
@@ -9474,7 +9498,7 @@ var Observable_1 = __webpack_require__(5);
 var Subscriber_1 = __webpack_require__(22);
 var Subscription_1 = __webpack_require__(150);
 var ObjectUnsubscribedError_1 = __webpack_require__(387);
-var SubjectSubscription_1 = __webpack_require__(690);
+var SubjectSubscription_1 = __webpack_require__(692);
 var rxSubscriber_1 = __webpack_require__(240);
 /**
  * @class SubjectSubscriber<T>
@@ -12741,7 +12765,7 @@ var XSRFStrategy = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_rxjs_operator_mergeAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_rxjs_operator_mergeAll__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_rxjs_operator_mergeMap__ = __webpack_require__(103);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_rxjs_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_rxjs_operator_mergeMap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce__ = __webpack_require__(709);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce__ = __webpack_require__(711);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__apply_redirects__ = __webpack_require__(490);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__config__ = __webpack_require__(491);
@@ -20723,11 +20747,11 @@ exports.OuterSubscriber = OuterSubscriber;
 "use strict";
 "use strict";
 var isArray_1 = __webpack_require__(243);
-var isObject_1 = __webpack_require__(716);
+var isObject_1 = __webpack_require__(718);
 var isFunction_1 = __webpack_require__(388);
 var tryCatch_1 = __webpack_require__(390);
 var errorObject_1 = __webpack_require__(242);
-var UnsubscriptionError_1 = __webpack_require__(715);
+var UnsubscriptionError_1 = __webpack_require__(717);
 /**
  * Represents a disposable resource, such as the execution of an Observable. A
  * Subscription has one important method, `unsubscribe`, that takes no argument
@@ -21003,7 +21027,7 @@ var isArray_1 = __webpack_require__(243);
 var isPromise_1 = __webpack_require__(389);
 var Observable_1 = __webpack_require__(5);
 var iterator_1 = __webpack_require__(238);
-var InnerSubscriber_1 = __webpack_require__(686);
+var InnerSubscriber_1 = __webpack_require__(688);
 var observable_1 = __webpack_require__(239);
 function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
     var destination = new InnerSubscriber_1.InnerSubscriber(outerSubscriber, outerValue, outerIndex);
@@ -30796,7 +30820,7 @@ module.exports = '\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u20
 
 "use strict";
 "use strict";
-var FromObservable_1 = __webpack_require__(700);
+var FromObservable_1 = __webpack_require__(702);
 exports.from = FromObservable_1.FromObservable.create;
 //# sourceMappingURL=from.js.map
 
@@ -44137,7 +44161,7 @@ function provideRouterInitializer() {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatMap__ = __webpack_require__(384);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatMap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter__ = __webpack_require__(705);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter__ = __webpack_require__(707);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_mergeAll__ = __webpack_require__(151);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_mergeAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_operator_mergeAll__);
@@ -45495,7 +45519,7 @@ var AppComponent = (function () {
     AppComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "app-root",
-            template: __webpack_require__(679),
+            template: __webpack_require__(680),
             //<a routerLink="/test">dev test</a>
             //
             styles: [__webpack_require__(672)]
@@ -45533,6 +45557,7 @@ var ENDPOINT = "https://maps.googleapis.com/maps/api/geocode/json?";
 // https://maps.googleapis.com/maps/api/geocode/json?latlng=43.6866578,-1.3520870999999999&result_type=locality&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 //https://maps.googleapis.com/maps/api/geocode/json?address=Landes&components=administrative_area_level_2&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 //https://maps.googleapis.com/maps/api/geocode/json?address=40180&components=postal_code&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
+//https://maps.googleapis.com/maps/api/geocode/xml?address=Mamoudzou+YT&key=AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038
 /**
  * Un simple provider pour me mapper les appels aux service geocode de google
  */
@@ -45551,9 +45576,9 @@ var GmapGeocodeProvider = (function () {
      * NOTE: met en cache pour les appels suivant
      *
      */
-    GmapGeocodeProvider.prototype.get_departement_from_coords_async = function (latitude, longitude) {
+    GmapGeocodeProvider.prototype.get_departement_from_coords_async = function (latitude, longitude, force) {
         var _this = this;
-        if (this.cached_position)
+        if (force !== true && this.cached_position)
             return Promise.resolve(this.cached_position);
         var url = ENDPOINT + "latlng=" + latitude + "," + longitude + "&key=" + __WEBPACK_IMPORTED_MODULE_2__gmap_key__["a" /* GMAP_KEY */];
         return this._http.get(url)
@@ -45565,6 +45590,7 @@ var GmapGeocodeProvider = (function () {
                 // console.log("des reponses");
                 var address = rep.results[0].address_components; //la plus precise
                 _this.cached_position = {
+                    "city": _this.get_type("locality", address),
                     "lat": latitude,
                     "lng": longitude,
                     "name": _this.get_type("administrative_area_level_2", address),
@@ -45591,7 +45617,7 @@ var GmapGeocodeProvider = (function () {
         if (this.cached_position && zipCode == this.cached_position.zipcode)
             return Promise.resolve(this.cached_position);
         // console.log("Recherche coords a partir du departement...");
-        var url = ENDPOINT + "address=" + zipCode + "&components=postal_code&key=" + __WEBPACK_IMPORTED_MODULE_2__gmap_key__["a" /* GMAP_KEY */];
+        var url = ENDPOINT + "address=" + zipCode + "&components=postal_code&region=YT&key=" + __WEBPACK_IMPORTED_MODULE_2__gmap_key__["a" /* GMAP_KEY */];
         return this._http.get(url)
             .toPromise()
             .then(function (rep) {
@@ -45601,6 +45627,31 @@ var GmapGeocodeProvider = (function () {
                 var address = rep.results[0].address_components; //la plus precise
                 var geo = rep.results[0].geometry.location;
                 _this.cached_position = {
+                    "lat": geo.lat,
+                    "lng": geo.lng,
+                    "name": _this.get_type("administrative_area_level_2", address),
+                    "zipcode": _this.get_type("postal_code", address),
+                    "country": _this.get_type("country", address)
+                };
+                return _this.cached_position; //la plus precise
+            }
+            else
+                throw ("Erreur recherche du departement");
+        });
+    };
+    GmapGeocodeProvider.prototype.get_coords_from_departement_name_async = function (name, cctd) {
+        var _this = this;
+        var url = ENDPOINT + "address=" + name + "+" + cctd + "&components=postal_code&region=YT&key=" + __WEBPACK_IMPORTED_MODULE_2__gmap_key__["a" /* GMAP_KEY */];
+        return this._http.get(url)
+            .toPromise()
+            .then(function (rep) {
+            rep = JSON.parse(rep._body);
+            if (rep.status == "OK" && rep.results && rep.results.length) {
+                // console.log("des reponses");
+                var address = rep.results[0].address_components; //la plus precise
+                var geo = rep.results[0].geometry.location;
+                _this.cached_position = {
+                    "city": _this.get_type("locality", address),
                     "lat": geo.lat,
                     "lng": geo.lng,
                     "name": _this.get_type("administrative_area_level_2", address),
@@ -47151,7 +47202,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var Observable_1 = __webpack_require__(5);
 var ScalarObservable_1 = __webpack_require__(382);
 var EmptyObservable_1 = __webpack_require__(380);
-var isScheduler_1 = __webpack_require__(717);
+var isScheduler_1 = __webpack_require__(719);
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @extends {Ignored}
@@ -59060,7 +59111,7 @@ function sanitizeStyle(value) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatAll__ = __webpack_require__(383);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatAll__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first__ = __webpack_require__(706);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first__ = __webpack_require__(708);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__ = __webpack_require__(102);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__);
@@ -60705,7 +60756,7 @@ var DynamicFormComponent = (function () {
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             //moduleId: module.id,
             selector: 'dynamic-form',
-            template: __webpack_require__(680),
+            template: __webpack_require__(681),
             styles: [__webpack_require__(674)]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _b) || Object])
@@ -60776,7 +60827,7 @@ var DynaFormItemComponent = (function () {
     DynaFormItemComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'df-question',
-            template: __webpack_require__(681),
+            template: __webpack_require__(682),
             styles: [__webpack_require__(673)]
         }), 
         __metadata('design:paramtypes', [])
@@ -60933,7 +60984,7 @@ var DynaArborescenceComponent = (function () {
     DynaArborescenceComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'df-arbo-question',
-            template: __webpack_require__(682),
+            template: __webpack_require__(683),
             styles: [
                 __webpack_require__(675)
             ]
@@ -60968,6 +61019,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+var CCTD = {
+    'france': 'FR',
+    'reunion': 'RE',
+    "mayotte": "YT"
+};
 /**
  * Un composant pour gerer l'affichage des informations GPS
  * pour l'application expedom
@@ -61051,6 +61107,9 @@ var GPSExpedomComponent = (function () {
     GPSExpedomComponent.prototype.ngOnInit = function () {
         //creation des elements de formulaires necessaires (angular)
         this.create_forms_elements();
+        this.question["position"] = {};
+        this.noGeo = this.question["use-geolocation"] ? this.question["use-geolocation"] : true;
+        console.log("use geo: " + this.noGeo);
         //mappe les locations a afficher sur la map
         this.remap_options();
     };
@@ -61058,6 +61117,8 @@ var GPSExpedomComponent = (function () {
         var _this = this;
         //recupere les coordonnées GPS si dispo et les informations sur les prix d'enlevement/livraison 
         //a domicile
+        if (!this.noGeo)
+            return;
         this.geolocalise().then(function (pos) {
             console.log(_this.position);
             //demande le nom du patelin 
@@ -61080,7 +61141,8 @@ var GPSExpedomComponent = (function () {
             .then(function (dt) {
             _this.position['options'] = dt;
         }).catch(function (err) {
-            _this.position = null; // = this.question.default_location;//remet a zero??? ou garde l'ancien????
+            console.log("Error geolocalisation");
+            _this.position = {}; // = this.question.default_location;//remet a zero??? ou garde l'ancien????
             _this.is_localising = false;
         });
     };
@@ -61093,12 +61155,14 @@ var GPSExpedomComponent = (function () {
         // console.log("recherche localisation...");
         // console.log("zipcode:"+zipcode);
         this.is_localising = true;
-        this._gmap.get_coords_from_departement_async(zipcode).then(function (rep) {
+        var cnt = CCTD[this.question.default_location.country] || "FR";
+        //this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
+        this._gmap.get_coords_from_departement_name_async(zipcode, cnt).then(function (rep) {
             // VERIFIE SI PAYS OK
             console.log(rep);
             console.log(_this.question.default_location);
             //VERIFIE SI LE PAYS EST BON.....
-            if (rep["country"].toUpperCase() != _this.question.default_location.country.toUpperCase()) {
+            if (rep["country"] && rep["country"].toUpperCase() != _this.question.default_location.country.toUpperCase()) {
                 throw "not in place!";
             }
             // console.log(rep);
@@ -61120,7 +61184,7 @@ var GPSExpedomComponent = (function () {
             .then(function (dt) {
             _this.position['options'] = dt;
         }).catch(function (err) {
-            //  console.log("hello, une couille");
+            console.log("hello, une couille");
             console.log(err);
             //this.position = {};//remet a zero??? ou garde l'ancien????
             _this.is_localising = false;
@@ -61209,6 +61273,34 @@ var GPSExpedomComponent = (function () {
         this.filtered_options = options;
         return;
     };
+    GPSExpedomComponent.prototype.positionne_marker = function (evt) {
+        var _this = this;
+        this.position = evt.coords;
+        console.log(this.position);
+        this._gmap.get_departement_from_coords_async(this.position.lat, this.position.lng, true).then(function (rep) {
+            console.log(rep);
+            // console.log(this.question.default_location);
+            //VERIFIE SI LE PAYS EST BON.....
+            if (rep["country"].toUpperCase() != _this.question.default_location.country.toUpperCase()) {
+                throw "not in place!";
+            }
+            _this.position = rep;
+            _this.question["position"] = _this.position;
+            // console.log("add position to question");
+            // console.log(this.question);
+            _this.is_localising = false;
+            return _this._devis.load_domicile_prices(_this.position);
+            // return true;
+        })
+            .then(function (dt) {
+            _this.position['options'] = dt;
+        }).catch(function (err) {
+            console.log("Error geolocalisation");
+            _this.position = {}; // = this.question.default_location;//remet a zero??? ou garde l'ancien????
+            _this.is_localising = false;
+        });
+        //recupere les infos de livraisons?
+    };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
         __metadata('design:type', Object)
@@ -61221,7 +61313,7 @@ var GPSExpedomComponent = (function () {
     GPSExpedomComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "dyna-gps",
-            template: __webpack_require__(683),
+            template: __webpack_require__(684),
             styles: [__webpack_require__(676)]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__providers_gmap_geocode_provider__["a" /* GmapGeocodeProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__providers_gmap_geocode_provider__["a" /* GmapGeocodeProvider */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_3__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _c) || Object])
@@ -61404,6 +61496,7 @@ var DevisComponent = (function () {
         this._router = _router;
         this.loading = true;
         this.has_IDB = true; // pour savoir si a un acces aux base de données
+        this.requested_keys = [];
     }
     DevisComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -61415,7 +61508,12 @@ var DevisComponent = (function () {
         //l'historique du formulaire!!!!
         this._devis.deactive_historic();
         this.loading = true;
-        this._devis.load_devis_details_async().then(function (res) {
+        // this._devis.load_requested_workflow().then ( (workflow:Array<string>)=>{
+        //     this.requested_keys = workflow.map( (elem)=> elem.split('/')[1]); //les clés voulues
+        //     return this._devis.load_devis_details_async(this.requested_keys);
+        // })
+        this._devis.load_devis_details_async() //this.requested_keys)
+            .then(function (res) {
             console.log("fin chargment du devis...");
             _this.loading = false;
             _this.devis_details = res.calculated_data;
@@ -61472,7 +61570,8 @@ var DevisComponent = (function () {
     DevisComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "devis-result",
-            template: "<div>\n        <h1>Calculateur de devis EXPEDOM</h1>\n        \n        <div id=\"recap\">\n        <span>Vous desirez expedier:</span>\n        <ul>\n             <li> un/une <strong>{{devis_infos | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}</strong> </li>\n             <li> depuis <strong>{{devis_infos | GetDevisDetailsPipe:\"form_from\":\"from\"}}</strong> vers <strong>{{devis_infos | GetDevisDetailsPipe:\"form_to\":\"to\"}}</strong></li>\n             <li> <strong>{{devis_infos | GetDevisDetailsPipe:\"form_assurance\":\"assurance\"}}</strong></li>\n             <li> ...voir quoi mettre d'autre</li>\n                \n        </ul>\n        </div>\n        <div id=\"results\" *ngIf=\"devis_details\">\n        <h3>Votre estimation: </h3>\n        <a [href]='pdf_file'>Telecharger le devis en pdf</a>\n        <ul>\n            <li>Valeur de la marchandise:<strong>{{devis_details.V}}</strong></li>\n            <li>valeur taxable sur marchandise:<strong>{{devis_details.CAF}}</strong></li>\n            <li>Taxe sur marchandise:<strong>{{devis_details.TSM}}</strong></li>\n            <li>&nbsp;</li>\n            <li>Assurance:<strong>{{devis_details.A}}</strong>\u20AC</li>\n             <li>&nbsp;</li>\n            <li>Port de depart:<strong>{{devis_details.PORT_DE_DEPART}}</strong></li>\n            <li>Prix du transport (port \u00E0 port)<strong>{{devis_details.P}}</strong></li>\n            <li>Prise en charge <strong>{{devis_details.PC}}</strong></li>\n            <li>Livraison \u00E0 domicile <strong>{{devis_details.PT}}</strong></li>\n             <li>&nbsp;</li>\n            <li>taux de TVA:<strong>{{devis_details.TVA}}</strong>%</li>\n            <li>valeur TVA:<strong>{{devis_details.TVA_VALUE}}</strong>\u20AC</li>\n            <li>taux TVA sur prestation:<strong>{{devis_details.TVA_RU}}</strong>%</li>\n            <li>valeur TVA sur prestation:<strong>{{devis_details.TVA_RU_VALUE}}</strong>\u20AC</li>\n            <li>Total taxes locales:<strong>{{devis_details.TOTAL_REUNION}}</strong></li>\n            <li>Taxes avant dedoienement:<strong>{{devis_details.TAXES}}</strong></li>\n            <li>Dedoienement:<strong>{{devis_details.FR}}</strong></li>\n             <li>&nbsp;</li>\n              <li>&nbsp;</li>\n\n            <li>Total\u00E0 payer:<strong>{{devis_details.TOTAL_A_PAYER}}</strong>\u20AC</li>\n            \n        </ul>\n        <a [href]='pdf_file'>Telecharger le devis en pdf</a>\n        </div>\n        <div id=\"actions\">\n            <button *ngIf=\"has_IDB && devis_infos.date==null\" class=\"btn btn-primary wide\" (click)=\"save_devis()\">Sauvegarder le devis</button>\n             <button class=\"btn btn-primary wide\" >Effefctuer la reservation maintenant!</button>\n            <button class=\"btn btn-primary wide\" (click)=\"create_devis()\">Nouveau devis</button>\n        </div>\n        </div>"
+            template: __webpack_require__(685),
+            styles: [__webpack_require__(677)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _b) || Object])
     ], DevisComponent);
@@ -61604,8 +61703,8 @@ var DynFormsComponent = (function () {
     DynFormsComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'devis-main',
-            template: __webpack_require__(684),
-            styles: [__webpack_require__(677)]
+            template: __webpack_require__(686),
+            styles: [__webpack_require__(678)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["c" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["c" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _d) || Object])
     ], DynFormsComponent);
@@ -61764,8 +61863,8 @@ var MainPageComponent = (function () {
     MainPageComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "hello-cmp",
-            template: __webpack_require__(685),
-            styles: [__webpack_require__(678)]
+            template: __webpack_require__(687),
+            styles: [__webpack_require__(679)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _b) || Object])
     ], MainPageComponent);
@@ -61823,19 +61922,19 @@ var GetDevisDetailsPipe = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw__ = __webpack_require__(691);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw__ = __webpack_require__(693);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch__ = __webpack_require__(692);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch__ = __webpack_require__(694);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__ = __webpack_require__(693);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__ = __webpack_require__(695);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged__ = __webpack_require__(694);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged__ = __webpack_require__(696);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__ = __webpack_require__(695);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__ = __webpack_require__(697);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap__ = __webpack_require__(696);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap__ = __webpack_require__(698);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise__ = __webpack_require__(697);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise__ = __webpack_require__(699);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise__);
 // import 'rxjs/Rx'; // adds ALL RxJS statics & operators to Observable
 
@@ -61897,7 +61996,7 @@ var environment = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__ = __webpack_require__(533);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__ = __webpack_require__(720);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__ = __webpack_require__(722);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__);
 
 
@@ -64943,64 +65042,76 @@ module.exports = ".choice-cmp label {\n  display: block;\n  font-weight: 700;\n 
 /* 676 */
 /***/ function(module, exports) {
 
-module.exports = "/*input text */\n.form-group {\n  margin-bottom: 20px; }\n\n.input-container {\n  display: inline-block;\n  position: relative;\n  margin-top: 16px;\n  width: 100%; }\n  .input-container input[type=text],\n  .input-container input[type=password],\n  .input-container input[type=search],\n  .input-container input[type=number],\n  .input-container input[type=email],\n  .input-container select,\n  .input-container textarea {\n    position: relative;\n    vertical-align: baseline;\n    font-size: 1em;\n    border-color: #aaa;\n    -webkit-box-ordinal-group: 3;\n    -webkit-order: 2;\n    -webkit-box-shadow: none;\n    box-shadow: none;\n    order: 2;\n    display: block;\n    margin-top: 0;\n    background: none;\n    padding: 2px 2px 1px;\n    border-width: 0 0 2px;\n    line-height: 26px;\n    /*height: 1.05em;*/\n    -ms-flex-preferred-size: 26px;\n    border-radius: 0;\n    border-style: solid;\n    box-sizing: border-box;\n    z-index: 1;\n    width: 100%; }\n    .input-container input[type=text] + label,\n    .input-container input[type=password] + label,\n    .input-container input[type=search] + label,\n    .input-container input[type=number] + label,\n    .input-container input[type=email] + label,\n    .input-container select + label,\n    .input-container textarea + label {\n      position: absolute;\n      bottom: 0;\n      z-index: 0;\n      transition: all 0.3s ease; }\n    .input-container input[type=text].full + label,\n    .input-container input[type=password].full + label,\n    .input-container input[type=search].full + label,\n    .input-container input[type=number].full + label,\n    .input-container input[type=email].full + label,\n    .input-container select.full + label,\n    .input-container textarea.full + label {\n      bottom: 1em;\n      font-size: 16px; }\n    .input-container input[type=text].ng-valid, .input-container input[type=text]:focus,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=password]:focus,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=search]:focus,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=number]:focus,\n    .input-container input[type=email].ng-valid,\n    .input-container input[type=email]:focus,\n    .input-container select.ng-valid,\n    .input-container select:focus,\n    .input-container textarea.ng-valid,\n    .input-container textarea:focus {\n      outline: 0;\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label, .input-container input[type=text]:focus + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=password]:focus + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=search]:focus + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=number]:focus + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container input[type=email]:focus + label,\n      .input-container select.ng-valid + label,\n      .input-container select:focus + label,\n      .input-container textarea.ng-valid + label,\n      .input-container textarea:focus + label {\n        color: #f19300;\n        text-shadow: 1px 1px #bd7501;\n        bottom: 1.2em;\n        font-size: 16px; }\n    .input-container input[type=text].ng-valid,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=email].ng-valid,\n    .input-container select.ng-valid,\n    .input-container textarea.ng-valid {\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container select.ng-valid + label,\n      .input-container textarea.ng-valid + label {\n        color: #f19300; }\n    .input-container input[type=text]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=password]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=search]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=number]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=email]:not(.ng-untouched).ng-invalid,\n    .input-container select:not(.ng-untouched).ng-invalid,\n    .input-container textarea:not(.ng-untouched).ng-invalid {\n      border-color: #E31111; }\n      .input-container input[type=text]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=password]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=search]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=number]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=email]:not(.ng-untouched).ng-invalid + label,\n      .input-container select:not(.ng-untouched).ng-invalid + label,\n      .input-container textarea:not(.ng-untouched).ng-invalid + label {\n        color: #E31111; }\n  .input-container select {\n    font-size: 1em; }\n  .input-container textarea {\n    height: 3em; }\n    .input-container textarea.full + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n    .input-container textarea.ng-valid + label, .input-container textarea:focus + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n\n.border {\n  padding: 2px;\n  box-shadow: 1px 1px 4px 2px rgba(31, 31, 31, 0.2);\n  border: 1px solid #E3E3E3; }\n\n.tabs {\n  position: relative;\n  min-height: 200px;\n  /* This part sucks */\n  clear: both;\n  margin: 25px 0; }\n\n.tab {\n  float: left; }\n\n.tab label {\n  padding: 10px;\n  margin-left: -1px;\n  position: relative;\n  left: 1px;\n  cursor: pointer;\n  min-width: 200px;\n  font-size: 1em;\n  text-transform: uppercase;\n  text-align: center; }\n\n.tab [type=radio] {\n  display: none; }\n\n.content {\n  position: absolute;\n  top: 45px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 20px; }\n\n[type=radio]:checked ~ span {\n  border-bottom: 2px solid #f19300;\n  width: 100%;\n  display: block;\n  padding-bottom: 10px; }\n\n[type=radio]:checked ~ label ~ .content {\n  z-index: 1; }\n\n.sebm-google-map-container {\n  height: 600px; }\n\nsebm-google-map-info-window > div {\n  display: flex; }\n\n.inline-form {\n  margin-top: 10px;\n  display: flex; }\n  .inline-form div {\n    flex-grow: 1; }\n    .inline-form div button {\n      max-width: 200px !important; }\n"
+module.exports = "/*input text */\n.form-group {\n  margin-bottom: 20px; }\n\n.input-container {\n  display: inline-block;\n  position: relative;\n  margin-top: 16px;\n  width: 100%; }\n  .input-container input[type=text],\n  .input-container input[type=password],\n  .input-container input[type=search],\n  .input-container input[type=number],\n  .input-container input[type=email],\n  .input-container select,\n  .input-container textarea {\n    position: relative;\n    vertical-align: baseline;\n    font-size: 1em;\n    border-color: #aaa;\n    -webkit-box-ordinal-group: 3;\n    -webkit-order: 2;\n    -webkit-box-shadow: none;\n    box-shadow: none;\n    order: 2;\n    display: block;\n    margin-top: 0;\n    background: none;\n    padding: 2px 2px 1px;\n    border-width: 0 0 2px;\n    line-height: 26px;\n    /*height: 1.05em;*/\n    -ms-flex-preferred-size: 26px;\n    border-radius: 0;\n    border-style: solid;\n    box-sizing: border-box;\n    z-index: 1;\n    width: 100%; }\n    .input-container input[type=text] + label,\n    .input-container input[type=password] + label,\n    .input-container input[type=search] + label,\n    .input-container input[type=number] + label,\n    .input-container input[type=email] + label,\n    .input-container select + label,\n    .input-container textarea + label {\n      position: absolute;\n      bottom: 0;\n      z-index: 0;\n      transition: all 0.3s ease; }\n    .input-container input[type=text].full + label,\n    .input-container input[type=password].full + label,\n    .input-container input[type=search].full + label,\n    .input-container input[type=number].full + label,\n    .input-container input[type=email].full + label,\n    .input-container select.full + label,\n    .input-container textarea.full + label {\n      bottom: 1em;\n      font-size: 16px; }\n    .input-container input[type=text].ng-valid, .input-container input[type=text]:focus,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=password]:focus,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=search]:focus,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=number]:focus,\n    .input-container input[type=email].ng-valid,\n    .input-container input[type=email]:focus,\n    .input-container select.ng-valid,\n    .input-container select:focus,\n    .input-container textarea.ng-valid,\n    .input-container textarea:focus {\n      outline: 0;\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label, .input-container input[type=text]:focus + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=password]:focus + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=search]:focus + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=number]:focus + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container input[type=email]:focus + label,\n      .input-container select.ng-valid + label,\n      .input-container select:focus + label,\n      .input-container textarea.ng-valid + label,\n      .input-container textarea:focus + label {\n        color: #f19300;\n        text-shadow: 1px 1px #bd7501;\n        bottom: 1.2em;\n        font-size: 16px; }\n    .input-container input[type=text].ng-valid,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=email].ng-valid,\n    .input-container select.ng-valid,\n    .input-container textarea.ng-valid {\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container select.ng-valid + label,\n      .input-container textarea.ng-valid + label {\n        color: #f19300; }\n    .input-container input[type=text]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=password]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=search]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=number]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=email]:not(.ng-untouched).ng-invalid,\n    .input-container select:not(.ng-untouched).ng-invalid,\n    .input-container textarea:not(.ng-untouched).ng-invalid {\n      border-color: #E31111; }\n      .input-container input[type=text]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=password]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=search]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=number]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=email]:not(.ng-untouched).ng-invalid + label,\n      .input-container select:not(.ng-untouched).ng-invalid + label,\n      .input-container textarea:not(.ng-untouched).ng-invalid + label {\n        color: #E31111; }\n  .input-container select {\n    font-size: 1em; }\n  .input-container textarea {\n    height: 3em; }\n    .input-container textarea.full + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n    .input-container textarea.ng-valid + label, .input-container textarea:focus + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n\n.border {\n  padding: 2px;\n  box-shadow: 1px 1px 4px 2px rgba(31, 31, 31, 0.2);\n  border: 1px solid #E3E3E3; }\n\n.tabs {\n  position: relative;\n  min-height: 200px;\n  /* This part sucks */\n  clear: both;\n  margin: 25px 0; }\n\n.tab {\n  float: left; }\n\n.tab label {\n  padding: 10px;\n  margin-left: -1px;\n  position: relative;\n  left: 1px;\n  cursor: pointer;\n  min-width: 200px;\n  font-size: 1em;\n  text-transform: uppercase;\n  text-align: center; }\n\n.tab [type=radio] {\n  display: none; }\n\n.content {\n  position: absolute;\n  top: 45px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 20px; }\n\n[type=radio]:checked ~ span {\n  border-bottom: 2px solid #f19300;\n  width: 100%;\n  display: block;\n  padding-bottom: 10px; }\n\n[type=radio]:checked ~ label ~ .content {\n  z-index: 1; }\n\n.sebm-google-map-container {\n  height: 600px; }\n\nsebm-google-map-info-window > div {\n  display: flex; }\n\n.inline-form {\n  margin-top: 10px;\n  display: flex; }\n  .inline-form div {\n    flex-grow: 1; }\n    .inline-form div button {\n      max-width: 200px !important; }\n\n.infos fieldset {\n  display: flex;\n  flex-direction: column; }\n  .infos fieldset label {\n    flex-grow: 1;\n    width: 100%; }\n    .infos fieldset label input {\n      display: none; }\n      .infos fieldset label input:checked + span {\n        background-color: #f19300;\n        border: none !important; }\n      .infos fieldset label input:checked + .btn-primary:hover {\n        background-color: #f19300 !important;\n        box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n    .infos fieldset label span {\n      display: block;\n      width: 100%; }\n"
 
 /***/ },
 /* 677 */
 /***/ function(module, exports) {
 
-module.exports = ".form-container {\n  padding-bottom: 50px; }\n  .form-container .app_title {\n    font-weight: 700;\n    margin: 20px 0;\n    font-size: 1.1em; }\n\n.error {\n  text-align: center; }\n  .error span {\n    font-size: 1.1em;\n    display: block; }\n\n.container {\n  width: 100%; }\n\n.formulaire {\n  margin: 0 auto;\n  min-height: 90vh;\n  position: relative; }\n\n.app_title {\n  text-align: center; }\n\n.form-check {\n  display: flex; }\n\n.logo {\n  background-image: url(\"/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png\");\n  background-position: center;\n  background-repeat: no-repeat;\n  height: 80px;\n  background-position-y: -18px;\n  position: relative;\n  top: -16px; }\n"
+module.exports = ""
 
 /***/ },
 /* 678 */
 /***/ function(module, exports) {
 
-module.exports = ".text-center {\n  text-align: center; }\n\nbutton {\n  width: 100%; }\n\n.overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  background: rgba(0, 0, 0, 0.7);\n  transition: opacity 50ms;\n  visibility: hidden;\n  opacity: 0; }\n  .overlay p span {\n    font-weight: 700;\n    text-transform: uppercase; }\n  .overlay button {\n    margin-bottom: 10px; }\n  .overlay.open {\n    opacity: 1;\n    z-index: 9999;\n    margin: 70px auto;\n    padding: 20px;\n    background: #fff;\n    border-radius: 5px;\n    min-width: 200px;\n    width: 30%;\n    visibility: visible;\n    transition: all 5s ease-in-out;\n    border: 1px solid #E3E3E3;\n    box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n    @media screen and (max-width: 700px) {\n      .overlay.open {\n        width: 80%; } }\n\n.old {\n  margin-top: 20px; }\n  .old ul {\n    list-style: none; }\n    .old ul li a {\n      text-decoration: underline;\n      color: #0275d8;\n      cursor: pointer; }\n      .old ul li a:hover {\n        color: #025aa5; }\n      .old ul li a span {\n        font-weight: 700;\n        text-transform: uppercase; }\n"
+module.exports = ".form-container {\n  padding-bottom: 50px; }\n  .form-container .app_title {\n    font-weight: 700;\n    margin: 20px 0;\n    font-size: 1.1em; }\n\n.error {\n  text-align: center; }\n  .error span {\n    font-size: 1.1em;\n    display: block; }\n\n.container {\n  width: 100%; }\n\n.formulaire {\n  margin: 0 auto;\n  min-height: 90vh;\n  position: relative; }\n\n.app_title {\n  text-align: center; }\n\n.form-check {\n  display: flex; }\n\n.logo {\n  background-image: url(\"/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png\");\n  background-position: center;\n  background-repeat: no-repeat;\n  height: 80px;\n  background-position-y: -18px;\n  position: relative;\n  top: -16px; }\n"
 
 /***/ },
 /* 679 */
 /***/ function(module, exports) {
 
-module.exports = "\n<div class=\"container-fluid app-container\">\n    <router-outlet></router-outlet>    \n</div>"
+module.exports = ".text-center {\n  text-align: center; }\n\nbutton {\n  width: 100%; }\n\n.overlay {\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  background: rgba(0, 0, 0, 0.7);\n  transition: opacity 50ms;\n  visibility: hidden;\n  opacity: 0; }\n  .overlay p span {\n    font-weight: 700;\n    text-transform: uppercase; }\n  .overlay button {\n    margin-bottom: 10px; }\n  .overlay.open {\n    opacity: 1;\n    z-index: 9999;\n    margin: 70px auto;\n    padding: 20px;\n    background: #fff;\n    border-radius: 5px;\n    min-width: 200px;\n    width: 30%;\n    visibility: visible;\n    transition: all 5s ease-in-out;\n    border: 1px solid #E3E3E3;\n    box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n    @media screen and (max-width: 700px) {\n      .overlay.open {\n        width: 80%; } }\n\n.old {\n  margin-top: 20px; }\n  .old ul {\n    list-style: none; }\n    .old ul li a {\n      text-decoration: underline;\n      color: #0275d8;\n      cursor: pointer; }\n      .old ul li a:hover {\n        color: #025aa5; }\n      .old ul li a span {\n        font-weight: 700;\n        text-transform: uppercase; }\n"
 
 /***/ },
 /* 680 */
 /***/ function(module, exports) {
 
-module.exports = "<div>\r\n    <div *ngIf=\"error\">\r\n        {{error}}\r\n    </div>\r\n    <form #devisForm=\"ngForm\" (ngSubmit)=\"onSubmit()\" [formGroup]=\"form\">\r\n        <div class=\"row panel-heading\">\r\n            <div class=\"title\">{{formulaire.title}}</div>\r\n            <p>{{formulaire.description}}</p>\r\n        </div>\r\n        <div class=\"center-block\">\r\n            <div *ngFor='let field of formulaire.fields' class='form-row' class=\"row options-group\">\r\n            <df-question [question]=\"field\" [form]=\"form\"></df-question>\r\n            </div>\r\n        </div>\r\n        <div class=\"row next_step\">\r\n            <button class=\"btn btn-primary wide\" type=\"submit\" [disabled]=\"devisForm.form?.valid == false\">Next</button>\r\n        </div>\r\n    </form>\r\n</div>"
+module.exports = "\n<div class=\"container-fluid app-container\">\n    <router-outlet></router-outlet>    \n</div>"
 
 /***/ },
 /* 681 */
 /***/ function(module, exports) {
 
-module.exports = "<div [formGroup]=\"form\" class=\"field\">\r\n      <div [ngSwitch]=\"question.type\">\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'text'\" class=\"form-group\">\r\n        \r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <input  [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                     -->\r\n        <div class=\"schrink\">\r\n            <div class=\"input-container\">\r\n                <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" \r\n                    [(ngModel)]=\"question.__value\"\r\n                    >\r\n                <label>{{question.title}}</label>        \r\n            </div>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n        </div>\r\n                    \r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'number'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                    <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"number\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        >\r\n                    <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'email'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                    <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"email\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        >\r\n                    <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n\r\n            \r\n        </div>\r\n\r\n\r\n        <div *ngSwitchCase=\"'textarea'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <textarea #texted [formControlName]=\"question.id\" [ngClass]=\"{'full':texted.value != ''}\"\r\n                        [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                         \r\n                         height=\"3em\"\r\n                        ></textarea>\r\n                <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <textarea [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                    ></textarea-->\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'select'\" class=\"form-group\">\r\n            <div class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <select #texted [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n                       [ngClass]=\"{'full':texted.value != ''}\" required>\r\n                            <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n                    </select>\r\n                <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <select [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n             class=\"form-control\" required>\r\n                <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n            </select-->\r\n        </div>\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        \r\n        <div *ngSwitchCase=\"'radio'\" class=\"text-center\">\r\n              \r\n                  <h3 class=\"row text-center\">{{question.title}}</h3>\r\n                  <p class=\"row\">{{question.description}}</p>\r\n                  <div class=\"choice-cmp inline\"><!-- [class.inline]=\"question.options.length<3\"-->\r\n                    <div class=\"text-left\"  *ngFor=\"let it of question.options\">                        \r\n                        <label> \r\n                            <input   [formControlName]=\"question.id\"                        \r\n                            type=\"radio\" \r\n                            [(ngModel)]=\"question.__value\"\r\n                            [value]=\"it.value\"\r\n                            required\r\n                            class=\" check-container radio\"\r\n                            >\r\n                            <span>{{it.label}}</span></label>    \r\n                            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n                    </div>    \r\n                    \r\n                </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n         <div *ngSwitchCase=\"'checkbox'\" class=\"choice-cmp\">\r\n                                                    \r\n                      <label > \r\n                        <input  [formControlName]=\"question.id\"                        \r\n                         type=\"checkbox\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"question.selected\"\r\n                         \r\n                         class=\"check-container check\"\r\n                    >{{question.title}}</label>    \r\n                    <span><small>{{question.description}}</small></span>\r\n                 \r\n            \r\n        </div>\r\n\r\n        <div *ngSwitchCase=\"'arbo-radio'\">\r\n                <df-arbo-question [question]=\"question\" [groupName]=\"'trigger'\" [options]=\"question\" [form]=\"form\" [ctrlActive]=\"true\"></df-arbo-question>            \r\n        </div>\r\n\r\n        <div *ngSwitchCase=\"'gps'\">\r\n            <dyna-gps [question]=\"question\" [form]=\"form\"></dyna-gps>\r\n        </div>\r\n\r\n\r\n\r\n        <div class=\"row options-group\" *ngSwitchCase=\"'category-radio'\">\r\n              \r\n            <div class=\"form-check\" *ngFor=\"let it of question.options\">\r\n                \r\n                  <h3 class=\"panel-heading\">{{it.label}}</h3>\r\n                      <label class=\"form-check-label\" *ngFor=\"let opt of it.options\">              \r\n                        <input [formControlName]=\"question.id\"                        \r\n                         type=\"radio\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"opt.value\"\r\n                         required\r\n                            class=\"form-check-input\">\r\n                        {{opt.label}}</label>    \r\n                                     \r\n            </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n      </div>\r\n      <div *ngIf=\"isValid\"  class=\"alert\">\r\n        <ul>\r\n            <li *ngIf=\"error.required\">\r\n            Ce champs doit obligatoirement etre renseigné!\r\n            </li>\r\n            <li *ngIf=\"error.minlength\">\r\n            Ce champs doit faire plus de <span>{{error.minlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.maxlength\">\r\n            Ce champs doit faire moins de <span>{{error.maxlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.pattern\">\r\n            Le contenu de ce champs n'est pas valide!\r\n            </li>\r\n\r\n            <li *ngIf=\"error.email\">\r\n            Merci d'indiquer une adresse mail valide.\r\n            </li>\r\n\r\n            <li *ngIf=\"error.min\">\r\n            Vous devez renseigner un nombre superieur à <span>{{error.min.requiredValue}}</span>.\r\n            </li>\r\n             <li *ngIf=\"error.max\">\r\n            Vous devez renseigner un nombre inferieur à <span>{{error.max.requiredValue}}</span>.\r\n            </li>\r\n        </ul>\r\n      </div>\r\n    \r\n        \r\n    </div>"
+module.exports = "<div>\r\n    <div *ngIf=\"error\">\r\n        {{error}}\r\n    </div>\r\n    <form #devisForm=\"ngForm\" (ngSubmit)=\"onSubmit()\" [formGroup]=\"form\">\r\n        <div class=\"row panel-heading\">\r\n            <div class=\"title\">{{formulaire.title}}</div>\r\n            <p>{{formulaire.description}}</p>\r\n        </div>\r\n        <div class=\"center-block\">\r\n            <div *ngFor='let field of formulaire.fields' class='form-row' class=\"row options-group\">\r\n            <df-question [question]=\"field\" [form]=\"form\"></df-question>\r\n            </div>\r\n        </div>\r\n        <div class=\"row next_step\">\r\n            <button class=\"btn btn-primary wide\" type=\"submit\" [disabled]=\"devisForm.form?.valid == false\">Next</button>\r\n        </div>\r\n    </form>\r\n</div>"
 
 /***/ },
 /* 682 */
 /***/ function(module, exports) {
 
-module.exports = " <fieldset  class=\"text-center \" [formGroup]=\"form\" ><!--[class.left]='groupName'-->\r\n    <div class=\"choice-cmp  hideIfInactive\" [class.revealIfActive]=\"ctrlActive\">\r\n    <div  class=\"text-left elems\" *ngFor=\"let it of options.options\">  \r\n    <!-- si une simple checkbox -->   \r\n                     \r\n                        \r\n                      \r\n                    \r\n    <div *ngIf=\"it.value\" >                      \r\n        <label > \r\n        \r\n            <input   [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            required\r\n            class=\" check-container radio\"\r\n            >\r\n            <span>{{it.label}}</span></label>\r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span> \r\n        <!--input  [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            class=\"form-check-input\"\r\n            required\r\n            >\r\n        {{it.label}}</label-->    \r\n    </div>\r\n    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????-->\r\n    <fieldset *ngIf=\"it.options\" class=\"form-group\" >\r\n    \r\n        <label class=\"sous-options\">\r\n            <input   [formControlName]=\"groupName\" \r\n            type=\"radio\" \r\n            [attr.name]=\"groupName\"\r\n            [(ngModel)]=\"groupValue\"\r\n            (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n            #triggerer\r\n            class=\" check-container radio group\"\r\n            ><span>{{it.label}}</span></label> \r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n        <!--input type=\"radio\" [formControlName]=\"groupName\" \r\n        [attr.name]=\"groupName\"\r\n        [(ngModel)]=\"groupValue\"\r\n        (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n        #trigger\r\n        >{{it.label}}</label>\r\n        <span>{{trigger.checked}}</span-->\r\n        <df-arbo-question [question]=\"question\" [groupName]=\"it.label\" [options]=\"it\" [form]=\"form\" \r\n            [ctrlActive]=\"triggerer.checked\"></df-arbo-question>\r\n        \r\n    </fieldset>         \r\n\r\n\r\n    </div>\r\n    </div>\r\n</fieldset>"
+module.exports = "<div [formGroup]=\"form\" class=\"field\">\r\n      <div [ngSwitch]=\"question.type\">\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'text'\" class=\"form-group\">\r\n        \r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <input  [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                     -->\r\n        <div class=\"schrink\">\r\n            <div class=\"input-container\">\r\n                <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" \r\n                    [(ngModel)]=\"question.__value\"\r\n                    >\r\n                <label>{{question.title}}</label>        \r\n            </div>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n        </div>\r\n                    \r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'number'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                    <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"number\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        >\r\n                    <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'email'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                    <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"email\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        >\r\n                    <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n\r\n            \r\n        </div>\r\n\r\n\r\n        <div *ngSwitchCase=\"'textarea'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <textarea #texted [formControlName]=\"question.id\" [ngClass]=\"{'full':texted.value != ''}\"\r\n                        [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                         \r\n                         height=\"3em\"\r\n                        ></textarea>\r\n                <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <textarea [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                    ></textarea-->\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'select'\" class=\"form-group\">\r\n            <div class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <select #texted [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n                       [ngClass]=\"{'full':texted.value != ''}\" required>\r\n                            <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n                    </select>\r\n                <label>{{question.title}}</label>        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <select [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n             class=\"form-control\" required>\r\n                <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n            </select-->\r\n        </div>\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        \r\n        <div *ngSwitchCase=\"'radio'\" class=\"text-center\">\r\n              \r\n                  <h3 class=\"row text-center\">{{question.title}}</h3>\r\n                  <p class=\"row\">{{question.description}}</p>\r\n                  <div class=\"choice-cmp inline\"><!-- [class.inline]=\"question.options.length<3\"-->\r\n                    <div class=\"text-left\"  *ngFor=\"let it of question.options\">                        \r\n                        <label> \r\n                            <input   [formControlName]=\"question.id\"                        \r\n                            type=\"radio\" \r\n                            [(ngModel)]=\"question.__value\"\r\n                            [value]=\"it.value\"\r\n                            required\r\n                            class=\" check-container radio\"\r\n                            >\r\n                            <span>{{it.label}}</span></label>    \r\n                            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n                    </div>    \r\n                    \r\n                </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n         <div *ngSwitchCase=\"'checkbox'\" class=\"choice-cmp\">\r\n                                                    \r\n                      <label > \r\n                        <input  [formControlName]=\"question.id\"                        \r\n                         type=\"checkbox\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"question.selected\"\r\n                         \r\n                         class=\"check-container check\"\r\n                    >{{question.title}}</label>    \r\n                    <span><small>{{question.description}}</small></span>\r\n                 \r\n            \r\n        </div>\r\n\r\n        <div *ngSwitchCase=\"'arbo-radio'\">\r\n                <df-arbo-question [question]=\"question\" [groupName]=\"'trigger'\" [options]=\"question\" [form]=\"form\" [ctrlActive]=\"true\"></df-arbo-question>            \r\n        </div>\r\n\r\n        <div *ngSwitchCase=\"'gps'\">\r\n            <dyna-gps [question]=\"question\" [form]=\"form\"></dyna-gps>\r\n        </div>\r\n\r\n\r\n\r\n        <div class=\"row options-group\" *ngSwitchCase=\"'category-radio'\">\r\n              \r\n            <div class=\"form-check\" *ngFor=\"let it of question.options\">\r\n                \r\n                  <h3 class=\"panel-heading\">{{it.label}}</h3>\r\n                      <label class=\"form-check-label\" *ngFor=\"let opt of it.options\">              \r\n                        <input [formControlName]=\"question.id\"                        \r\n                         type=\"radio\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"opt.value\"\r\n                         required\r\n                            class=\"form-check-input\">\r\n                        {{opt.label}}</label>    \r\n                                     \r\n            </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n      </div>\r\n      <div *ngIf=\"isValid\"  class=\"alert\">\r\n        <ul>\r\n            <li *ngIf=\"error.required\">\r\n            Ce champs doit obligatoirement etre renseigné!\r\n            </li>\r\n            <li *ngIf=\"error.minlength\">\r\n            Ce champs doit faire plus de <span>{{error.minlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.maxlength\">\r\n            Ce champs doit faire moins de <span>{{error.maxlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.pattern\">\r\n            Le contenu de ce champs n'est pas valide!\r\n            </li>\r\n\r\n            <li *ngIf=\"error.email\">\r\n            Merci d'indiquer une adresse mail valide.\r\n            </li>\r\n\r\n            <li *ngIf=\"error.min\">\r\n            Vous devez renseigner un nombre superieur à <span>{{error.min.requiredValue}}</span>.\r\n            </li>\r\n             <li *ngIf=\"error.max\">\r\n            Vous devez renseigner un nombre inferieur à <span>{{error.max.requiredValue}}</span>.\r\n            </li>\r\n        </ul>\r\n      </div>\r\n    \r\n        \r\n    </div>"
 
 /***/ },
 /* 683 */
 /***/ function(module, exports) {
 
-module.exports = "<div [formGroup]=\"form\" class=\"border\">\r\n\r\n\r\n        \r\n                    \r\n\r\n\r\n            <!-- affichage des tabs pour les choix -->\r\n           \r\n        <div class=\"tabs\">\r\n            <div class=\"tab\" *ngFor=\"let qfilter of question.options\">\r\n\r\n               \r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    [value]=\"qfilter.label\"                \r\n                    #trigger>\r\n                <span>{{qfilter.label}}</span></label>\r\n               \r\n                \r\n                \r\n\r\n                <div class=\"content\" *ngIf=\"qfilter.locations && trigger.checked\">\r\n                     <p>{{qfilter.description}}</p>\r\n                      <div class=\"schrink\">\r\n                        <div class=\"input-container\">\r\n                            <input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"\r\n                                >\r\n                            <label>{{question.title}}</label>        \r\n                        </div>\r\n                       \r\n                    </div>\r\n\r\n\r\n                    <!--input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"-->\r\n                    <datalist id=\"choices\">\r\n                        <option *ngFor=\"let l of filtered_datalist\" [value]=\"l\">\r\n                    </datalist>\r\n                </div>\r\n            </div>\r\n            <!-- dernier choix, le domicile -->\r\n            <div class=\"tab\">\r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    value=\"domicile\"                \r\n                    #trigger><span>Domicile</span></label>\r\n                \r\n\r\n\r\n                <div class=\"content\" *ngIf=\"trigger.checked\">\r\n                    <p>Je recupere a domicile</p>\r\n                    <div *ngIf=\"!position\">\r\n                        <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>\r\n                    </div>\r\n                    <div *ngIf=\"position\">\r\n                        \r\n                                <span *ngIf=\"!position.zipcode\">\r\n                                    <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre numero de département</p>\r\n                                </span>\r\n                                <span *ngIf=\"position.zipcode\">Vous avez été géolocalisé: <strong>{{position.name+\"(\"+position.zipcode+\")\"}}</strong></span>\r\n                                \r\n                            \r\n                        \r\n                    </div>\r\n                        <div class=\"inline-form\">\r\n                           \r\n                                <div class=\"input-container\">\r\n                                    <input type=\"text\" value=\"Un autre departement\" #zipcode [value]=\"srch_zipcode || '' \">\r\n                                    <label>Entrez le code du département (ex: 75000)</label>        \r\n                                </div>\r\n                        \r\n                        \r\n                        <div>\r\n                                <button type=\"button\" class='btn btn-primary' (click)=\"localise_from_zipcode(zipcode.value)\">Localisation</button>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n       \r\n\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        <sebm-google-map [latitude]=\"question?.default_location.lat\" [longitude]=\"question?.default_location.lng\"\r\n            [zoom]=\"question?.default_location.zoom || 6\">\r\n            <div *ngFor=\"let opt of filtered_options\">\r\n\r\n                   \r\n\r\n\r\n            \r\n                <!-- les ports et les depots -->\r\n                <div *ngIf=\"filter!='domicile'\">\r\n                    <sebm-google-map-marker  *ngFor=\"let m of opt.locations\"\r\n                        [latitude]=\"m?.lat\" [longitude]=\"m?.lng\" \r\n                        [iconUrl]=\"opt.label | toIconUrl\">\r\n\r\n                        <!-- si une seule reponse, affiche directement l'infos window???  -->\r\n                        <sebm-google-map-info-window [isOpen]=\"opt.locations.length == 1\">\r\n                            <div class=\"infos\">\r\n                                <strong>{{m?.label}}</strong>\r\n                                <p>{{m?.description}}</p>\r\n                                <fieldset>\r\n                                    <label  *ngFor=\"let price of m?.options\">\r\n                                        <input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required>{{price.description}}\r\n                                    </label>\r\n                                </fieldset>\r\n                            </div>\r\n                        </sebm-google-map-info-window>   \r\n\r\n                    </sebm-google-map-marker>\r\n                </div>\r\n\r\n                \r\n                </div>\r\n             <div  *ngIf=\"filter=='domicile' && position && position.zipcode\">\r\n                        \r\n                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->\r\n                        <sebm-google-map-marker  [latitude]=\"position?.lat\" [longitude]=\"position?.lng\"\r\n                        [iconUrl]=\"'domicile' | toIconUrl\">\r\n                            <sebm-google-map-info-window   [isOpen]=\"position\" >\r\n                            <div>\r\n                                <strong>Retrait/livraison à domicile</strong>\r\n                                <p>Une description?</p>\r\n\r\n                                <fieldset>\r\n                                    <label  *ngFor=\"let price of position?.options\">\r\n                                        <input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required>{{price.description}}\r\n                                    </label>\r\n                            \r\n                                </fieldset>\r\n                                </div>\r\n\r\n                                \r\n                            </sebm-google-map-info-window> \r\n                        </sebm-google-map-marker>\r\n                </div>\r\n\r\n            \r\n        \r\n        </sebm-google-map>\r\n    </div>"
+module.exports = " <fieldset  class=\"text-center \" [formGroup]=\"form\" ><!--[class.left]='groupName'-->\r\n    <div class=\"choice-cmp  hideIfInactive\" [class.revealIfActive]=\"ctrlActive\">\r\n    <div  class=\"text-left elems\" *ngFor=\"let it of options.options\">  \r\n    <!-- si une simple checkbox -->   \r\n                     \r\n                        \r\n                      \r\n                    \r\n    <div *ngIf=\"it.value\" >                      \r\n        <label > \r\n        \r\n            <input   [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            required\r\n            class=\" check-container radio\"\r\n            >\r\n            <span>{{it.label}}</span></label>\r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span> \r\n        <!--input  [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            class=\"form-check-input\"\r\n            required\r\n            >\r\n        {{it.label}}</label-->    \r\n    </div>\r\n    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????-->\r\n    <fieldset *ngIf=\"it.options\" class=\"form-group\" >\r\n    \r\n        <label class=\"sous-options\">\r\n            <input   [formControlName]=\"groupName\" \r\n            type=\"radio\" \r\n            [attr.name]=\"groupName\"\r\n            [(ngModel)]=\"groupValue\"\r\n            (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n            #triggerer\r\n            class=\" check-container radio group\"\r\n            ><span>{{it.label}}</span></label> \r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n        <!--input type=\"radio\" [formControlName]=\"groupName\" \r\n        [attr.name]=\"groupName\"\r\n        [(ngModel)]=\"groupValue\"\r\n        (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n        #trigger\r\n        >{{it.label}}</label>\r\n        <span>{{trigger.checked}}</span-->\r\n        <df-arbo-question [question]=\"question\" [groupName]=\"it.label\" [options]=\"it\" [form]=\"form\" \r\n            [ctrlActive]=\"triggerer.checked\"></df-arbo-question>\r\n        \r\n    </fieldset>         \r\n\r\n\r\n    </div>\r\n    </div>\r\n</fieldset>"
 
 /***/ },
 /* 684 */
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"form-container\">\r\n  <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <h2 class=\"row text-center app_title\">Calculateur de devis</h2>\r\n    <div class=\"logo\">&nbsp;</div>\r\n    <div *ngIf=\"error\" class=\"error\">\r\n      <span>Oups, nous avons eu un probleme de chargement des informations....</span>\r\n      <span>{{error}}</span>\r\n      \r\n      <a routerLink=\"/\">Retour a l'acceuil</a>\r\n    </div>\r\n\r\n    <div *ngIf=\"infos\" class=\"container-fluid\">\r\n            <!-- test only, cree un formulaire a partir des infos passées par le js \r\n            voir a mettre en forme les données.... -->\r\n            <dynamic-form [formulaire]=\"infos\" (submit)=\"next()\"></dynamic-form>\r\n            \r\n           \r\n    </div>\r\n    \r\n</div>"
+module.exports = "<div [formGroup]=\"form\" class=\"border\">\r\n\r\n\r\n        \r\n                    \r\n\r\n\r\n            <!-- affichage des tabs pour les choix -->\r\n           \r\n        <div class=\"tabs\">\r\n            <div class=\"tab\" *ngFor=\"let qfilter of question.options\">\r\n\r\n               \r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    [value]=\"qfilter.label\"                \r\n                    #trigger>\r\n                <span>{{qfilter.label}}</span></label>\r\n               \r\n                \r\n                \r\n\r\n                <div class=\"content\" *ngIf=\"qfilter.locations && trigger.checked\">\r\n                     <p>{{qfilter.description}}</p>\r\n                      <div class=\"schrink\">\r\n                        <div class=\"input-container\">\r\n                            <input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"\r\n                                >\r\n                            <label>{{question.title}}</label>        \r\n                        </div>\r\n                       \r\n                    </div>\r\n\r\n\r\n                    <!--input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"-->\r\n                    <datalist id=\"choices\">\r\n                        <option *ngFor=\"let l of filtered_datalist\" [value]=\"l\">\r\n                    </datalist>\r\n                </div>\r\n            </div>\r\n            <!-- dernier choix, le domicile -->\r\n            <div *ngIf=\"noGeo\" class=\"tab\">\r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    value=\"domicile\"                \r\n                    #trigger><span>Domicile</span></label>\r\n                \r\n\r\n\r\n                <div class=\"content\" *ngIf=\"trigger.checked\">\r\n                    <p>Je recupere a domicile</p>\r\n                    <div *ngIf=\"!position\">\r\n                        <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>\r\n                    </div>\r\n                    <div *ngIf=\"position\">\r\n                        \r\n                                <span *ngIf=\"!position.zipcode\">\r\n                                    <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>\r\n                                </span>\r\n                                <span *ngIf=\"position.zipcode\">Vous avez été géolocalisé: <strong>{{position.name+\"(\"+position.zipcode+\")\"}}</strong></span>\r\n                                \r\n                            \r\n                        \r\n                    </div>\r\n                        <div class=\"inline-form\">\r\n                           \r\n                                <div class=\"input-container\">\r\n                                    <input type=\"text\" value=\"Un autre departement\" #zipcode [value]=\"srch_zipcode || '' \"\r\n                                    #srchZip [class.full]=\"srch_zipcode!=''\">\r\n                                    <label>Entrez le code du département (ex: 75000)</label>        \r\n                                </div>\r\n                        \r\n                        \r\n                        <div>\r\n                                <button type=\"button\" class='btn btn-primary' (click)=\"localise_from_zipcode(zipcode.value)\">Localisation</button>\r\n                        </div>\r\n                    </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n       \r\n\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        <sebm-google-map [latitude]=\"question?.default_location.lat\" [longitude]=\"question?.default_location.lng\"\r\n            [zoom]=\"question?.default_location.zoom || 6\"\r\n            (mapClick)=\"positionne_marker($event)\"\r\n            >\r\n            <div *ngFor=\"let opt of filtered_options\">\r\n\r\n                   \r\n\r\n\r\n            \r\n                <!-- les ports et les depots -->\r\n                <div *ngIf=\"filter!='domicile'\">\r\n                    <sebm-google-map-marker  *ngFor=\"let m of opt.locations\"\r\n                        [latitude]=\"m?.lat\" [longitude]=\"m?.lng\" \r\n                        [iconUrl]=\"opt.label | toIconUrl\"\r\n                        >\r\n\r\n                        <!-- si une seule reponse, affiche directement l'infos window???  -->\r\n                        <sebm-google-map-info-window [isOpen]=\"opt.locations.length == 1\">\r\n                            <div class=\"infos\">\r\n                                <strong>{{m?.label}}</strong>\r\n                                <p>{{m?.description}}</p>\r\n                                <fieldset>\r\n                                    <div  *ngFor=\"let price of m?.options\">\r\n                                        <label ><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                                </fieldset>\r\n                            </div>\r\n                        </sebm-google-map-info-window>   \r\n\r\n                    </sebm-google-map-marker>\r\n                </div>\r\n\r\n                \r\n                </div>\r\n             <div  *ngIf=\"noGeo && filter=='domicile' && position\">\r\n                        \r\n                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->\r\n                        <sebm-google-map-marker  [latitude]=\"position?.lat\" [longitude]=\"position?.lng\"\r\n                        [iconUrl]=\"'domicile' | toIconUrl\">\r\n                            <sebm-google-map-info-window   [isOpen]=\"position\" >\r\n                            <div class=\"infos\">\r\n                                <strong>Retrait/livraison à domicile</strong>\r\n                                <p>Une description?</p>\r\n\r\n                                <fieldset *ngIf=\"position.options\">\r\n                                    <div  *ngFor=\"let price of position?.options\">\r\n                                        <label><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                            \r\n                                </fieldset>\r\n                                </div>\r\n\r\n                                \r\n                            </sebm-google-map-info-window> \r\n                        </sebm-google-map-marker>\r\n                </div>\r\n\r\n            \r\n        \r\n        </sebm-google-map>\r\n    </div>"
 
 /***/ },
 /* 685 */
 /***/ function(module, exports) {
 
-module.exports = "<div>\r\n    <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <h1 class=\"text-center\">Bienvenue dans l'application de generation de devis EXPEDOM.com</h1>\r\n    <p class=\"text-center\">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>\r\n\r\n    <div *ngIf='reload' class=\"overlay\" [class.open]=\"reload\">\r\n        <div >\r\n            <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>\r\n            <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span></p>\r\n            <button class=\"btn btn-primary\" (click)=\"reload_devis()\">Reprendre mon ancien devis</button>\r\n            \r\n            <button class=\"btn btn-primary\" (click)=\"annul_reload()\">Non merci!</button>\r\n           \r\n        </div>\r\n    </div>\r\n    <button class=\"btn btn-primary\" (click)=\"create_devis()\">Commencer un nouveau devis.</button>\r\n\r\n    <div class=\"old\" *ngIf=\"saved_devis.length > 0\">\r\n        <h3>Vos anciens devis sauvegardés:</h3>\r\n        <ul>\r\n            <li *ngFor=\"let saved of saved_devis\" >\r\n                <a  (click)=\"to_generated( saved )\"><span>{{saved.date | date:mediumDate}}</span> Export de <span>{{saved | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{saved | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span>\r\n                </a>\r\n            </li>\r\n\r\n        </ul>\r\n    </div>\r\n</div>"
+module.exports = "<div>\r\n        <h1>Calculateur de devis EXPEDOM</h1>\r\n        <div *ngIf='!loading'>\r\n        <div id=\"recap\">\r\n        <span>Vous desirez expedier:</span>\r\n        <ul>\r\n             <li> un/une <strong>{{devis_infos | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}</strong> </li>\r\n             <li> depuis <strong>{{devis_infos | GetDevisDetailsPipe:\"form_from\":\"from\"}}</strong> vers <strong>{{devis_infos | GetDevisDetailsPipe:\"form_to\":\"to\"}}</strong></li>\r\n             <li> <strong>{{devis_infos | GetDevisDetailsPipe:\"form_assurance\":\"assurance\"}}</strong></li>\r\n             <li> ...voir quoi mettre d'autre</li>\r\n                \r\n        </ul>\r\n        </div>\r\n        <div id=\"results\" *ngIf=\"devis_details\">\r\n        <h3>Votre estimation: </h3>\r\n        <a [href]='pdf_file'>Telecharger le devis en pdf</a>\r\n        <ul>\r\n            <li>Valeur de la marchandise:<strong>{{devis_details.V}}</strong></li>\r\n            <li>valeur taxable sur marchandise:<strong>{{devis_details.CAF}}</strong></li>\r\n            <li>Taxe sur marchandise:<strong>{{devis_details.TSM}}</strong></li>\r\n            <li>&nbsp;</li>\r\n            <li>Assurance:<strong>{{devis_details.A}}</strong>€</li>\r\n             <li>&nbsp;</li>\r\n            <li>Port de depart:<strong>{{devis_details.PORT_DE_DEPART}}</strong></li>\r\n            <li>Prix du transport (port à port)<strong>{{devis_details.P}}</strong></li>\r\n            <li>Prise en charge <strong>{{devis_details.PC}}</strong></li>\r\n            <li>Livraison à domicile <strong>{{devis_details.PT}}</strong></li>\r\n             <li>&nbsp;</li>\r\n            <li>taux de TVA:<strong>{{devis_details.TVA}}</strong>%</li>\r\n            <li>valeur TVA:<strong>{{devis_details.TVA_VALUE}}</strong>€</li>\r\n            <li>taux TVA sur prestation:<strong>{{devis_details.TVA_RU}}</strong>%</li>\r\n            <li>valeur TVA sur prestation:<strong>{{devis_details.TVA_RU_VALUE}}</strong>€</li>\r\n            <li>Total taxes locales:<strong>{{devis_details.TOTAL_REUNION}}</strong></li>\r\n            <li>Taxes avant dedoienement:<strong>{{devis_details.TAXES}}</strong></li>\r\n            <li>Dedoienement:<strong>{{devis_details.FR}}</strong></li>\r\n             <li>&nbsp;</li>\r\n              <li>&nbsp;</li>\r\n\r\n            <li>Totalà payer:<strong>{{devis_details.TOTAL_A_PAYER}}</strong>€</li>\r\n            \r\n        </ul>\r\n        <a [href]='pdf_file'>Telecharger le devis en pdf</a>\r\n        </div>\r\n        <div id=\"actions\">\r\n            <button *ngIf=\"has_IDB && devis_infos.date==null\" class=\"btn btn-primary wide\" (click)=\"save_devis()\">Sauvegarder le devis</button>\r\n             <button class=\"btn btn-primary wide\" >Effefctuer la reservation maintenant!</button>\r\n            <button class=\"btn btn-primary wide\" (click)=\"create_devis()\">Nouveau devis</button>\r\n        </div>\r\n        </div>\r\n</div>"
 
 /***/ },
 /* 686 */
+/***/ function(module, exports) {
+
+module.exports = "<div class=\"form-container\">\r\n  <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <h2 class=\"row text-center app_title\">Calculateur de devis</h2>\r\n    <div class=\"logo\">&nbsp;</div>\r\n    <div *ngIf=\"error\" class=\"error\">\r\n      <span>Oups, nous avons eu un probleme de chargement des informations....</span>\r\n      <span>{{error}}</span>\r\n      \r\n      <a routerLink=\"/\">Retour a l'acceuil</a>\r\n    </div>\r\n\r\n    <div *ngIf=\"infos\" class=\"container-fluid\">\r\n            <!-- test only, cree un formulaire a partir des infos passées par le js \r\n            voir a mettre en forme les données.... -->\r\n            <dynamic-form [formulaire]=\"infos\" (submit)=\"next()\"></dynamic-form>\r\n            \r\n           \r\n    </div>\r\n    \r\n</div>"
+
+/***/ },
+/* 687 */
+/***/ function(module, exports) {
+
+module.exports = "<div>\r\n    <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <h1 class=\"text-center\">Bienvenue dans l'application de generation de devis EXPEDOM.com</h1>\r\n    <p class=\"text-center\">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>\r\n\r\n    <div *ngIf='reload' class=\"overlay\" [class.open]=\"reload\">\r\n        <div >\r\n            <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>\r\n            <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span></p>\r\n            <button class=\"btn btn-primary\" (click)=\"reload_devis()\">Reprendre mon ancien devis</button>\r\n            \r\n            <button class=\"btn btn-primary\" (click)=\"annul_reload()\">Non merci!</button>\r\n           \r\n        </div>\r\n    </div>\r\n    <button class=\"btn btn-primary\" (click)=\"create_devis()\">Commencer un nouveau devis.</button>\r\n\r\n    <div class=\"old\" *ngIf=\"saved_devis.length > 0\">\r\n        <h3>Vos anciens devis sauvegardés:</h3>\r\n        <ul>\r\n            <li *ngFor=\"let saved of saved_devis\" >\r\n                <a  (click)=\"to_generated( saved )\"><span>{{saved.date | date:mediumDate}}</span> Export de <span>{{saved | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{saved | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span>\r\n                </a>\r\n            </li>\r\n\r\n        </ul>\r\n    </div>\r\n</div>"
+
+/***/ },
+/* 688 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65042,7 +65153,7 @@ exports.InnerSubscriber = InnerSubscriber;
 //# sourceMappingURL=InnerSubscriber.js.map
 
 /***/ },
-/* 687 */
+/* 689 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65175,7 +65286,7 @@ exports.Notification = Notification;
 //# sourceMappingURL=Notification.js.map
 
 /***/ },
-/* 688 */
+/* 690 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -65189,7 +65300,7 @@ exports.empty = {
 //# sourceMappingURL=Observer.js.map
 
 /***/ },
-/* 689 */
+/* 691 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -65244,7 +65355,7 @@ exports.Scheduler = Scheduler;
 //# sourceMappingURL=Scheduler.js.map
 
 /***/ },
-/* 690 */
+/* 692 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65290,18 +65401,18 @@ exports.SubjectSubscription = SubjectSubscription;
 //# sourceMappingURL=SubjectSubscription.js.map
 
 /***/ },
-/* 691 */
+/* 693 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var throw_1 = __webpack_require__(702);
+var throw_1 = __webpack_require__(704);
 Observable_1.Observable.throw = throw_1._throw;
 //# sourceMappingURL=throw.js.map
 
 /***/ },
-/* 692 */
+/* 694 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65313,29 +65424,29 @@ Observable_1.Observable.prototype._catch = catch_1._catch;
 //# sourceMappingURL=catch.js.map
 
 /***/ },
-/* 693 */
+/* 695 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var debounceTime_1 = __webpack_require__(703);
+var debounceTime_1 = __webpack_require__(705);
 Observable_1.Observable.prototype.debounceTime = debounceTime_1.debounceTime;
 //# sourceMappingURL=debounceTime.js.map
 
 /***/ },
-/* 694 */
+/* 696 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var distinctUntilChanged_1 = __webpack_require__(704);
+var distinctUntilChanged_1 = __webpack_require__(706);
 Observable_1.Observable.prototype.distinctUntilChanged = distinctUntilChanged_1.distinctUntilChanged;
 //# sourceMappingURL=distinctUntilChanged.js.map
 
 /***/ },
-/* 695 */
+/* 697 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65346,18 +65457,18 @@ Observable_1.Observable.prototype.map = map_1.map;
 //# sourceMappingURL=map.js.map
 
 /***/ },
-/* 696 */
+/* 698 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var switchMap_1 = __webpack_require__(710);
+var switchMap_1 = __webpack_require__(712);
 Observable_1.Observable.prototype.switchMap = switchMap_1.switchMap;
 //# sourceMappingURL=switchMap.js.map
 
 /***/ },
-/* 697 */
+/* 699 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65368,7 +65479,7 @@ Observable_1.Observable.prototype.toPromise = toPromise_1.toPromise;
 //# sourceMappingURL=toPromise.js.map
 
 /***/ },
-/* 698 */
+/* 700 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65444,7 +65555,7 @@ exports.ArrayLikeObservable = ArrayLikeObservable;
 //# sourceMappingURL=ArrayLikeObservable.js.map
 
 /***/ },
-/* 699 */
+/* 701 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65532,7 +65643,7 @@ exports.ErrorObservable = ErrorObservable;
 //# sourceMappingURL=ErrorObservable.js.map
 
 /***/ },
-/* 700 */
+/* 702 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65545,12 +65656,12 @@ var __extends = (this && this.__extends) || function (d, b) {
 var isArray_1 = __webpack_require__(243);
 var isPromise_1 = __webpack_require__(389);
 var PromiseObservable_1 = __webpack_require__(381);
-var IteratorObservable_1 = __webpack_require__(701);
+var IteratorObservable_1 = __webpack_require__(703);
 var ArrayObservable_1 = __webpack_require__(379);
-var ArrayLikeObservable_1 = __webpack_require__(698);
+var ArrayLikeObservable_1 = __webpack_require__(700);
 var iterator_1 = __webpack_require__(238);
 var Observable_1 = __webpack_require__(5);
-var observeOn_1 = __webpack_require__(708);
+var observeOn_1 = __webpack_require__(710);
 var observable_1 = __webpack_require__(239);
 var isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 /**
@@ -65654,7 +65765,7 @@ exports.FromObservable = FromObservable;
 //# sourceMappingURL=FromObservable.js.map
 
 /***/ },
-/* 701 */
+/* 703 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65817,17 +65928,17 @@ function sign(value) {
 //# sourceMappingURL=IteratorObservable.js.map
 
 /***/ },
-/* 702 */
+/* 704 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var ErrorObservable_1 = __webpack_require__(699);
+var ErrorObservable_1 = __webpack_require__(701);
 exports._throw = ErrorObservable_1.ErrorObservable.create;
 //# sourceMappingURL=throw.js.map
 
 /***/ },
-/* 703 */
+/* 705 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65838,7 +65949,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subscriber_1 = __webpack_require__(22);
-var async_1 = __webpack_require__(714);
+var async_1 = __webpack_require__(716);
 /**
  * Emits a value from the source Observable only after a particular time span
  * has passed without another source emission.
@@ -65949,7 +66060,7 @@ function dispatchNext(subscriber) {
 //# sourceMappingURL=debounceTime.js.map
 
 /***/ },
-/* 704 */
+/* 706 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66032,7 +66143,7 @@ var DistinctUntilChangedSubscriber = (function (_super) {
 //# sourceMappingURL=distinctUntilChanged.js.map
 
 /***/ },
-/* 705 */
+/* 707 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66131,7 +66242,7 @@ var FilterSubscriber = (function (_super) {
 //# sourceMappingURL=filter.js.map
 
 /***/ },
-/* 706 */
+/* 708 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66285,7 +66396,7 @@ var FirstSubscriber = (function (_super) {
 //# sourceMappingURL=first.js.map
 
 /***/ },
-/* 707 */
+/* 709 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66409,7 +66520,7 @@ var LastSubscriber = (function (_super) {
 //# sourceMappingURL=last.js.map
 
 /***/ },
-/* 708 */
+/* 710 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66420,7 +66531,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subscriber_1 = __webpack_require__(22);
-var Notification_1 = __webpack_require__(687);
+var Notification_1 = __webpack_require__(689);
 /**
  * @see {@link Notification}
  *
@@ -66490,7 +66601,7 @@ exports.ObserveOnMessage = ObserveOnMessage;
 //# sourceMappingURL=observeOn.js.map
 
 /***/ },
-/* 709 */
+/* 711 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66608,7 +66719,7 @@ exports.ReduceSubscriber = ReduceSubscriber;
 //# sourceMappingURL=reduce.js.map
 
 /***/ },
-/* 710 */
+/* 712 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66753,7 +66864,7 @@ var SwitchMapSubscriber = (function (_super) {
 //# sourceMappingURL=switchMap.js.map
 
 /***/ },
-/* 711 */
+/* 713 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66803,7 +66914,7 @@ exports.Action = Action;
 //# sourceMappingURL=Action.js.map
 
 /***/ },
-/* 712 */
+/* 714 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66814,7 +66925,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var root_1 = __webpack_require__(49);
-var Action_1 = __webpack_require__(711);
+var Action_1 = __webpack_require__(713);
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @ignore
@@ -66951,7 +67062,7 @@ exports.AsyncAction = AsyncAction;
 //# sourceMappingURL=AsyncAction.js.map
 
 /***/ },
-/* 713 */
+/* 715 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66961,7 +67072,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Scheduler_1 = __webpack_require__(689);
+var Scheduler_1 = __webpack_require__(691);
 var AsyncScheduler = (function (_super) {
     __extends(AsyncScheduler, _super);
     function AsyncScheduler() {
@@ -67008,18 +67119,18 @@ exports.AsyncScheduler = AsyncScheduler;
 //# sourceMappingURL=AsyncScheduler.js.map
 
 /***/ },
-/* 714 */
+/* 716 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var AsyncAction_1 = __webpack_require__(712);
-var AsyncScheduler_1 = __webpack_require__(713);
+var AsyncAction_1 = __webpack_require__(714);
+var AsyncScheduler_1 = __webpack_require__(715);
 exports.async = new AsyncScheduler_1.AsyncScheduler(AsyncAction_1.AsyncAction);
 //# sourceMappingURL=async.js.map
 
 /***/ },
-/* 715 */
+/* 717 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -67050,7 +67161,7 @@ exports.UnsubscriptionError = UnsubscriptionError;
 //# sourceMappingURL=UnsubscriptionError.js.map
 
 /***/ },
-/* 716 */
+/* 718 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -67062,7 +67173,7 @@ exports.isObject = isObject;
 //# sourceMappingURL=isObject.js.map
 
 /***/ },
-/* 717 */
+/* 719 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -67074,7 +67185,7 @@ exports.isScheduler = isScheduler;
 //# sourceMappingURL=isScheduler.js.map
 
 /***/ },
-/* 718 */
+/* 720 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67099,8 +67210,8 @@ exports.toSubscriber = toSubscriber;
 //# sourceMappingURL=toSubscriber.js.map
 
 /***/ },
-/* 719 */,
-/* 720 */
+/* 721 */,
+/* 722 */
 /***/ function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {/**
@@ -68533,12 +68644,12 @@ if (_global['navigator'] && _global['navigator'].geolocation) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50), __webpack_require__(671)))
 
 /***/ },
-/* 721 */
+/* 723 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(392);
 
 
 /***/ }
-],[721]);
+],[723]);
 //# sourceMappingURL=main.map

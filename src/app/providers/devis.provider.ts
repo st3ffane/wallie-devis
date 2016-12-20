@@ -340,7 +340,9 @@ export class DevisProvider {
             
             
             let fi = res.json();//les données recuperer du serveur
+            console.log(fi);
             if(fi["key"] === undefined){
+                console.log("Affichage des resultats");
                 //redirige appli vers resultats
                 this.current_key = null;//au cas ou...
                 return null;
@@ -437,13 +439,33 @@ export class DevisProvider {
     }
 
 
-
-
+    /**
+     * Avec le probleme du cache et les formulaires qui peuvent changer en cours de route,
+     * demande avant affichage le nom des proprietes interressantes pour le calcul et 
+     * affichage.
+     * 
+     * Voir comment se passer de ca....
+    
+    load_requested_workflow(){
+        let url =  "/wp-admin/admin-ajax.php?action=get_workflow";
+        
+        return this._http.get(url)
+        .toPromise().then( (rep)=>{
+            return rep.json();//les données recuperer du serveur
+        });
+        
+    } */
     /**
      * charge les informations du devis gneres via l'application
+     * @param workflow: nom des formulaires a recuperer
      * END OF WORK 
      */
-    load_devis_details_async(){
+    load_devis_details_async(){//workflow){
+
+         
+
+
+
         let headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
 
@@ -561,9 +583,9 @@ export class DevisProvider {
     //probleme, comment accede a ca depuis le module dyna-forms????
     //Ou: comment sortir le gps du module???
     create_geolocation_url(position:any){
-        let zipcode = position.zipcode.slice(0,2);//juste le dep 
+        let zipcode = position.zipcode? position.zipcode.slice(0,2) : "";//juste le dep 
         let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode
-                +"&lat="+position.lat+"&lng="+position.lng;
+                +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise="+this.devis_infos["form_marchandise"].fields[0].value : "";
         request += this.devis_infos["form_from"] ? "&from="+this.devis_infos["form_from"].fields[0].value : "";
@@ -634,8 +656,6 @@ export class DevisProvider {
             //si current_key!=null, alors enregistre l'historique de navigation dans les formulaires
             //force le formulaire courant comme dernier element de l'historique...
             if (this.current_key){
-                console.log("sauvegarde historique");
-                console.log(this.current_key);
                 let key = this.current_key.split('/');
                 let form = key[1];
                 let group = key[0];
@@ -648,8 +668,6 @@ export class DevisProvider {
                 else  dt = this.compact_form_datas(last_frm);//les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
 
                 this.addToHistoric(key[0],key[1],last_frm["url"], dt);
-                console.log("historique:");
-                console.log(this._form_historic);
 
                 window.localStorage.setItem('historic',JSON.stringify(this._form_historic));//l'historique de la navigation dans les formulaires 
             }
@@ -690,8 +708,18 @@ export class DevisProvider {
                         //voir si autre chose?????
                     };
 
-                    if(field["position"]) obj['position'] = field["position"];
+                    //certains fields utilise la geolocalisation et ont un field position a sauvegarder
+                    if(field["position"]) {
+                        let pos = field["position"];
 
+                        obj['position'] = {
+                            'city':pos.city,
+                            'lat':pos.lat,
+                            'lng':pos.lng,
+                            'zipcode':pos.zipcode,
+                            'country':pos.country
+                        }
+                    }
                     fds.push(obj);
                 }
                 dt[frm] = {

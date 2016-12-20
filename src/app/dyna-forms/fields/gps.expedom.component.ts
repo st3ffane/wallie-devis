@@ -5,6 +5,12 @@ import {GmapGeocodeProvider} from "../providers/gmap.geocode.provider";
 //pas le choix....
 import {DevisProvider} from "../../providers/devis.provider";
 
+
+const CCTD={
+    'france':'FR',
+    'reunion':'RE',
+    "mayotte":"YT"
+}
 /**
  * Un composant pour gerer l'affichage des informations GPS 
  * pour l'application expedom
@@ -97,7 +103,9 @@ export class GPSExpedomComponent{
     ngOnInit(){
         //creation des elements de formulaires necessaires (angular)
         this.create_forms_elements();
-
+        this.question["position"] = {};
+        this.noGeo = this.question["use-geolocation"] ? this.question["use-geolocation"] : true ;
+console.log("use geo: "+this.noGeo)
         //mappe les locations a afficher sur la map
         this.remap_options();
     }
@@ -105,6 +113,8 @@ export class GPSExpedomComponent{
     ngAfterViewInit(){
         //recupere les coordonnées GPS si dispo et les informations sur les prix d'enlevement/livraison 
         //a domicile
+        if(!this.noGeo) return; 
+    
         this.geolocalise().then( (pos:any)=> {
 
             
@@ -144,8 +154,8 @@ export class GPSExpedomComponent{
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
-            
-             this.position = null;// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+            console.log("Error geolocalisation");
+             this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
 
@@ -162,18 +172,24 @@ export class GPSExpedomComponent{
         // console.log("recherche localisation...");
         // console.log("zipcode:"+zipcode);
         this.is_localising = true;
-        this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
+
+        let cnt = CCTD[this.question.default_location.country] || "FR";
+
+
+        //this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
+            this._gmap.get_coords_from_departement_name_async(zipcode,cnt).then( (rep)=>{
             // VERIFIE SI PAYS OK
             console.log(rep);
             console.log(this.question.default_location);
             
             //VERIFIE SI LE PAYS EST BON.....
-            if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+            if(rep["country"] && rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
             }
             // console.log(rep);
             this.position = rep;
             this.question["position"] = this.position;
+
             this.is_localising = false;
             return this._devis.load_domicile_prices(this.position)
             // return true;
@@ -190,7 +206,7 @@ export class GPSExpedomComponent{
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
-            //  console.log("hello, une couille");
+            console.log("hello, une couille");
              console.log(err);
              //this.position = {};//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
@@ -303,5 +319,51 @@ export class GPSExpedomComponent{
         this.filtered_datalist = list;
         this.filtered_options = options;
         return;
+    }
+
+
+    positionne_marker(evt){
+       this.position = evt.coords;
+       console.log(this.position);
+
+       this._gmap.get_departement_from_coords_async(this.position.lat,this.position.lng,true).then( (rep)=>{
+            console.log(rep);
+            // console.log(this.question.default_location);
+
+            //VERIFIE SI LE PAYS EST BON.....
+            if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+                
+                throw "not in place!";
+            }
+            this.position = rep;
+            this.question["position"] = this.position;
+            // console.log("add position to question");
+            // console.log(this.question);
+
+
+            
+            this.is_localising = false;
+            return this._devis.load_domicile_prices(this.position)
+            // return true;
+        })
+        /*.then ( (good)=>{
+            if(good){
+                //recupere la table des prix
+                return this._devis.load_domicile_prices(this.position.zipcode.slice(0,2))
+
+            } else {
+                //une erreur
+                throw "Undefined datas";
+            }
+        })*/.then( (dt)=>{
+                    this.position['options'] = dt;
+
+        }).catch( (err)=>{
+            console.log("Error geolocalisation");
+             this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+             this.is_localising = false;
+        });
+       //recupere les infos de livraisons?
+
     }
 }
