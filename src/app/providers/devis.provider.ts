@@ -369,7 +369,9 @@ export class DevisProvider {
                      if(cache){
                          let total = fi.fields.length; 
                         for (let i=0;i<total;i++){
-                            fi.fields[i]['value'] = cache[i]['value'] || '';//enregistre le cache
+                            console.log(fi.fields[i]);
+
+                            fi.fields[i]['value'] = cache[i] ? cache[i]['value'] : '';//enregistre le cache
 
                             let debug = fi.fields[i];
                             console.log(debug.id+":"+debug.value);
@@ -465,7 +467,19 @@ export class DevisProvider {
                 form_fields[field.id] = field.value;
                 field_count ++;
                 field_id = field.id;
+
+                //specials !!!!
+                if(field["position"]){
+                    form_fields['position'] = field.position;
+                    field_count ++;
+                    field_id = "position";
+                }
+                
             }
+
+            
+
+           
 
             if(field_count > 1){
                 
@@ -546,14 +560,17 @@ export class DevisProvider {
     //genere l'URL pour la geolocation: recupere les valeurs pour les prises en charge a domicile
     //probleme, comment accede a ca depuis le module dyna-forms????
     //Ou: comment sortir le gps du module???
-    create_geolocation_url(zipcode:string){
-        console.log(this.devis_infos);
-        let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode;
+    create_geolocation_url(position:any){
+        let zipcode = position.zipcode.slice(0,2);//juste le dep 
+        let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode
+                +"&lat="+position.lat+"&lng="+position.lng;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise="+this.devis_infos["form_marchandise"].fields[0].value : "";
         request += this.devis_infos["form_from"] ? "&from="+this.devis_infos["form_from"].fields[0].value : "";
         request += this.devis_infos["form_to"] ? "&to="+this.devis_infos["form_to"].fields[0].value : "";
         request += this.devis_infos["form_motif"] ? "&motif="+this.devis_infos["form_motif"].fields[0].value : "";
+
+        
         //la hauteur et largeur si existe 
         request += this.get_field_by_id("form_precisions","longueur");// this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["longueur"] ? "&longueur="+this.devis_infos["form_precisions"]["longueur"].value : "";
         request += this.get_field_by_id("form_precisions","hauteur");//this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["hauteur"] ? "&hauteur="+this.devis_infos["form_precisions"]["hauteur"].value : "";
@@ -666,12 +683,16 @@ export class DevisProvider {
 
                 let url = devis[frm].url;//url pour recup les données
                 for (let field of fields){
-
-                    fds.push({
+                    let obj =
+                    {
                         "value":field["value"] || null,
                         "id": field["id"]
                         //voir si autre chose?????
-                    });
+                    };
+
+                    if(field["position"]) obj['position'] = field["position"];
+
+                    fds.push(obj);
                 }
                 dt[frm] = {
                     "fields":fds,//pour les differents champs du formulaire 

@@ -48,7 +48,7 @@ export class GmapGeocodeProvider {
 
                 this.cached_position = {
                     "lat":latitude,
-                    "long": longitude,
+                    "lng": longitude,
                     "name":this.get_type("administrative_area_level_2", address),
                     "zipcode":this.get_type("postal_code", address),
                     "country":this.get_type("country", address)
@@ -86,10 +86,10 @@ export class GmapGeocodeProvider {
 
                  this.cached_position = {
                      "lat":geo.lat,
-                     "long": geo.lng,
+                     "lng": geo.lng,
                     "name":this.get_type("administrative_area_level_2", address),
                     "zipcode":this.get_type("postal_code", address),
-                    "country":this.get_type("postal_code", address)
+                    "country":this.get_type("country", address)
                  }
                 return this.cached_position;//la plus precise
                 

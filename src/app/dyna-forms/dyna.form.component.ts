@@ -120,9 +120,11 @@ export class DynamicFormComponent implements OnInit{
         //pour remediez au probleme, lorsque rencontre un champs 'special', ajoute une contrainte de pattern dessus pour forcer la validation 
         
         this.ensure_validation(field);
-
+       
         if(field["constraints"]){
             let constraints = field["constraints"];
+            
+
 
             let keys= Object.keys(field.constraints);
             for(let key of keys){
@@ -151,10 +153,7 @@ export class DynamicFormComponent implements OnInit{
                         valids.push(Validators.pattern(constraints["pattern"]));
                         break;
                     }
-                    case "required":{
-                        valids.push(Validators.required);
-                        break;
-                    }
+                    
                     case "pattern":
                     {
                         valids.push(Validators.pattern(constraints["pattern"]));
@@ -167,7 +166,11 @@ export class DynamicFormComponent implements OnInit{
                     default: break;
                 }
             }
+            
+        }
 
+        if(field.required !== false){
+            valids.push(Validators.required);
         }
         return valids;
     }

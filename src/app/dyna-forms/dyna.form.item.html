@@ -18,7 +18,7 @@
                 [formControlName]="question.id"
                     [id]="question.id" type="text" 
                     [(ngModel)]="question.__value"
-                    required>
+                    >
                 <label>{{question.title}}</label>        
             </div>
             <span>(<small>{{question.description}}</small>)</span>
@@ -35,7 +35,7 @@
                     [formControlName]="question.id"
                         [id]="question.id" type="number" 
                         [(ngModel)]="question.__value"
-                        required>
+                        >
                     <label>{{question.title}}</label>        
                 </div>
                 <span>(<small>{{question.description}}</small>)</span>
@@ -51,7 +51,7 @@
                     [formControlName]="question.id"
                         [id]="question.id" type="email" 
                         [(ngModel)]="question.__value"
-                        required>
+                        >
                     <label>{{question.title}}</label>        
                 </div>
                 <span>(<small>{{question.description}}</small>)</span>
@@ -66,7 +66,7 @@
                 <div class='input-container'>
                     <textarea #texted [formControlName]="question.id" [ngClass]="{'full':texted.value != ''}"
                         [id]="question.id" [(ngModel)]="question.__value"
-                         required
+                         
                          height="3em"
                         ></textarea>
                 <label>{{question.title}}</label>        

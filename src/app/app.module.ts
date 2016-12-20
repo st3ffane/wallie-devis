@@ -41,7 +41,7 @@ import {GmapGeocodeProvider} from "./dyna-forms/providers/gmap.geocode.provider"
 import {GMAP_KEY} from "./gmap.key";
 
 import {GetDevisDetailsPipe} from "./pipes/get.devis.details.pipe";
-
+import {ToIconUrlPipes} from "./dyna-forms/pipes/to.icon.url.pipe";
 //bootstrap 
 //import { ButtonsModule } from 'ng2-bootstrap/ng2-bootstrap';
 //normalement, je devrais definir un fichier special pour ca, mais vu qu'il y a pas
@@ -91,7 +91,8 @@ let routes = RouterModule.forRoot([
     DynaArborescenceComponent,
     GPSExpedomComponent,
 
-    GetDevisDetailsPipe
+    GetDevisDetailsPipe,
+    ToIconUrlPipes
 
   ],
   imports: [

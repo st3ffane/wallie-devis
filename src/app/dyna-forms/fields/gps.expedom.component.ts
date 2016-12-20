@@ -29,138 +29,8 @@ import {DevisProvider} from "../../providers/devis.provider";
  */
 @Component({
     selector:"dyna-gps",
-    template:`
-    <div [formGroup]="form">
-
-
-        <div *ngIf="!position">
-            <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>
-        </div>
-        <div *ngIf="position">
-            
-                    <span *ngIf="!position.zipcode">
-                        <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre numero de département</p>
-                    </span>
-                    <span *ngIf="position.zipcode">Vous avez été géolocalisé: <strong>{{position.name+"("+position.zipcode+")"}}</strong></span>
-                    
-                
-            
-         </div>
-         <div >
-            <h4>Choisir un autre Departement</h4>
-            <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || '' "><button type="button" (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
-        </div>
-                    
-
-
-            <!-- pour pouvoir filtrer les reponses -->
-            <div *ngFor="let qfilter of question.options">
-                <label>
-                <input type="radio" [(ngModel)]="filter" 
-                    [formControlName]="filter_form_ctrl"
-                    [attr.name]="filter_form_ctrl"
-                    [value]="qfilter.label"                
-                    #trigger>
-                {{qfilter.label}}</label>
-                <p>{{qfilter.description}}</p>
-                
-                
-
-                <div *ngIf="qfilter.locations && trigger.checked">
-                    <input *ngIf="question['use-text-filter']" 
-
-                            type="text" 
-                            list="choices"
-                            [(ngModel)]="search" 
-                            [formControlName]="search_form_ctrl"
-                            placeholder="Entrez les premieres lettres">
-                    <datalist id="choices">
-                        <option *ngFor="let l of filtered_datalist" [value]="l">
-                    </datalist>
-                </div>
-            </div>
-
-       
-
-
-
-
-
-        
-
-        <sebm-google-map [latitude]="position?.lat || question?.default_location.lat" [longitude]="position?.long || question?.default_location.lat"
-            [zoom]="def_zoom">
-            <div *ngFor="let opt of filtered_options">
-
-                    <div  *ngIf="position && position.zipcode">
-                        
-                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->
-                        <sebm-google-map-marker [latitude]="position?.lat" [longitude]="position?.long">
-                            <sebm-google-map-info-window   [isOpen]="position" >
-                            <div>
-                                <strong>Retrait/livraison à domicile</strong>
-                                <p>Une description?</p>
-
-                                <fieldset>
-                                    <label  *ngFor="let price of position?.options">
-                                        <input [formControlName]="question.id"                        
-                                        type="radio" 
-                                        [(ngModel)]="question.__value"
-                                        [value]="price.value"
-                                        class="form-check-input"
-                                        required>{{price.description}}
-                                    </label>
-                            
-                                </fieldset>
-                                </div>
-
-                                
-                            </sebm-google-map-info-window> 
-                        </sebm-google-map-marker>
-                    </div>
-
-
-            
-                <!-- les ports et les depots -->
-                <sebm-google-map-marker  *ngFor="let m of opt.locations"
-                    [latitude]="m?.lat" [longitude]="m?.lng" [label]="m?.id | slice:0:1 | uppercase">
-
-                    <!-- si une seule reponse, affiche directement l'infos window???  -->
-                    <sebm-google-map-info-window [isOpen]="opt.locations.length == 1">
-                        <div class="infos">
-                            <strong>{{m?.label}}</strong>
-                            <p>{{m?.description}}</p>
-                            <fieldset>
-                                <label  *ngFor="let price of m?.options">
-                                    <input [formControlName]="question.id"                        
-                                    type="radio" 
-                                    [(ngModel)]="question.__value"
-                                    [value]="price.value"
-                                    class="form-check-input"
-                                    required>{{price.description}}
-                                </label>
-                            </fieldset>
-                        </div>
-                    </sebm-google-map-info-window>   
-
-                </sebm-google-map-marker>
-            
-
-            </div>
-            
-        
-        </sebm-google-map>
-    </div>
-    `,
-    styles:[`
-    .sebm-google-map-container {
-        height: 400px;
-        }
-    sebm-google-map-info-window > div{
-        display: flex;
-
-    }
-    `]
+    templateUrl:"./gps.expedom.html",
+    styleUrls:["./gps.expedom.scss"]
 })
 export class GPSExpedomComponent{
     @Input()question:any; // le champs du formulaire
@@ -184,7 +54,7 @@ export class GPSExpedomComponent{
     search_form_ctrl= null;//nom du control text (angular)
 
     //choix du filtre
-    _filter:string ;
+    _filter:string = "port" ;
     filter_form_ctrl = null;//nom du control text (angular)
 
     get filter(){return this._filter;}
@@ -235,18 +105,30 @@ export class GPSExpedomComponent{
     ngAfterViewInit(){
         //recupere les coordonnées GPS si dispo et les informations sur les prix d'enlevement/livraison 
         //a domicile
-        this.geolocalise().then( (pos)=> {
+        this.geolocalise().then( (pos:any)=> {
 
-            this.position = pos;
+            
+            console.log(this.position);
             //demande le nom du patelin 
-            return this._gmap.get_departement_from_coords_async(this.position.latitude,this.position.longitude);
+            return this._gmap.get_departement_from_coords_async(pos.latitude,pos.longitude);
 
         }).then( (rep)=>{
+            // console.log(rep);
+            // console.log(this.question.default_location);
 
             //VERIFIE SI LE PAYS EST BON.....
+            if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+                throw "not in place!";
+            }
             this.position = rep;
+            this.question["position"] = this.position;
+            // console.log("add position to question");
+            // console.log(this.question);
+
+
+            
             this.is_localising = false;
-            return this._devis.load_domicile_prices(this.position.zipcode.slice(0,2))
+            return this._devis.load_domicile_prices(this.position)
             // return true;
         })
         /*.then ( (good)=>{
@@ -263,7 +145,7 @@ export class GPSExpedomComponent{
 
         }).catch( (err)=>{
             
-             this.position = {};//remet a zero??? ou garde l'ancien????
+             this.position = null;// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
 
@@ -282,11 +164,18 @@ export class GPSExpedomComponent{
         this.is_localising = true;
         this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
             // VERIFIE SI PAYS OK
-
+            console.log(rep);
+            console.log(this.question.default_location);
+            
+            //VERIFIE SI LE PAYS EST BON.....
+            if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+                throw "not in place!";
+            }
             // console.log(rep);
             this.position = rep;
+            this.question["position"] = this.position;
             this.is_localising = false;
-            return this._devis.load_domicile_prices(this.position.zipcode.slice(0,2))
+            return this._devis.load_domicile_prices(this.position)
             // return true;
         })/*.then ( (good)=>{
             if(good){

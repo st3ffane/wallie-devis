@@ -122,6 +122,7 @@ export class DynFormsComponent implements OnInit{
     }).catch( (err)=>{
       //erreur de chargement des données du formulaire, voir quoi faire...
       console.log(err);
+      console.log("ici");
       this.loading = false;
       this.error = err;
       this.infos = null;
