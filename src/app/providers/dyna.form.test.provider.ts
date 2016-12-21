@@ -11,7 +11,7 @@ import * as dynaform from "../dyna-forms/forms/dyna";
  * 
  */
 
-/*
+
 const TEST_FORM = {
 	key: "precisions_frm",
 	title: "Précisions sur votre marchandise",
@@ -22,7 +22,7 @@ const TEST_FORM = {
 	[
 		{
 			id:"motif",
-			type:"arbo-radio",
+			type:"arbo2-radio",
 			description:"une super description des motifs",
 			title:"Pour quel motif?",
 
@@ -87,7 +87,7 @@ const TEST_FORM = {
 	]
 			
 };
-*/
+/*
 const TEST_FORM = {
 	"key":"voiture\/form_pec",
 	"title":"Prise en charge de votre v\u00e9hicule",

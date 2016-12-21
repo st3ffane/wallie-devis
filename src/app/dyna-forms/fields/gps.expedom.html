@@ -81,9 +81,9 @@
                         <div class="inline-form">
                            
                                 <div class="input-container">
-                                    <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || '' "
-                                    #srchZip [class.full]="srch_zipcode!=''">
-                                    <label>Entrez le code du département (ex: 75000)</label>        
+                                    <input type="text" value="Un autre departement" #zipcode  [value]="srch_zipcode || '' "
+                                    [class.full]="srch_zipcode!=''">
+                                    <label>Entrez le nom de la ville ou le code du département</label>        
                                 </div>
                         
                         
@@ -164,7 +164,11 @@
                                     </div>
                             
                                 </fieldset>
+                                <div *ngIf="!position.options">
+                                    <span *ngIf="!position.error" class="fa fa-spin fa-gear"></span>
+                                    <span *ngIf="position.error">{{position.error}}</span>
                                 </div>
+                            </div>
 
                                 
                             </sebm-google-map-info-window> 

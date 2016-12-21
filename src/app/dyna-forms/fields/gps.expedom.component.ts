@@ -5,7 +5,8 @@ import {GmapGeocodeProvider} from "../providers/gmap.geocode.provider";
 //pas le choix....
 import {DevisProvider} from "../../providers/devis.provider";
 
-
+//juste pour me permettre de limiter les resultats aux pays concernés
+//permet d'accelerer/ preciser  les resultats google geocode
 const CCTD={
     'france':'FR',
     'reunion':'RE',
@@ -51,7 +52,7 @@ export class GPSExpedomComponent{
                 private _devis:DevisProvider){}
     //position GPS de l'utilisateur
     position:any = null;
-    def_zoom = 6;//niveau de zoom de la map par defaut
+    def_zoom = 6;//niveau de zoom de la map par defaut  -renseigné par question.default_localisation
 
 
     //le necessaire pour les formulaires presents ici
@@ -105,7 +106,7 @@ export class GPSExpedomComponent{
         this.create_forms_elements();
         this.question["position"] = {};
         this.noGeo = this.question["use-geolocation"] ? this.question["use-geolocation"] : true ;
-console.log("use geo: "+this.noGeo)
+
         //mappe les locations a afficher sur la map
         this.remap_options();
     }
@@ -117,40 +118,25 @@ console.log("use geo: "+this.noGeo)
     
         this.geolocalise().then( (pos:any)=> {
 
-            
-            console.log(this.position);
             //demande le nom du patelin 
             return this._gmap.get_departement_from_coords_async(pos.latitude,pos.longitude);
 
         }).then( (rep)=>{
-            // console.log(rep);
-            // console.log(this.question.default_location);
-
+            
             //VERIFIE SI LE PAYS EST BON.....
             if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
             }
             this.position = rep;
             this.question["position"] = this.position;
-            // console.log("add position to question");
-            // console.log(this.question);
-
-
+            
             
             this.is_localising = false;
             return this._devis.load_domicile_prices(this.position)
             // return true;
         })
-        /*.then ( (good)=>{
-            if(good){
-                //recupere la table des prix
-                return this._devis.load_domicile_prices(this.position.zipcode.slice(0,2))
-
-            } else {
-                //une erreur
-                throw "Undefined datas";
-            }
-        })*/.then( (dt)=>{
+        .then( (dt)=>{
+                //valide la position et enregistre
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
@@ -169,45 +155,33 @@ console.log("use geo: "+this.noGeo)
      * a partir d'un zipcode entré par l'utilisateur 
      */
     localise_from_zipcode(zipcode){
-        // console.log("recherche localisation...");
-        // console.log("zipcode:"+zipcode);
+        
         this.is_localising = true;
-
+        //determine le code CCDT du pays -optimise
         let cnt = CCTD[this.question.default_location.country] || "FR";
 
 
         //this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
-            this._gmap.get_coords_from_departement_name_async(zipcode,cnt).then( (rep)=>{
-            // VERIFIE SI PAYS OK
-            console.log(rep);
-            console.log(this.question.default_location);
+        this._gmap.get_coords_from_departement_name_async(zipcode,cnt).then( (rep)=>{
             
             //VERIFIE SI LE PAYS EST BON.....
             if(rep["country"] && rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
             }
-            // console.log(rep);
+            
             this.position = rep;
             this.question["position"] = this.position;
 
             this.is_localising = false;
             return this._devis.load_domicile_prices(this.position)
             // return true;
-        })/*.then ( (good)=>{
-            if(good){
-                //recupere la table des prix
-                return this._devis.load_domicile_prices(this.position.zipcode.slice(0,2))
-
-            } else {
-                //une erreur
-                throw "Undefined datas";
-            }
-        })*/.then( (dt)=>{
+        })
+        .then( (dt)=>{
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
-            console.log("hello, une couille");
-             console.log(err);
+            
+            
              //this.position = {};//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
@@ -223,11 +197,11 @@ console.log("use geo: "+this.noGeo)
     private geolocalise(){
         return new Promise ( (resolve, reject)=>{
              if(navigator.geolocation){
-                // console.log("geolocalisation ON");
+                 
                 navigator.geolocation.getCurrentPosition((pos)=>{
                     if(pos.coords){
                         resolve(pos.coords);
-                        // console.log(this.position);
+                        
                     }  
                     else reject("no coords");
                 },
@@ -322,14 +296,25 @@ console.log("use geo: "+this.noGeo)
     }
 
 
+    /**
+     * appellé lors d'un click sur la map: positionne un marquer et recupere les infos de tarifs
+     * depuis le webservice
+     */
     positionne_marker(evt){
+        if(this.filter!='domicile') return;
+
+
+
+        //annule la reponse precedente
+        this.question.__value = null;
+
+        //enregistre la position: permet d'afficher imediatement le marqueur
        this.position = evt.coords;
-       console.log(this.position);
+       
+       
 
        this._gmap.get_departement_from_coords_async(this.position.lat,this.position.lng,true).then( (rep)=>{
-            console.log(rep);
-            // console.log(this.question.default_location);
-
+            
             //VERIFIE SI LE PAYS EST BON.....
             if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 
@@ -337,33 +322,20 @@ console.log("use geo: "+this.noGeo)
             }
             this.position = rep;
             this.question["position"] = this.position;
-            // console.log("add position to question");
-            // console.log(this.question);
-
-
             
             this.is_localising = false;
-            return this._devis.load_domicile_prices(this.position)
-            // return true;
+            return this._devis.load_domicile_prices(this.position);
+            
         })
-        /*.then ( (good)=>{
-            if(good){
-                //recupere la table des prix
-                return this._devis.load_domicile_prices(this.position.zipcode.slice(0,2))
-
-            } else {
-                //une erreur
-                throw "Undefined datas";
-            }
-        })*/.then( (dt)=>{
+        .then( (dt)=>{
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
-            console.log("Error geolocalisation");
-             this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+            
+             this.position = {'error':"Nous n'avons pas pu recuperer les informations de tarifs à partir de votre localisation..."};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
-       //recupere les infos de livraisons?
+       
 
     }
 }

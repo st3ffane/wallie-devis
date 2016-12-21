@@ -147,9 +147,19 @@
             
         </div>
 
+
+
+
         <div *ngSwitchCase="'arbo-radio'">
                 <df-arbo-question [question]="question" [groupName]="'trigger'" [options]="question" [form]="form" [ctrlActive]="true"></df-arbo-question>            
         </div>
+        <div *ngSwitchCase="'arbo2-radio'">
+                <df-arbo2-question [question]="question" [groupName]="'trigger'" [options]="question" [form]="form" [ctrlActive]="true"></df-arbo2-question>            
+        </div>
+
+
+
+
 
         <div *ngSwitchCase="'gps'">
             <dyna-gps [question]="question" [form]="form"></dyna-gps>

@@ -65,6 +65,7 @@ export class GmapGeocodeProvider {
     /**
      * permet, a partir d'un numero de departement, de recuperer les informations de position 
      * du client (ie: latitude, longitude, pays...)
+     * @deprecated utilise get_coords_from_departement_name_async 
      * 
      * @param zipcode: le code postal a rechercher
      * 

@@ -35,6 +35,9 @@ import { AgmCoreModule } from 'angular2-google-maps/core';
 import {DynamicFormComponent} from "./dyna-forms/dyna.form.component";
 import {DynaFormItemComponent} from "./dyna-forms/dyna.form.item.component";
 import {DynaArborescenceComponent} from "./dyna-forms/fields/dyna.arborescence.component";
+import {DynaArborescence2Component} from "./dyna-forms/fields/dyna.arborescence2.component";
+
+
 import {GPSExpedomComponent} from "./dyna-forms/fields/gps.expedom.component";
 
 import {GmapGeocodeProvider} from "./dyna-forms/providers/gmap.geocode.provider";
@@ -89,6 +92,7 @@ let routes = RouterModule.forRoot([
     DynamicFormComponent,
     DynaFormItemComponent,
     DynaArborescenceComponent,
+    DynaArborescence2Component,
     GPSExpedomComponent,
 
     GetDevisDetailsPipe,

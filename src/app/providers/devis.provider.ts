@@ -340,9 +340,9 @@ export class DevisProvider {
             
             
             let fi = res.json();//les données recuperer du serveur
-            console.log(fi);
+            // console.log(fi);
             if(fi["key"] === undefined){
-                console.log("Affichage des resultats");
+                // console.log("Affichage des resultats");
                 //redirige appli vers resultats
                 this.current_key = null;//au cas ou...
                 return null;
@@ -355,28 +355,28 @@ export class DevisProvider {
             let group = this.current_key.split("/")[0];
 
 
-            console.log(form_name)
+            // console.log(form_name)
             fi["url"]  =  url; //sauvegarde l'url du formulaire demandé en cas de retour via l'historique de navigation du
             //navigateur
-            console.log("verifie validité formulaire");
+            // console.log("verifie validité formulaire");
             //populate datas a partir du cache de données...
             if(this.devis_infos[form_name]){
 
                 if (group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    console.log("form global ou connue, repopulate")
+                    // console.log("form global ou connue, repopulate")
                     
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
-                     console.log(cache);
+                    //  console.log(cache);
                      if(cache){
                          let total = fi.fields.length; 
                         for (let i=0;i<total;i++){
-                            console.log(fi.fields[i]);
+                            // console.log(fi.fields[i]);
 
                             fi.fields[i]['value'] = cache[i] ? cache[i]['value'] : '';//enregistre le cache
 
                             let debug = fi.fields[i];
-                            console.log(debug.id+":"+debug.value);
+                            // console.log(debug.id+":"+debug.value);
                         }
                      }
                     
@@ -456,8 +456,11 @@ export class DevisProvider {
         
     } */
     /**
-     * charge les informations du devis gneres via l'application
-     * @param workflow: nom des formulaires a recuperer
+     * charge les informations du devis generes via l'application
+     * compacte les données pour limiter l'utilisation du reseau
+     * et simplifier le traitement derriere 
+     * 
+     * recupere le resultat AVEC LE WORKFLOW pour generer la page de resultats
      * END OF WORK 
      */
     load_devis_details_async(){//workflow){
@@ -490,11 +493,26 @@ export class DevisProvider {
                 field_count ++;
                 field_id = field.id;
 
-                //specials !!!!
+                //specials !!!! pour les champs GPS, enregistre aussi la position
+                //meme si elle n'est pas utile...
                 if(field["position"]){
+                    let obj = {};
+                    
+                    let pos = field["position"];
+
+                    obj['position'] = {
+                        'city':pos.city,
+                        'lat':pos.lat,
+                        'lng':pos.lng,
+                        'zipcode':pos.zipcode,
+                        'country':pos.country
+                    
+                    };
                     form_fields['position'] = field.position;
                     field_count ++;
                     field_id = "position";
+
+                
                 }
                 
             }
@@ -528,6 +546,7 @@ export class DevisProvider {
 
 
     //GPS: charge les prix pour le domicile 
+    //@param zipcode: l'objet position a utiliser (ie: coords gps, zipcode, nom de ville) pour les calculs
     load_domicile_prices (zipcode:string){
         return this._http.get(this.create_geolocation_url(zipcode))
         .toPromise().then( (dt:any)=>{
@@ -580,10 +599,10 @@ export class DevisProvider {
     }
     
     //genere l'URL pour la geolocation: recupere les valeurs pour les prises en charge a domicile
-    //probleme, comment accede a ca depuis le module dyna-forms????
-    //Ou: comment sortir le gps du module???
     create_geolocation_url(position:any){
-        let zipcode = position.zipcode? position.zipcode.slice(0,2) : "";//juste le dep 
+        let zipcode = position.zipcode? position.zipcode.slice(0,2) : "";//juste le dep si dispo 
+
+        //endpoint vers le webservice avec les infos de positions
         let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode
                 +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;
         //le reste de l'url 
@@ -827,12 +846,12 @@ export class DevisProvider {
                     .add(save_data);
                     
                     request.onsuccess = function(event) {
-                        console.log("success de l'enregistrement");
+                        // console.log("success de l'enregistrement");
                         resolve(true);
                     };
                     
                     request.onerror = function(event) {
-                        console.log("une couille");
+                        // console.log("une couille");
                         reject("Erreur enregistrement");
                     }
             } else {
@@ -858,7 +877,7 @@ export class DevisProvider {
                var cursor = event.target.result;
                
                if (cursor) {
-                   console.log(cursor);
+                //    console.log(cursor);
                    let v = cursor.value.v;
 
                    //cree un titre pour l'entrée 
@@ -887,7 +906,7 @@ export class DevisProvider {
                var cursor = event.target.result;
                
 
-               console.log("")
+               
                if (cursor) {
                    if(cursor.value.id == id) resolve(cursor.value.v);
                    return;

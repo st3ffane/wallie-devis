@@ -11,7 +11,7 @@ import {FormGroup, FormControl, Validators} from "@angular/forms";
  * PROBLEME: l'initialisation reste a optimiser comme il faut....
  */
 @Component({
-    selector:'df-arbo-question',
+    selector:'df-arbo2-question',
     templateUrl:"./dyna.arbo.html",
     styleUrls:[
         "./dyna.arbo.scss"
