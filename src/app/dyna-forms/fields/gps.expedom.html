@@ -64,33 +64,33 @@
 
 
                 <div class="content" *ngIf="trigger.checked">
-                    <p>Je recupere a domicile</p>
-                    <div *ngIf="!position">
-                        <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>
-                    </div>
-                    <div *ngIf="position">
-                        
-                                <span *ngIf="!position.zipcode">
-                                    <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>
-                                </span>
-                                <span *ngIf="position.zipcode">Vous avez été géolocalisé: <strong>{{position.name+"("+position.zipcode+")"}}</strong></span>
-                                
-                            
-                        
-                    </div>
+                    
                         <div class="inline-form">
                            
                                 <div class="input-container">
                                     <input type="text" value="Un autre departement" #zipcode  [value]="srch_zipcode || '' "
                                     [class.full]="srch_zipcode!=''">
-                                    <label>Entrez le nom de la ville ou le code du département</label>        
+                                    <label>Entrez votre adresse.</label>        
                                 </div>
+                                <button type="button" [attr.disabled]="zipcode.value=='' || null" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
                         
-                        
-                        <div>
-                                <button type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+                                
                         </div>
-                    </div>
+                        <div>
+                            <div *ngIf="!position">
+                                <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>
+                            </div>
+                            <div *ngIf="position">
+                                
+                                        <span *ngIf="!position.zipcode && !position.city">
+                                            <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>
+                                        </span>
+                                        <span *ngIf="position.zipcode">Vous avez été géolocalisé: <strong>{{position.name+"("+position.zipcode+")"}}</strong></span>
+                                        
+                                    
+                                
+                            </div>      
+                        </div>
                 </div>
             </div>
         </div>

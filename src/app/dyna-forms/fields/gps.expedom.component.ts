@@ -141,7 +141,7 @@ export class GPSExpedomComponent{
 
         }).catch( (err)=>{
             console.log("Error geolocalisation");
-             this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+            // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
 
@@ -160,10 +160,10 @@ export class GPSExpedomComponent{
         //determine le code CCDT du pays -optimise
         let cnt = CCTD[this.question.default_location.country] || "FR";
 
-
+        console.log("recherche pour nom: "+zipcode);
         //this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
         this._gmap.get_coords_from_departement_name_async(zipcode,cnt).then( (rep)=>{
-            
+            console.log(rep);
             //VERIFIE SI LE PAYS EST BON.....
             if(rep["country"] && rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";

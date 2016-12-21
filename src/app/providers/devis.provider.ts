@@ -601,7 +601,8 @@ export class DevisProvider {
     //genere l'URL pour la geolocation: recupere les valeurs pour les prises en charge a domicile
     create_geolocation_url(position:any){
         let zipcode = position.zipcode? position.zipcode.slice(0,2) : "";//juste le dep si dispo 
-
+        console.log("create geo url");
+        console.log(zipcode);
         //endpoint vers le webservice avec les infos de positions
         let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode
                 +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;

@@ -101,7 +101,7 @@ export class GmapGeocodeProvider {
     }
 
     get_coords_from_departement_name_async(name:string, cctd:string){
-         let url = ENDPOINT + "address="+name+"+"+cctd+"&components=postal_code&region=YT&key="+GMAP_KEY;
+         let url = ENDPOINT + "address="+encodeURI(name)+"+"+cctd+"&key="+GMAP_KEY;
         return this._http.get(url)
         .toPromise()
         .then ( (rep:any)=>{
@@ -110,7 +110,7 @@ export class GmapGeocodeProvider {
                 // console.log("des reponses");
                 let address = rep.results[0].address_components;//la plus precise
                 let geo = rep.results[0].geometry.location;
-
+console.log(rep.results);
                  this.cached_position = {
                      "city": this.get_type("locality", address),
                      "lat":geo.lat,

@@ -24,7 +24,7 @@
   position: relative;
   left: 1px; 
   cursor:pointer;
-  min-width: 200px;
+  //min-width: 200px;
     font-size: 1em;
     text-transform: uppercase;
     text-align: center;
@@ -64,16 +64,20 @@ sebm-google-map-info-window > div{
 }
 .inline-form{
  
-  margin-top: 10px;
+  margin-top: 30px;
   display: flex;
-
+ align-items: flex-end;
  
   div{
     flex-grow:1;
-    button{
-      max-width: 200px!important;
+    label{
+      
     }
      
+  }
+  button {
+    flex-grow: 0;
+    max-width: 150px;
   }
   
 }
