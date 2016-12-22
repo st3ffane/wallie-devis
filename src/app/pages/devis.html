@@ -1,50 +1,57 @@
 <div>
-        <h1>Calculateur de devis EXPEDOM</h1>
-        <div *ngIf='!loading'>
-        <div id="recap">
-        <span>Vous desirez expedier:</span>
-        <ul>
-             <li> un/une <strong>{{devis_infos | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}</strong> </li>
-             <li> depuis <strong>{{devis_infos | GetDevisDetailsPipe:"form_from":"from"}}</strong> vers <strong>{{devis_infos | GetDevisDetailsPipe:"form_to":"to"}}</strong></li>
-             <li> <strong>{{devis_infos | GetDevisDetailsPipe:"form_assurance":"assurance"}}</strong></li>
-             <li> ...voir quoi mettre d'autre</li>
-                
-        </ul>
-        </div>
-        <div id="results" *ngIf="devis_details">
-        <h3>Votre estimation: </h3>
-        <a [href]='pdf_file'>Telecharger le devis en pdf</a>
-        <ul>
-            <li>Valeur de la marchandise:<strong>{{devis_details.V}}</strong></li>
-            <li>valeur taxable sur marchandise:<strong>{{devis_details.CAF}}</strong></li>
-            <li>Taxe sur marchandise:<strong>{{devis_details.TSM}}</strong></li>
-            <li>&nbsp;</li>
-            <li>Assurance:<strong>{{devis_details.A}}</strong>€</li>
-             <li>&nbsp;</li>
-            <li>Port de depart:<strong>{{devis_details.PORT_DE_DEPART}}</strong></li>
-            <li>Prix du transport (port à port)<strong>{{devis_details.P}}</strong></li>
-            <li>Prise en charge <strong>{{devis_details.PC}}</strong></li>
-            <li>Livraison à domicile <strong>{{devis_details.PT}}</strong></li>
-             <li>&nbsp;</li>
-            <li>taux de TVA:<strong>{{devis_details.TVA}}</strong>%</li>
-            <li>valeur TVA:<strong>{{devis_details.TVA_VALUE}}</strong>€</li>
-            <li>taux TVA sur prestation:<strong>{{devis_details.TVA_RU}}</strong>%</li>
-            <li>valeur TVA sur prestation:<strong>{{devis_details.TVA_RU_VALUE}}</strong>€</li>
-            <li>Total taxes locales:<strong>{{devis_details.TOTAL_REUNION}}</strong></li>
-            <li>Taxes avant dedoienement:<strong>{{devis_details.TAXES}}</strong></li>
-            <li>Dedoienement:<strong>{{devis_details.FR}}</strong></li>
-             <li>&nbsp;</li>
-              <li>&nbsp;</li>
+    <h2 class="row text-center app_title">Devis/Cotation</h2>
+    <div class="logo">&nbsp;</div>
+    <div *ngIf="loading" class="loading">Loading&#8230;</div>
+    <div *ngIf='!loading'>
+            <h3>Récapitulatif de votre commande</h3>
+            <table id="recap">
+                <div class="form_infos" *ngFor="let form of workflow">
+                    <!-- le nom du formulaire -->
+                    <tr><td  colspan="2" class="form_title">{{form.title}}</td></tr>
+                    <tr class="form_fields" *ngFor="let field of form.fields">
+                        <td class="field_label">{{field.title}}</td><td class="field_value">{{field.value_label}}</td>
+                        
+                    </tr>
+                    
+                </div>
+            </table>
 
-            <li>Totalà payer:<strong>{{devis_details.TOTAL_A_PAYER}}</strong>€</li>
             
-        </ul>
-        <a [href]='pdf_file'>Telecharger le devis en pdf</a>
-        </div>
-        <div id="actions">
-            <button *ngIf="has_IDB && devis_infos.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button>
-             <button class="btn btn-primary wide" >Effefctuer la reservation maintenant!</button>
-            <button class="btn btn-primary wide" (click)="create_devis()">Nouveau devis</button>
-        </div>
+
+            <div id="results" *ngIf="devis_details">
+            <h3>Votre estimation: </h3>
+            
+            <ul>
+                <li><span class="label">Valeur de la marchandise:</span><strong class="result_value">{{devis_details.V | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">valeur taxable sur marchandise:</span><strong class="result_value">{{devis_details.CAF | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">Taxe sur marchandise:</span><strong class="result_value">{{devis_details.TSM | number:'2.2-2'}}€</strong></li>
+                <li>&nbsp;</li>
+                <li><span class="label">Assurance:</span><strong class="result_value">{{devis_details.A | number:'2.2-2'}}€</strong></li>
+                <li>&nbsp;</li>
+                <li><span class="label">Port de depart:</span><strong class="result_value">{{devis_details.PORT_DE_DEPART}}</strong></li>
+                <li><span class="label">Prix du transport (port à port)</span><strong class="result_value">{{devis_details.P | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">Prise en charge </span><strong class="result_value">{{devis_details.PC | number:'2.2-2' || 'non applicable'}}€</strong></li>
+                <li><span class="label">Livraison à domicile</span> <strong class="result_value">{{devis_details.PT | number:'2.2-2'}}€</strong></li>
+                <li><h4>Droits de douanes à titre indicatif</h4></li>
+                <li><span class="label">taux de TVA:</span><strong class="result_value">{{devis_details.TVA | number:'2.2-2' || 'non applicable'}}</strong>%</li>
+                <li><span class="label">valeur TVA:</span><strong class="result_value">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">taux TVA sur prestation:</span><strong class="result_value">{{devis_details.TVA_RU | number:'2.2-2'}}</strong>%</li>
+                <li><span class="label">valeur TVA sur prestation:</span><strong class="result_value">{{devis_details.TVA_RU_VALUE | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">Total taxes locales:</span><strong class="result_value">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">Taxes avant dedoienement:</span><strong class="result_value">{{devis_details.TAXES | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">Dedoienement:</span><strong class="result_value">{{devis_details.FR | number:'2.2-2'}}€</strong></li>
+                <li>&nbsp;</li>
+                <li>&nbsp;</li>
+
+                <li><span class="label">Totalà payer:</span><strong class="result_value">{{devis_details.TOTAL_A_PAYER | number:'2.2-2'}}€</strong></li>
+                
+            </ul>
+            <a [href]='pdf_file'>Telecharger le devis en pdf</a>
+            </div>
+            <div id="actions">
+                <button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button>
+                <button class="btn btn-primary wide" >Effefctuer la reservation maintenant!</button>
+                <button class="btn btn-primary wide" (click)="create_devis()">Nouveau devis</button>
+            </div>
         </div>
 </div>

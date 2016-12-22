@@ -105,6 +105,9 @@ export class GPSExpedomComponent{
         //creation des elements de formulaires necessaires (angular)
         this.create_forms_elements();
         this.question["position"] = {};
+
+        console.log("Geolocation:");
+        console.log(this.question["use-geolocation"])
         this.noGeo = this.question["use-geolocation"] ? this.question["use-geolocation"] : true ;
 
         //mappe les locations a afficher sur la map

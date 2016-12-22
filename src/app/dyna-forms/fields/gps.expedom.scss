@@ -12,13 +12,14 @@
   min-height: 200px; /* This part sucks */
   clear: both;
   margin: 25px 0;
+  background-color: #E8E8E8;
 }
 .tab {
   float: left;
 }
 .tab label {
 //   background: #eee; 
-  padding: 10px; 
+//  padding: 10px; 
 //   border: 1px solid #ccc; 
   margin-left: -1px; 
   position: relative;
@@ -28,13 +29,21 @@
     font-size: 1em;
     text-transform: uppercase;
     text-align: center;
+  
+    span{
+      display: block;
+      padding: 10px;
+      color: #E3E3E3;
+     
+    }
 }
 .tab [type=radio] {
   display: none;   
 }
 .content {
+  background-color: white;
   position: absolute;
-  top: 45px;
+  top: 44px;
   left: 0;
 //   background: white;
   right: 0;
@@ -44,8 +53,9 @@
 
 }
 [type=radio]:checked ~ span {
-  //background: white;
-  border-bottom: 2px solid $focus_color;;
+  background: white;
+  //border-bottom: 2px solid $focus_color;;
+  color: #3E3E3E!important;
   width: 100%;
     display: block;
     padding-bottom: 10px;

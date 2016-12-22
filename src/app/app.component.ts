@@ -35,6 +35,7 @@ export class AppComponent{
   beforeUnloadHander(event) {
     // enregistre les datas du formulaire courant???
      this._devis.save_to_LS();
+     //window.localStorage.removeItem("app_datas"); DEBUG: me permet de remettre a zero le localstorage qd je joue trop avec...
   }
 
 

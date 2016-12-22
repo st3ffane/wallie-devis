@@ -167,10 +167,10 @@ export class DevisProvider {
      */
     create_new_devis(){
         //supprime les données iportantes pour determiner les etapes suivante (pas de cache)
-        this.devis_infos["form_marchandise"]=null// garde les données par defaut???
-        this.devis_infos["form_from"]=null// garde les données par defaut???
-        this.devis_infos["form_to"]=null// garde les données par defaut???
-        this.devis_infos["form_motif"]=null// garde les données par defaut???
+        if(this.devis_infos["form_marchandise"]) delete(this.devis_infos["form_marchandise"]);// garde les données par defaut???
+        if(this.devis_infos["form_from"]) delete(this.devis_infos["form_from"])// garde les données par defaut???
+        if(this.devis_infos["form_to"])delete(this.devis_infos["form_to"])// garde les données par defaut???
+        if(this.devis_infos["form_motif"]) delete(this.devis_infos["form_motif"])// garde les données par defaut???
         
         this._form_historic=[];
     }
@@ -477,7 +477,12 @@ export class DevisProvider {
         
         for (let key of Object.keys(this.devis_infos)){
             
+
+            console.log("clé:"+key);
             let form = this.devis_infos[key];
+            console.log(form);
+
+            
             if(form.fields == null) continue;
 
 
@@ -709,27 +714,70 @@ export class DevisProvider {
     /**
      * Afin de sauvegarder le maximum de place sur l'appareil de l'utilisateur,
      * on compacte les données pour ne sauvegarder que l'essentiel
+     * 
+     * formulaire: title: le titre qui s'affichera dans le devis final
+     *             url: url de chargement du formulaire 
+     *             fields: les champs du formulaire:
+     *                  id: identifiant du field (pour repopulation)
+     *                  value: la valeur actuelle du field
+     *                  value_label: la version userfriendly de la value de la reponse (pour le devis final)
+     *                  title: le label/titre du field
+     *                  position: si gps actif 
+     *                      city, lat, lng, zipcode, coutry
      */
-    private compact_datas(devis){
+    compact_datas(devis){
         let dt = {};
             for (let frm of Object.keys(devis)){
 
                 if(devis[frm] == null) continue;
-                let fds = [];
-                let fields = devis[frm].fields;
-                if(fields == null ) continue;
 
-                let url = devis[frm].url;//url pour recup les données
+                let form = devis[frm];
+                dt[frm] = this.compact_devis_form_datas(form);
+
+                
+
+            }
+        return dt;
+    }
+
+    /**
+     * compacte les données d'un formulaire en gardant les informations necessaires pour assurer les affichages
+     */
+    compact_devis_form_datas(form){
+                
+
+                let fds = [];//les fields
+                let fields = form.fields;
+                if(fields == null ) return;
+
+                let url = form.url;//url pour recup les données
                 for (let field of fields){
                     let obj =
                     {
                         "value":field["value"] || null,
-                        "id": field["id"]
+                        "value_label":field["value_label"] || field["value"],
+                        "id": field["id"],
+                        'title': field.title,//pour affichage dans le devis final 
                         //voir si autre chose?????
                     };
 
+                    //probleme value_label: si options, doit recuperer le label de l'option 
+                    if(field.options && field["value"]!=null){
+                        console.log("recherche le label de la reponse...");
+                        let v  = this.get_label_for_value(field["value"], field.options);
+                        console.log("label: "+v);
+                        if(v) obj["value_label"] = v;
+
+                    }
                     //certains fields utilise la geolocalisation et ont un field position a sauvegarder
                     if(field["position"]) {
+                        console.log(field["value"]);
+                        if (field["value"] && field["value"].startsWith("domicile")){
+                            //recherche dans les options de domicile
+                            console.log("domicile");
+                            obj["value_label"] = "Prise en charge à domicile";
+                        }
+                        //un GPS!
                         let pos = field["position"];
 
                         obj['position'] = {
@@ -742,13 +790,29 @@ export class DevisProvider {
                     }
                     fds.push(obj);
                 }
-                dt[frm] = {
-                    "fields":fds,//pour les differents champs du formulaire 
-                    "url":url
-                };
 
+                return  {
+                    "fields":fds,//pour les differents champs du formulaire 
+                    "url":url, //pour le rechargement 
+                    "title": form.title,//pour le devis final: voir a mettre un champs devis_title????
+                    
+                };
+    }
+    /**
+     * recherche dans les options le label possible 
+     */
+    private get_label_for_value(value, options){
+        for (let opt of options){
+            console.log(opt);
+            
+            if (opt["options"] || opt["locations"]){
+                let lbl = this.get_label_for_value(value, opt["options"] || opt["locations"] );
+                if(lbl) return lbl;
+                //sinon, continue
             }
-        return dt;
+            else if (opt["value"] && opt["value"] == value) return opt["label"] || opt['title'];
+        }
+        return false;//on a pas trouvé
     }
     //le formulaire en cours
     private compact_form_datas(form){

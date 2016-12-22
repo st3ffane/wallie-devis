@@ -53,7 +53,8 @@
                 </div>
             </div>
             <!-- dernier choix, le domicile -->
-            <div *ngIf="noGeo" class="tab">
+
+            <div *ngIf="question.noGeo == true" class="tab">
                 <label>
                 <input type="radio" [(ngModel)]="filter" 
                     [formControlName]="filter_form_ctrl"
@@ -143,7 +144,7 @@
 
                 
                 </div>
-             <div  *ngIf="noGeo && filter=='domicile' && position">
+             <div  *ngIf="question.noGeo && filter=='domicile' && position">
                         
                             <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->
                         <sebm-google-map-marker  [latitude]="position?.lat" [longitude]="position?.lng"

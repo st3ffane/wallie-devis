@@ -51,7 +51,9 @@ export class DevisComponent implements OnInit{
 
     has_IDB: boolean = true; // pour savoir si a un acces aux base de données
 
-    requested_keys = [];
+    //requested_keys = [];
+    workflow = [];
+
 
 
     constructor( private _devis:DevisProvider,
@@ -61,8 +63,7 @@ export class DevisComponent implements OnInit{
     ngOnInit(){
         //chargement des données du devis....
         this.has_IDB = this._devis.has_IDB();
-        this.devis_infos = this._devis.get_devis();
-
+        
         //pour l'historique, remet le current_key a null 
         //@IMPORTANT: permet, si quitte l'application ici, de ne pas sauvegarder 
         //l'historique du formulaire!!!!
@@ -78,11 +79,49 @@ export class DevisComponent implements OnInit{
         // })
         this._devis.load_devis_details_async()//this.requested_keys)
         .then( (res:any)=>{
-            console.log("fin chargment du devis...");
-            this.loading = false;
-            this.devis_details = res.calculated_data;
-            this.pdf_file = res.pdf_file;
 
+            return new Promise( (resolve, reject)=>{
+                console.log("fin chargment du devis...");
+
+                //recup le devis courant avec les valeurs de l'utilisateur
+                let devis = this._devis.get_devis();
+                console.log(devis);
+
+                //recupere le workflow 
+                let datas = res.calculated_datas;
+                let wf = res.workflow;
+              
+                //recupere dans le 'cache' de l'application les formulaires qui nous interressent 
+                //et compacte les données pour simplifier l'affichage 
+                let workflow = wf.map( (key)=>{
+                    let [group, form]=key.split("/");
+                    return this._devis.compact_devis_form_datas(devis[form]);//le nom du formulaire a afficher....
+                });
+
+                resolve({
+                    'workflow': workflow,
+                    'calculated_datas':datas,
+                    'pdf_file':res.pdf_file
+                });
+
+                //on a dans l'ordre les differentes parties du workflow...
+
+                
+            });
+            
+            
+        }).then( (res:any)=>{
+                
+                //le recapitulatif des données
+                console.log("affichage!!!!");
+                console.log(res.workflow);
+                this.workflow = res.workflow;
+                //le devis 
+                this.devis_details = res.calculated_datas;
+                this.pdf_file = res.pdf_file;
+
+                this.loading = false;
+            
         }).catch( (err) => {
             console.log(err);
             this.loading = false;

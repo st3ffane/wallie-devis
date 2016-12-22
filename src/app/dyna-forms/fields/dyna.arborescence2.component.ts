@@ -247,6 +247,7 @@ export class DynaArborescence2Component{
     //le controle n'est plus valide
     annul(){
         this.question.__value = null;//cause une erreur expression already checked en mode dev...
+        //au mieux, scroll to the new components 
         
     }
 

@@ -129,4 +129,11 @@ export class MainPageComponent{
         // });
         
     }
+
+    delete_LS(){
+        window.localStorage.removeItem("app_datas");
+        window.localStorage.removeItem("historic");
+        this._devis.clearHistoric();
+        this._devis.create_new_devis();
+    }
 }

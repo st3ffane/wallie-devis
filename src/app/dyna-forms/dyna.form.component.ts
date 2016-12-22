@@ -168,8 +168,8 @@ export class DynamicFormComponent implements OnInit{
             }
             
         }
-
-        if(field.required !== false){
+        //desactive le required pour les checkboxs
+        if(field.type != "checkbox"  && field.required !== false){
             valids.push(Validators.required);
         }
         return valids;

@@ -1,0 +1,93 @@
+
+.logo{
+    background-image: url("/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 80px;
+    background-position-y: -18px;
+    position: relative;
+    top: -16px;
+}
+.app_title{
+    text-align:center;
+}
+.text-center{
+    text-align: center;
+}
+.recap-text{
+    font-size: 1.2em;
+    text-align: center;
+}
+.result_title{
+        display: table-row;
+}
+tbody{
+    width: 100%;
+    display: table;
+}
+#recap{
+    // display: table;
+    // border-collapse: separate;
+    width: 100%;
+    .form_infos{
+        // display: table-row-group;
+        // margin-bottom: 20px;
+        
+        .form_title{
+        //    display: table-row;
+        //    position: relative;
+           font-size: 1.1em;
+            font-weight: 700;
+            padding-top: 10px;
+        }
+        .form_fields{
+
+            // display: table-row;
+            width: 100%;
+            .field_label{
+                // display: table-cell;
+                    padding-left: 10px;
+                    vertical-align: top;
+            }
+            .field_value{
+                // display: table-cell;
+                font-size: 1em;
+                font-weight: 700;
+                text-transform: uppercase;
+                width: 33%;
+                vertical-align: top;
+                
+                
+            }
+        }
+    }
+}
+
+#results{
+        margin-top: 20px;
+        ul{
+            list-style:none;
+            width: 100%;
+            padding: 0;
+            line-height: 1.8em;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            
+            li{
+                white-space: nowrap;
+                padding-left: 10px;
+                .label{
+                    width: 67%;
+                    display:inline-block;
+                }
+                .result_value{
+                    font-size: 1.2em;
+                font-weight: 700;
+                text-transform: uppercase;
+                width: 33%;
+                vertical-align: top;
+                text-overflow: ellipsis;
+                }
+            }
+        }
+}
