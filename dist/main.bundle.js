@@ -7344,10 +7344,14 @@ var DevisProvider = (function () {
      */
     DevisProvider.prototype.create_new_devis = function () {
         //supprime les données iportantes pour determiner les etapes suivante (pas de cache)
-        this.devis_infos["form_marchandise"] = null; // garde les données par defaut???
-        this.devis_infos["form_from"] = null; // garde les données par defaut???
-        this.devis_infos["form_to"] = null; // garde les données par defaut???
-        this.devis_infos["form_motif"] = null; // garde les données par defaut???
+        if (this.devis_infos["form_marchandise"])
+            delete (this.devis_infos["form_marchandise"]); // garde les données par defaut???
+        if (this.devis_infos["form_from"])
+            delete (this.devis_infos["form_from"]); // garde les données par defaut???
+        if (this.devis_infos["form_to"])
+            delete (this.devis_infos["form_to"]); // garde les données par defaut???
+        if (this.devis_infos["form_motif"])
+            delete (this.devis_infos["form_motif"]); // garde les données par defaut???
         this._form_historic = [];
     };
     /**
@@ -7550,7 +7554,9 @@ var DevisProvider = (function () {
         var details = {};
         for (var _i = 0, _a = Object.keys(this.devis_infos); _i < _a.length; _i++) {
             var key = _a[_i];
+            console.log("clé:" + key);
             var form = this.devis_infos[key];
+            console.log(form);
             if (form.fields == null)
                 continue;
             var form_fields = {};
@@ -7740,6 +7746,16 @@ var DevisProvider = (function () {
     /**
      * Afin de sauvegarder le maximum de place sur l'appareil de l'utilisateur,
      * on compacte les données pour ne sauvegarder que l'essentiel
+     *
+     * formulaire: title: le titre qui s'affichera dans le devis final
+     *             url: url de chargement du formulaire
+     *             fields: les champs du formulaire:
+     *                  id: identifiant du field (pour repopulation)
+     *                  value: la valeur actuelle du field
+     *                  value_label: la version userfriendly de la value de la reponse (pour le devis final)
+     *                  title: le label/titre du field
+     *                  position: si gps actif
+     *                      city, lat, lng, zipcode, coutry
      */
     DevisProvider.prototype.compact_datas = function (devis) {
         var dt = {};
@@ -7747,36 +7763,78 @@ var DevisProvider = (function () {
             var frm = _a[_i];
             if (devis[frm] == null)
                 continue;
-            var fds = [];
-            var fields = devis[frm].fields;
-            if (fields == null)
-                continue;
-            var url = devis[frm].url; //url pour recup les données
-            for (var _b = 0, fields_1 = fields; _b < fields_1.length; _b++) {
-                var field = fields_1[_b];
-                var obj = {
-                    "value": field["value"] || null,
-                    "id": field["id"]
-                };
-                //certains fields utilise la geolocalisation et ont un field position a sauvegarder
-                if (field["position"]) {
-                    var pos = field["position"];
-                    obj['position'] = {
-                        'city': pos.city,
-                        'lat': pos.lat,
-                        'lng': pos.lng,
-                        'zipcode': pos.zipcode,
-                        'country': pos.country
-                    };
-                }
-                fds.push(obj);
-            }
-            dt[frm] = {
-                "fields": fds,
-                "url": url
-            };
+            var form = devis[frm];
+            dt[frm] = this.compact_devis_form_datas(form);
         }
         return dt;
+    };
+    /**
+     * compacte les données d'un formulaire en gardant les informations necessaires pour assurer les affichages
+     */
+    DevisProvider.prototype.compact_devis_form_datas = function (form) {
+        var fds = []; //les fields
+        var fields = form.fields;
+        if (fields == null)
+            return;
+        var url = form.url; //url pour recup les données
+        for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
+            var field = fields_1[_i];
+            var obj = {
+                "value": field["value"] || null,
+                "value_label": field["value_label"] || field["value"],
+                "id": field["id"],
+                'title': field.title,
+            };
+            //probleme value_label: si options, doit recuperer le label de l'option 
+            if (field.options && field["value"] != null) {
+                console.log("recherche le label de la reponse...");
+                var v = this.get_label_for_value(field["value"], field.options);
+                console.log("label: " + v);
+                if (v)
+                    obj["value_label"] = v;
+            }
+            //certains fields utilise la geolocalisation et ont un field position a sauvegarder
+            if (field["position"]) {
+                console.log(field["value"]);
+                if (field["value"] && field["value"].startsWith("domicile")) {
+                    //recherche dans les options de domicile
+                    console.log("domicile");
+                    obj["value_label"] = "Prise en charge à domicile";
+                }
+                //un GPS!
+                var pos = field["position"];
+                obj['position'] = {
+                    'city': pos.city,
+                    'lat': pos.lat,
+                    'lng': pos.lng,
+                    'zipcode': pos.zipcode,
+                    'country': pos.country
+                };
+            }
+            fds.push(obj);
+        }
+        return {
+            "fields": fds,
+            "url": url,
+            "title": form.title,
+        };
+    };
+    /**
+     * recherche dans les options le label possible
+     */
+    DevisProvider.prototype.get_label_for_value = function (value, options) {
+        for (var _i = 0, options_1 = options; _i < options_1.length; _i++) {
+            var opt = options_1[_i];
+            console.log(opt);
+            if (opt["options"] || opt["locations"]) {
+                var lbl = this.get_label_for_value(value, opt["options"] || opt["locations"]);
+                if (lbl)
+                    return lbl;
+            }
+            else if (opt["value"] && opt["value"] == value)
+                return opt["label"] || opt['title'];
+        }
+        return false; //on a pas trouvé
     };
     //le formulaire en cours
     DevisProvider.prototype.compact_form_datas = function (form) {
@@ -45522,6 +45580,7 @@ var AppComponent = (function () {
     AppComponent.prototype.beforeUnloadHander = function (event) {
         // enregistre les datas du formulaire courant???
         this._devis.save_to_LS();
+        //window.localStorage.removeItem("app_datas"); DEBUG: me permet de remettre a zero le localstorage qd je joue trop avec...
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["HostListener"])('window:beforeunload', ['$event']), 
@@ -60745,7 +60804,8 @@ var DynamicFormComponent = (function () {
                 }
             }
         }
-        if (field.required !== false) {
+        //desactive le required pour les checkboxs
+        if (field.type != "checkbox" && field.required !== false) {
             valids.push(__WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* Validators */].required);
         }
         return valids;
@@ -61222,6 +61282,7 @@ var DynaArborescence2Component = (function () {
     //le controle n'est plus valide
     DynaArborescence2Component.prototype.annul = function () {
         this.question.__value = null; //cause une erreur expression already checked en mode dev...
+        //au mieux, scroll to the new components 
     };
     /** si selectionne un element (leaf), desactive tous les radio nodes (ayant des options)
     // de son niveau et des niveaux inferieurs
@@ -61417,7 +61478,10 @@ var GPSExpedomComponent = (function () {
         //creation des elements de formulaires necessaires (angular)
         this.create_forms_elements();
         this.question["position"] = {};
+        console.log("Geolocation:");
+        console.log(this.question["use-geolocation"]);
         this.noGeo = this.question["use-geolocation"] ? this.question["use-geolocation"] : true;
+        console.log(this.noGeo);
         //mappe les locations a afficher sur la map
         this.remap_options();
     };
@@ -61786,13 +61850,13 @@ var DevisComponent = (function () {
         this._router = _router;
         this.loading = true;
         this.has_IDB = true; // pour savoir si a un acces aux base de données
-        this.requested_keys = [];
+        //requested_keys = [];
+        this.workflow = [];
     }
     DevisComponent.prototype.ngOnInit = function () {
         var _this = this;
         //chargement des données du devis....
         this.has_IDB = this._devis.has_IDB();
-        this.devis_infos = this._devis.get_devis();
         //pour l'historique, remet le current_key a null 
         //@IMPORTANT: permet, si quitte l'application ici, de ne pas sauvegarder 
         //l'historique du formulaire!!!!
@@ -61804,10 +61868,36 @@ var DevisComponent = (function () {
         // })
         this._devis.load_devis_details_async() //this.requested_keys)
             .then(function (res) {
-            console.log("fin chargment du devis...");
-            _this.loading = false;
-            _this.devis_details = res.calculated_data;
+            return new Promise(function (resolve, reject) {
+                console.log("fin chargment du devis...");
+                //recup le devis courant avec les valeurs de l'utilisateur
+                var devis = _this._devis.get_devis();
+                console.log(devis);
+                //recupere le workflow 
+                var datas = res.calculated_datas;
+                var wf = res.workflow;
+                //recupere dans le 'cache' de l'application les formulaires qui nous interressent 
+                //et compacte les données pour simplifier l'affichage 
+                var workflow = wf.map(function (key) {
+                    var _a = key.split("/"), group = _a[0], form = _a[1];
+                    return _this._devis.compact_devis_form_datas(devis[form]); //le nom du formulaire a afficher....
+                });
+                resolve({
+                    'workflow': workflow,
+                    'calculated_datas': datas,
+                    'pdf_file': res.pdf_file
+                });
+                //on a dans l'ordre les differentes parties du workflow...
+            });
+        }).then(function (res) {
+            //le recapitulatif des données
+            console.log("affichage!!!!");
+            console.log(res.workflow);
+            _this.workflow = res.workflow;
+            //le devis 
+            _this.devis_details = res.calculated_datas;
             _this.pdf_file = res.pdf_file;
+            _this.loading = false;
         }).catch(function (err) {
             console.log(err);
             _this.loading = false;
@@ -62149,6 +62239,12 @@ var MainPageComponent = (function () {
         // }).catch ( (err)=>{
         //     console.log(err);
         // });
+    };
+    MainPageComponent.prototype.delete_LS = function () {
+        window.localStorage.removeItem("app_datas");
+        window.localStorage.removeItem("historic");
+        this._devis.clearHistoric();
+        this._devis.create_new_devis();
     };
     MainPageComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
@@ -65335,13 +65431,13 @@ module.exports = ".choice-cmp label {\n  display: block;\n  font-weight: 700;\n 
 /* 678 */
 /***/ function(module, exports) {
 
-module.exports = "/*input text */\n.form-group {\n  margin-bottom: 20px; }\n\n.input-container {\n  display: inline-block;\n  position: relative;\n  margin-top: 16px;\n  width: 100%; }\n  .input-container input[type=text],\n  .input-container input[type=password],\n  .input-container input[type=search],\n  .input-container input[type=number],\n  .input-container input[type=email],\n  .input-container select,\n  .input-container textarea {\n    position: relative;\n    vertical-align: baseline;\n    font-size: 1em;\n    border-color: #aaa;\n    -webkit-box-ordinal-group: 3;\n    -webkit-order: 2;\n    -webkit-box-shadow: none;\n    box-shadow: none;\n    order: 2;\n    display: block;\n    margin-top: 0;\n    background: none;\n    padding: 2px 2px 1px;\n    border-width: 0 0 2px;\n    line-height: 26px;\n    /*height: 1.05em;*/\n    -ms-flex-preferred-size: 26px;\n    border-radius: 0;\n    border-style: solid;\n    box-sizing: border-box;\n    z-index: 1;\n    width: 100%; }\n    .input-container input[type=text] + label,\n    .input-container input[type=password] + label,\n    .input-container input[type=search] + label,\n    .input-container input[type=number] + label,\n    .input-container input[type=email] + label,\n    .input-container select + label,\n    .input-container textarea + label {\n      position: absolute;\n      bottom: 0;\n      z-index: 0;\n      transition: all 0.3s ease; }\n    .input-container input[type=text].full + label,\n    .input-container input[type=password].full + label,\n    .input-container input[type=search].full + label,\n    .input-container input[type=number].full + label,\n    .input-container input[type=email].full + label,\n    .input-container select.full + label,\n    .input-container textarea.full + label {\n      bottom: 1em;\n      font-size: 16px; }\n    .input-container input[type=text].ng-valid, .input-container input[type=text]:focus,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=password]:focus,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=search]:focus,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=number]:focus,\n    .input-container input[type=email].ng-valid,\n    .input-container input[type=email]:focus,\n    .input-container select.ng-valid,\n    .input-container select:focus,\n    .input-container textarea.ng-valid,\n    .input-container textarea:focus {\n      outline: 0;\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label, .input-container input[type=text]:focus + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=password]:focus + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=search]:focus + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=number]:focus + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container input[type=email]:focus + label,\n      .input-container select.ng-valid + label,\n      .input-container select:focus + label,\n      .input-container textarea.ng-valid + label,\n      .input-container textarea:focus + label {\n        color: #f19300;\n        text-shadow: 1px 1px #bd7501;\n        bottom: 1.2em;\n        font-size: 16px; }\n    .input-container input[type=text].ng-valid,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=email].ng-valid,\n    .input-container select.ng-valid,\n    .input-container textarea.ng-valid {\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container select.ng-valid + label,\n      .input-container textarea.ng-valid + label {\n        color: #f19300; }\n    .input-container input[type=text]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=password]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=search]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=number]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=email]:not(.ng-untouched).ng-invalid,\n    .input-container select:not(.ng-untouched).ng-invalid,\n    .input-container textarea:not(.ng-untouched).ng-invalid {\n      border-color: #E31111; }\n      .input-container input[type=text]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=password]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=search]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=number]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=email]:not(.ng-untouched).ng-invalid + label,\n      .input-container select:not(.ng-untouched).ng-invalid + label,\n      .input-container textarea:not(.ng-untouched).ng-invalid + label {\n        color: #E31111; }\n  .input-container select {\n    font-size: 1em; }\n  .input-container textarea {\n    height: 3em; }\n    .input-container textarea.full + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n    .input-container textarea.ng-valid + label, .input-container textarea:focus + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n\n.border {\n  padding: 2px;\n  box-shadow: 1px 1px 4px 2px rgba(31, 31, 31, 0.2);\n  border: 1px solid #E3E3E3; }\n\n.tabs {\n  position: relative;\n  min-height: 200px;\n  /* This part sucks */\n  clear: both;\n  margin: 25px 0; }\n\n.tab {\n  float: left; }\n\n.tab label {\n  padding: 10px;\n  margin-left: -1px;\n  position: relative;\n  left: 1px;\n  cursor: pointer;\n  font-size: 1em;\n  text-transform: uppercase;\n  text-align: center; }\n\n.tab [type=radio] {\n  display: none; }\n\n.content {\n  position: absolute;\n  top: 45px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 20px; }\n\n[type=radio]:checked ~ span {\n  border-bottom: 2px solid #f19300;\n  width: 100%;\n  display: block;\n  padding-bottom: 10px; }\n\n[type=radio]:checked ~ label ~ .content {\n  z-index: 1; }\n\n.sebm-google-map-container {\n  height: 600px; }\n\nsebm-google-map-info-window > div {\n  display: flex; }\n\n.inline-form {\n  margin-top: 30px;\n  display: flex;\n  align-items: flex-end; }\n  .inline-form div {\n    flex-grow: 1; }\n  .inline-form button {\n    flex-grow: 0;\n    max-width: 150px; }\n\n.infos fieldset {\n  display: flex;\n  flex-direction: column; }\n  .infos fieldset label {\n    flex-grow: 1;\n    width: 100%; }\n    .infos fieldset label input {\n      display: none; }\n      .infos fieldset label input:checked + span {\n        background-color: #f19300;\n        border: none !important; }\n      .infos fieldset label input:checked + .btn-primary:hover {\n        background-color: #f19300 !important;\n        box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n    .infos fieldset label span {\n      display: block;\n      width: 100%; }\n"
+module.exports = "/*input text */\n.form-group {\n  margin-bottom: 20px; }\n\n.input-container {\n  display: inline-block;\n  position: relative;\n  margin-top: 16px;\n  width: 100%; }\n  .input-container input[type=text],\n  .input-container input[type=password],\n  .input-container input[type=search],\n  .input-container input[type=number],\n  .input-container input[type=email],\n  .input-container select,\n  .input-container textarea {\n    position: relative;\n    vertical-align: baseline;\n    font-size: 1em;\n    border-color: #aaa;\n    -webkit-box-ordinal-group: 3;\n    -webkit-order: 2;\n    -webkit-box-shadow: none;\n    box-shadow: none;\n    order: 2;\n    display: block;\n    margin-top: 0;\n    background: none;\n    padding: 2px 2px 1px;\n    border-width: 0 0 2px;\n    line-height: 26px;\n    /*height: 1.05em;*/\n    -ms-flex-preferred-size: 26px;\n    border-radius: 0;\n    border-style: solid;\n    box-sizing: border-box;\n    z-index: 1;\n    width: 100%; }\n    .input-container input[type=text] + label,\n    .input-container input[type=password] + label,\n    .input-container input[type=search] + label,\n    .input-container input[type=number] + label,\n    .input-container input[type=email] + label,\n    .input-container select + label,\n    .input-container textarea + label {\n      position: absolute;\n      bottom: 0;\n      z-index: 0;\n      transition: all 0.3s ease; }\n    .input-container input[type=text].full + label,\n    .input-container input[type=password].full + label,\n    .input-container input[type=search].full + label,\n    .input-container input[type=number].full + label,\n    .input-container input[type=email].full + label,\n    .input-container select.full + label,\n    .input-container textarea.full + label {\n      bottom: 1em;\n      font-size: 16px; }\n    .input-container input[type=text].ng-valid, .input-container input[type=text]:focus,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=password]:focus,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=search]:focus,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=number]:focus,\n    .input-container input[type=email].ng-valid,\n    .input-container input[type=email]:focus,\n    .input-container select.ng-valid,\n    .input-container select:focus,\n    .input-container textarea.ng-valid,\n    .input-container textarea:focus {\n      outline: 0;\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label, .input-container input[type=text]:focus + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=password]:focus + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=search]:focus + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=number]:focus + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container input[type=email]:focus + label,\n      .input-container select.ng-valid + label,\n      .input-container select:focus + label,\n      .input-container textarea.ng-valid + label,\n      .input-container textarea:focus + label {\n        color: #f19300;\n        text-shadow: 1px 1px #bd7501;\n        bottom: 1.2em;\n        font-size: 16px; }\n    .input-container input[type=text].ng-valid,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=email].ng-valid,\n    .input-container select.ng-valid,\n    .input-container textarea.ng-valid {\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container select.ng-valid + label,\n      .input-container textarea.ng-valid + label {\n        color: #f19300; }\n    .input-container input[type=text]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=password]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=search]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=number]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=email]:not(.ng-untouched).ng-invalid,\n    .input-container select:not(.ng-untouched).ng-invalid,\n    .input-container textarea:not(.ng-untouched).ng-invalid {\n      border-color: #E31111; }\n      .input-container input[type=text]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=password]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=search]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=number]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=email]:not(.ng-untouched).ng-invalid + label,\n      .input-container select:not(.ng-untouched).ng-invalid + label,\n      .input-container textarea:not(.ng-untouched).ng-invalid + label {\n        color: #E31111; }\n  .input-container select {\n    font-size: 1em; }\n  .input-container textarea {\n    height: 3em; }\n    .input-container textarea.full + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n    .input-container textarea.ng-valid + label, .input-container textarea:focus + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n\n.border {\n  padding: 2px;\n  box-shadow: 1px 1px 4px 2px rgba(31, 31, 31, 0.2);\n  border: 1px solid #E3E3E3; }\n\n.tabs {\n  position: relative;\n  min-height: 200px;\n  /* This part sucks */\n  clear: both;\n  margin: 25px 0;\n  background-color: #E8E8E8; }\n\n.tab {\n  float: left; }\n\n.tab label {\n  margin-left: -1px;\n  position: relative;\n  left: 1px;\n  cursor: pointer;\n  font-size: 1em;\n  text-transform: uppercase;\n  text-align: center; }\n  .tab label span {\n    display: block;\n    padding: 10px;\n    color: #E3E3E3; }\n\n.tab [type=radio] {\n  display: none; }\n\n.content {\n  background-color: white;\n  position: absolute;\n  top: 44px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 20px; }\n\n[type=radio]:checked ~ span {\n  background: white;\n  color: #3E3E3E !important;\n  width: 100%;\n  display: block;\n  padding-bottom: 10px; }\n\n[type=radio]:checked ~ label ~ .content {\n  z-index: 1; }\n\n.sebm-google-map-container {\n  height: 600px; }\n\nsebm-google-map-info-window > div {\n  display: flex; }\n\n.inline-form {\n  margin-top: 30px;\n  display: flex;\n  align-items: flex-end; }\n  .inline-form div {\n    flex-grow: 1; }\n  .inline-form button {\n    flex-grow: 0;\n    max-width: 150px; }\n\n.infos fieldset {\n  display: flex;\n  flex-direction: column; }\n  .infos fieldset label {\n    flex-grow: 1;\n    width: 100%; }\n    .infos fieldset label input {\n      display: none; }\n      .infos fieldset label input:checked + span {\n        background-color: #f19300;\n        border: none !important; }\n      .infos fieldset label input:checked + .btn-primary:hover {\n        background-color: #f19300 !important;\n        box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n    .infos fieldset label span {\n      display: block;\n      width: 100%; }\n"
 
 /***/ },
 /* 679 */
 /***/ function(module, exports) {
 
-module.exports = ""
+module.exports = ".logo {\n  background-image: url(\"/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png\");\n  background-position: center;\n  background-repeat: no-repeat;\n  height: 80px;\n  background-position-y: -18px;\n  position: relative;\n  top: -16px; }\n\n.app_title {\n  text-align: center; }\n\n.text-center {\n  text-align: center; }\n\n.recap-text {\n  font-size: 1.2em;\n  text-align: center; }\n\n.result_title {\n  display: table-row; }\n\ntbody {\n  width: 100%;\n  display: table; }\n\n#recap {\n  width: 100%; }\n  #recap .form_infos .form_title {\n    font-size: 1.1em;\n    font-weight: 700;\n    padding-top: 10px; }\n  #recap .form_infos .form_fields {\n    width: 100%; }\n    #recap .form_infos .form_fields .field_label {\n      padding-left: 10px;\n      vertical-align: top; }\n    #recap .form_infos .form_fields .field_value {\n      font-size: 1em;\n      font-weight: 700;\n      text-transform: uppercase;\n      width: 33%;\n      vertical-align: top; }\n\n#results {\n  margin-top: 20px; }\n  #results ul {\n    list-style: none;\n    width: 100%;\n    padding: 0;\n    line-height: 1.8em;\n    padding-top: 5px;\n    padding-bottom: 5px; }\n    #results ul li {\n      white-space: nowrap;\n      padding-left: 10px; }\n      #results ul li .label {\n        width: 67%;\n        display: inline-block; }\n      #results ul li .result_value {\n        font-size: 1.2em;\n        font-weight: 700;\n        text-transform: uppercase;\n        width: 33%;\n        vertical-align: top;\n        text-overflow: ellipsis; }\n"
 
 /***/ },
 /* 680 */
@@ -65389,13 +65485,13 @@ module.exports = " <fieldset  class=\"text-center \" [formGroup]=\"form\" ><!--[
 /* 687 */
 /***/ function(module, exports) {
 
-module.exports = "<div [formGroup]=\"form\" class=\"border\">\r\n\r\n\r\n        \r\n                    \r\n\r\n\r\n            <!-- affichage des tabs pour les choix -->\r\n           \r\n        <div class=\"tabs\">\r\n            <div class=\"tab\" *ngFor=\"let qfilter of question.options\">\r\n\r\n               \r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    [value]=\"qfilter.label\"                \r\n                    #trigger>\r\n                <span>{{qfilter.label}}</span></label>\r\n               \r\n                \r\n                \r\n\r\n                <div class=\"content\" *ngIf=\"qfilter.locations && trigger.checked\">\r\n                     <p>{{qfilter.description}}</p>\r\n                      <div class=\"schrink\">\r\n                        <div class=\"input-container\">\r\n                            <input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"\r\n                                >\r\n                            <label>{{question.title}}</label>        \r\n                        </div>\r\n                       \r\n                    </div>\r\n\r\n\r\n                    <!--input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"-->\r\n                    <datalist id=\"choices\">\r\n                        <option *ngFor=\"let l of filtered_datalist\" [value]=\"l\">\r\n                    </datalist>\r\n                </div>\r\n            </div>\r\n            <!-- dernier choix, le domicile -->\r\n            <div *ngIf=\"noGeo\" class=\"tab\">\r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    value=\"domicile\"                \r\n                    #trigger><span>Domicile</span></label>\r\n                \r\n\r\n\r\n                <div class=\"content\" *ngIf=\"trigger.checked\">\r\n                    \r\n                        <div class=\"inline-form\">\r\n                           \r\n                                <div class=\"input-container\">\r\n                                    <input type=\"text\" value=\"Un autre departement\" #zipcode  [value]=\"srch_zipcode || '' \"\r\n                                    [class.full]=\"srch_zipcode!=''\">\r\n                                    <label>Entrez votre adresse.</label>        \r\n                                </div>\r\n                                <button type=\"button\" [attr.disabled]=\"zipcode.value=='' || null\" class='btn btn-primary' (click)=\"localise_from_zipcode(zipcode.value)\">Localisation</button>\r\n                        \r\n                                \r\n                        </div>\r\n                        <div>\r\n                            <div *ngIf=\"!position\">\r\n                                <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>\r\n                            </div>\r\n                            <div *ngIf=\"position\">\r\n                                \r\n                                        <span *ngIf=\"!position.zipcode && !position.city\">\r\n                                            <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>\r\n                                        </span>\r\n                                        <span *ngIf=\"position.zipcode\">Vous avez été géolocalisé: <strong>{{position.name+\"(\"+position.zipcode+\")\"}}</strong></span>\r\n                                        \r\n                                    \r\n                                \r\n                            </div>      \r\n                        </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n       \r\n\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        <sebm-google-map [latitude]=\"question?.default_location.lat\" [longitude]=\"question?.default_location.lng\"\r\n            [zoom]=\"question?.default_location.zoom || 6\"\r\n            (mapClick)=\"positionne_marker($event)\"\r\n            >\r\n            <div *ngFor=\"let opt of filtered_options\">\r\n\r\n                   \r\n\r\n\r\n            \r\n                <!-- les ports et les depots -->\r\n                <div *ngIf=\"filter!='domicile'\">\r\n                    <sebm-google-map-marker  *ngFor=\"let m of opt.locations\"\r\n                        [latitude]=\"m?.lat\" [longitude]=\"m?.lng\" \r\n                        [iconUrl]=\"opt.label | toIconUrl\"\r\n                        >\r\n\r\n                        <!-- si une seule reponse, affiche directement l'infos window???  -->\r\n                        <sebm-google-map-info-window [isOpen]=\"opt.locations.length == 1\">\r\n                            <div class=\"infos\">\r\n                                <strong>{{m?.label}}</strong>\r\n                                <p>{{m?.description}}</p>\r\n                                <fieldset>\r\n                                    <div  *ngFor=\"let price of m?.options\">\r\n                                        <label ><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                                </fieldset>\r\n                            </div>\r\n                        </sebm-google-map-info-window>   \r\n\r\n                    </sebm-google-map-marker>\r\n                </div>\r\n\r\n                \r\n                </div>\r\n             <div  *ngIf=\"noGeo && filter=='domicile' && position\">\r\n                        \r\n                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->\r\n                        <sebm-google-map-marker  [latitude]=\"position?.lat\" [longitude]=\"position?.lng\"\r\n                        [iconUrl]=\"'domicile' | toIconUrl\">\r\n                            <sebm-google-map-info-window   [isOpen]=\"position\" >\r\n                            <div class=\"infos\">\r\n                                <strong>Retrait/livraison à domicile</strong>\r\n                                <p>Une description?</p>\r\n\r\n                                <fieldset *ngIf=\"position.options\">\r\n                                    <div  *ngFor=\"let price of position?.options\">\r\n                                        <label><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                            \r\n                                </fieldset>\r\n                                <div *ngIf=\"!position.options\">\r\n                                    <span *ngIf=\"!position.error\" class=\"fa fa-spin fa-gear\"></span>\r\n                                    <span *ngIf=\"position.error\">{{position.error}}</span>\r\n                                </div>\r\n                            </div>\r\n\r\n                                \r\n                            </sebm-google-map-info-window> \r\n                        </sebm-google-map-marker>\r\n                </div>\r\n\r\n            \r\n        \r\n        </sebm-google-map>\r\n    </div>"
+module.exports = "<div [formGroup]=\"form\" class=\"border\">\r\n\r\n\r\n        \r\n                    \r\n\r\n<p>geolocalisation: {{noGeo}}</p>\r\n            <!-- affichage des tabs pour les choix -->\r\n           \r\n        <div class=\"tabs\">\r\n            <div class=\"tab\" *ngFor=\"let qfilter of question.options\">\r\n\r\n               \r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    [value]=\"qfilter.label\"                \r\n                    #trigger>\r\n                <span>{{qfilter.label}}</span></label>\r\n               \r\n                \r\n                \r\n\r\n                <div class=\"content\" *ngIf=\"qfilter.locations && trigger.checked\">\r\n                     <p>{{qfilter.description}}</p>\r\n                      <div class=\"schrink\">\r\n                        <div class=\"input-container\">\r\n                            <input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"\r\n                                >\r\n                            <label>{{question.title}}</label>        \r\n                        </div>\r\n                       \r\n                    </div>\r\n\r\n\r\n                    <!--input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"-->\r\n                    <datalist id=\"choices\">\r\n                        <option *ngFor=\"let l of filtered_datalist\" [value]=\"l\">\r\n                    </datalist>\r\n                </div>\r\n            </div>\r\n            <!-- dernier choix, le domicile -->\r\n\r\n            <div *ngIf=\"noGeo == true\" class=\"tab\">\r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    value=\"domicile\"                \r\n                    #trigger><span>Domicile</span></label>\r\n                \r\n\r\n\r\n                <div class=\"content\" *ngIf=\"trigger.checked\">\r\n                    \r\n                        <div class=\"inline-form\">\r\n                           \r\n                                <div class=\"input-container\">\r\n                                    <input type=\"text\" value=\"Un autre departement\" #zipcode  [value]=\"srch_zipcode || '' \"\r\n                                    [class.full]=\"srch_zipcode!=''\">\r\n                                    <label>Entrez votre adresse.</label>        \r\n                                </div>\r\n                                <button type=\"button\" [attr.disabled]=\"zipcode.value=='' || null\" class='btn btn-primary' (click)=\"localise_from_zipcode(zipcode.value)\">Localisation</button>\r\n                        \r\n                                \r\n                        </div>\r\n                        <div>\r\n                            <div *ngIf=\"!position\">\r\n                                <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>\r\n                            </div>\r\n                            <div *ngIf=\"position\">\r\n                                \r\n                                        <span *ngIf=\"!position.zipcode && !position.city\">\r\n                                            <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>\r\n                                        </span>\r\n                                        <span *ngIf=\"position.zipcode\">Vous avez été géolocalisé: <strong>{{position.name+\"(\"+position.zipcode+\")\"}}</strong></span>\r\n                                        \r\n                                    \r\n                                \r\n                            </div>      \r\n                        </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n       \r\n\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        <sebm-google-map [latitude]=\"question?.default_location.lat\" [longitude]=\"question?.default_location.lng\"\r\n            [zoom]=\"question?.default_location.zoom || 6\"\r\n            (mapClick)=\"positionne_marker($event)\"\r\n            >\r\n            <div *ngFor=\"let opt of filtered_options\">\r\n\r\n                   \r\n\r\n\r\n            \r\n                <!-- les ports et les depots -->\r\n                <div *ngIf=\"filter!='domicile'\">\r\n                    <sebm-google-map-marker  *ngFor=\"let m of opt.locations\"\r\n                        [latitude]=\"m?.lat\" [longitude]=\"m?.lng\" \r\n                        [iconUrl]=\"opt.label | toIconUrl\"\r\n                        >\r\n\r\n                        <!-- si une seule reponse, affiche directement l'infos window???  -->\r\n                        <sebm-google-map-info-window [isOpen]=\"opt.locations.length == 1\">\r\n                            <div class=\"infos\">\r\n                                <strong>{{m?.label}}</strong>\r\n                                <p>{{m?.description}}</p>\r\n                                <fieldset>\r\n                                    <div  *ngFor=\"let price of m?.options\">\r\n                                        <label ><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                                </fieldset>\r\n                            </div>\r\n                        </sebm-google-map-info-window>   \r\n\r\n                    </sebm-google-map-marker>\r\n                </div>\r\n\r\n                \r\n                </div>\r\n             <div  *ngIf=\"noGeo && filter=='domicile' && position\">\r\n                        \r\n                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->\r\n                        <sebm-google-map-marker  [latitude]=\"position?.lat\" [longitude]=\"position?.lng\"\r\n                        [iconUrl]=\"'domicile' | toIconUrl\">\r\n                            <sebm-google-map-info-window   [isOpen]=\"position\" >\r\n                            <div class=\"infos\">\r\n                                <strong>Retrait/livraison à domicile</strong>\r\n                                <p>Une description?</p>\r\n\r\n                                <fieldset *ngIf=\"position.options\">\r\n                                    <div  *ngFor=\"let price of position?.options\">\r\n                                        <label><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        required><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                            \r\n                                </fieldset>\r\n                                <div *ngIf=\"!position.options\">\r\n                                    <span *ngIf=\"!position.error\" class=\"fa fa-spin fa-gear\"></span>\r\n                                    <span *ngIf=\"position.error\">{{position.error}}</span>\r\n                                </div>\r\n                            </div>\r\n\r\n                                \r\n                            </sebm-google-map-info-window> \r\n                        </sebm-google-map-marker>\r\n                </div>\r\n\r\n            \r\n        \r\n        </sebm-google-map>\r\n    </div>"
 
 /***/ },
 /* 688 */
 /***/ function(module, exports) {
 
-module.exports = "<div>\r\n        <h1>Calculateur de devis EXPEDOM</h1>\r\n        <div *ngIf='!loading'>\r\n        <div id=\"recap\">\r\n        <span>Vous desirez expedier:</span>\r\n        <ul>\r\n             <li> un/une <strong>{{devis_infos | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}</strong> </li>\r\n             <li> depuis <strong>{{devis_infos | GetDevisDetailsPipe:\"form_from\":\"from\"}}</strong> vers <strong>{{devis_infos | GetDevisDetailsPipe:\"form_to\":\"to\"}}</strong></li>\r\n             <li> <strong>{{devis_infos | GetDevisDetailsPipe:\"form_assurance\":\"assurance\"}}</strong></li>\r\n             <li> ...voir quoi mettre d'autre</li>\r\n                \r\n        </ul>\r\n        </div>\r\n        <div id=\"results\" *ngIf=\"devis_details\">\r\n        <h3>Votre estimation: </h3>\r\n        <a [href]='pdf_file'>Telecharger le devis en pdf</a>\r\n        <ul>\r\n            <li>Valeur de la marchandise:<strong>{{devis_details.V}}</strong></li>\r\n            <li>valeur taxable sur marchandise:<strong>{{devis_details.CAF}}</strong></li>\r\n            <li>Taxe sur marchandise:<strong>{{devis_details.TSM}}</strong></li>\r\n            <li>&nbsp;</li>\r\n            <li>Assurance:<strong>{{devis_details.A}}</strong>€</li>\r\n             <li>&nbsp;</li>\r\n            <li>Port de depart:<strong>{{devis_details.PORT_DE_DEPART}}</strong></li>\r\n            <li>Prix du transport (port à port)<strong>{{devis_details.P}}</strong></li>\r\n            <li>Prise en charge <strong>{{devis_details.PC}}</strong></li>\r\n            <li>Livraison à domicile <strong>{{devis_details.PT}}</strong></li>\r\n             <li>&nbsp;</li>\r\n            <li>taux de TVA:<strong>{{devis_details.TVA}}</strong>%</li>\r\n            <li>valeur TVA:<strong>{{devis_details.TVA_VALUE}}</strong>€</li>\r\n            <li>taux TVA sur prestation:<strong>{{devis_details.TVA_RU}}</strong>%</li>\r\n            <li>valeur TVA sur prestation:<strong>{{devis_details.TVA_RU_VALUE}}</strong>€</li>\r\n            <li>Total taxes locales:<strong>{{devis_details.TOTAL_REUNION}}</strong></li>\r\n            <li>Taxes avant dedoienement:<strong>{{devis_details.TAXES}}</strong></li>\r\n            <li>Dedoienement:<strong>{{devis_details.FR}}</strong></li>\r\n             <li>&nbsp;</li>\r\n              <li>&nbsp;</li>\r\n\r\n            <li>Totalà payer:<strong>{{devis_details.TOTAL_A_PAYER}}</strong>€</li>\r\n            \r\n        </ul>\r\n        <a [href]='pdf_file'>Telecharger le devis en pdf</a>\r\n        </div>\r\n        <div id=\"actions\">\r\n            <button *ngIf=\"has_IDB && devis_infos.date==null\" class=\"btn btn-primary wide\" (click)=\"save_devis()\">Sauvegarder le devis</button>\r\n             <button class=\"btn btn-primary wide\" >Effefctuer la reservation maintenant!</button>\r\n            <button class=\"btn btn-primary wide\" (click)=\"create_devis()\">Nouveau devis</button>\r\n        </div>\r\n        </div>\r\n</div>"
+module.exports = "<div>\r\n    <h2 class=\"row text-center app_title\">Devis/Cotation</h2>\r\n    <div class=\"logo\">&nbsp;</div>\r\n    <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <div *ngIf='!loading'>\r\n            <h3>Récapitulatif de votre commande</h3>\r\n            <table id=\"recap\">\r\n                <div class=\"form_infos\" *ngFor=\"let form of workflow\">\r\n                    <!-- le nom du formulaire -->\r\n                    <tr><td  colspan=\"2\" class=\"form_title\">{{form.title}}</td></tr>\r\n                    <tr class=\"form_fields\" *ngFor=\"let field of form.fields\">\r\n                        <td class=\"field_label\">{{field.title}}</td><td class=\"field_value\">{{field.value_label}}</td>\r\n                        \r\n                    </tr>\r\n                    \r\n                </div>\r\n            </table>\r\n\r\n            \r\n\r\n            <div id=\"results\" *ngIf=\"devis_details\">\r\n            <h3>Votre estimation: </h3>\r\n            \r\n            <ul>\r\n                <li><span class=\"label\">Valeur de la marchandise:</span><strong class=\"result_value\">{{devis_details.V | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">valeur taxable sur marchandise:</span><strong class=\"result_value\">{{devis_details.CAF | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Taxe sur marchandise:</span><strong class=\"result_value\">{{devis_details.TSM | number:'2.2-2'}}€</strong></li>\r\n                <li>&nbsp;</li>\r\n                <li><span class=\"label\">Assurance:</span><strong class=\"result_value\">{{devis_details.A | number:'2.2-2'}}€</strong></li>\r\n                <li>&nbsp;</li>\r\n                <li><span class=\"label\">Port de depart:</span><strong class=\"result_value\">{{devis_details.PORT_DE_DEPART}}</strong></li>\r\n                <li><span class=\"label\">Prix du transport (port à port)</span><strong class=\"result_value\">{{devis_details.P | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Prise en charge </span><strong class=\"result_value\">{{devis_details.PC | number:'2.2-2' || 'non applicable'}}€</strong></li>\r\n                <li><span class=\"label\">Livraison à domicile</span> <strong class=\"result_value\">{{devis_details.PT | number:'2.2-2'}}€</strong></li>\r\n                <li><h4>Droits de douanes à titre indicatif</h4></li>\r\n                <li><span class=\"label\">taux de TVA:</span><strong class=\"result_value\">{{devis_details.TVA | number:'2.2-2' || 'non applicable'}}</strong>%</li>\r\n                <li><span class=\"label\">valeur TVA:</span><strong class=\"result_value\">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">taux TVA sur prestation:</span><strong class=\"result_value\">{{devis_details.TVA_RU | number:'2.2-2'}}</strong>%</li>\r\n                <li><span class=\"label\">valeur TVA sur prestation:</span><strong class=\"result_value\">{{devis_details.TVA_RU_VALUE | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Total taxes locales:</span><strong class=\"result_value\">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Taxes avant dedoienement:</span><strong class=\"result_value\">{{devis_details.TAXES | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Dedoienement:</span><strong class=\"result_value\">{{devis_details.FR | number:'2.2-2'}}€</strong></li>\r\n                <li>&nbsp;</li>\r\n                <li>&nbsp;</li>\r\n\r\n                <li><span class=\"label\">Totalà payer:</span><strong class=\"result_value\">{{devis_details.TOTAL_A_PAYER | number:'2.2-2'}}€</strong></li>\r\n                \r\n            </ul>\r\n            <a [href]='pdf_file'>Telecharger le devis en pdf</a>\r\n            </div>\r\n            <div id=\"actions\">\r\n                <button *ngIf=\"has_IDB && devis_infos?.date==null\" class=\"btn btn-primary wide\" (click)=\"save_devis()\">Sauvegarder le devis</button>\r\n                <button class=\"btn btn-primary wide\" >Effefctuer la reservation maintenant!</button>\r\n                <button class=\"btn btn-primary wide\" (click)=\"create_devis()\">Nouveau devis</button>\r\n            </div>\r\n        </div>\r\n</div>"
 
 /***/ },
 /* 689 */
@@ -65407,7 +65503,7 @@ module.exports = "<div class=\"form-container\">\r\n  <div *ngIf=\"loading\" cla
 /* 690 */
 /***/ function(module, exports) {
 
-module.exports = "<div>\r\n    <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <h1 class=\"text-center\">Bienvenue dans l'application de generation de devis EXPEDOM.com</h1>\r\n    <p class=\"text-center\">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>\r\n\r\n    <div *ngIf='reload' class=\"overlay\" [class.open]=\"reload\">\r\n        <div >\r\n            <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>\r\n            <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span></p>\r\n            <button class=\"btn btn-primary\" (click)=\"reload_devis()\">Reprendre mon ancien devis</button>\r\n            \r\n            <button class=\"btn btn-primary\" (click)=\"annul_reload()\">Non merci!</button>\r\n           \r\n        </div>\r\n    </div>\r\n    <button class=\"btn btn-primary\" (click)=\"create_devis()\">Commencer un nouveau devis.</button>\r\n\r\n    <div class=\"old\" *ngIf=\"saved_devis.length > 0\">\r\n        <h3>Vos anciens devis sauvegardés:</h3>\r\n        <ul>\r\n            <li *ngFor=\"let saved of saved_devis\" >\r\n                <a  (click)=\"to_generated( saved )\"><span>{{saved.date | date:mediumDate}}</span> Export de <span>{{saved | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{saved | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span>\r\n                </a>\r\n            </li>\r\n\r\n        </ul>\r\n    </div>\r\n</div>"
+module.exports = "<div>\r\n    <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <h1 class=\"text-center\">Bienvenue dans l'application de generation de devis EXPEDOM.com</h1>\r\n    <p class=\"text-center\">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>\r\n\r\n    <div *ngIf='reload' class=\"overlay\" [class.open]=\"reload\">\r\n        <div >\r\n            <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>\r\n            <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span></p>\r\n            <button class=\"btn btn-primary\" (click)=\"reload_devis()\">Reprendre mon ancien devis</button>\r\n            \r\n            <button class=\"btn btn-primary\" (click)=\"annul_reload()\">Non merci!</button>\r\n           \r\n        </div>\r\n    </div>\r\n    <button class=\"btn btn-primary\" (click)=\"create_devis()\">Commencer un nouveau devis.</button>\r\n\r\n    <div class=\"old\" *ngIf=\"saved_devis.length > 0\">\r\n        <h3>Vos anciens devis sauvegardés:</h3>\r\n        <ul>\r\n            <li *ngFor=\"let saved of saved_devis\" >\r\n                <a  (click)=\"to_generated( saved )\"><span>{{saved.date | date:mediumDate}}</span> Export de <span>{{saved | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{saved | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span>\r\n                </a>\r\n            </li>\r\n\r\n        </ul>\r\n    </div>\r\n\r\n    <button (click)=\"delete_LS\">Efface tout ce qu'il y a en memoire....</button>\r\n</div>"
 
 /***/ },
 /* 691 */
