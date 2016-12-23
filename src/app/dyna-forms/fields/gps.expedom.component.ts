@@ -108,7 +108,7 @@ export class GPSExpedomComponent{
 
         console.log("Geolocation:");
         console.log(this.question["use-geolocation"])
-        this.noGeo = this.question["use-geolocation"] === undefined ? true : this.question["use-geolocation"]  ;
+        this.noGeo = this.question["use-geolocation"] === undefined ? true : this.question["use-geolocation"] == "1"  ;
         console.log(this.noGeo)
         //mappe les locations a afficher sur la map
         this.remap_options();
