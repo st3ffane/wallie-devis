@@ -60594,6 +60594,10 @@ var routes = __WEBPACK_IMPORTED_MODULE_4__angular_router__["d" /* RouterModule *
         component: __WEBPACK_IMPORTED_MODULE_9__pages_dyna_test_component__["a" /* DynaTestComponent */] //juste pour pouvoir tester a fond les forms dynamiques
     },
     {
+        path: "dev/:id",
+        component: __WEBPACK_IMPORTED_MODULE_7__pages_main_page_component__["a" /* MainPageComponent */]
+    },
+    {
         path: "hello",
         component: __WEBPACK_IMPORTED_MODULE_7__pages_main_page_component__["a" /* MainPageComponent */]
     },
@@ -60605,8 +60609,7 @@ var routes = __WEBPACK_IMPORTED_MODULE_4__angular_router__["d" /* RouterModule *
     {
         path: "generated",
         component: __WEBPACK_IMPORTED_MODULE_6__pages_devis_component__["a" /* DevisComponent */]
-    },
-    { path: '**', component: __WEBPACK_IMPORTED_MODULE_7__pages_main_page_component__["a" /* MainPageComponent */] }
+    }
 ]);
 var AppModule = (function () {
     function AppModule() {
