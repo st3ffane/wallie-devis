@@ -4,7 +4,7 @@
 
     .title{
         position: relative;
-        font-size: 3.3em;
+        font-size: 2em;
         line-height: 0.8em;
         font-weight: 700;
         text-transform: uppercase;
@@ -15,17 +15,7 @@
 
     
 
-        &:before{
-            content: "“";
-            
-            color: #666;
-
-            }
-        &:after{
-            content: "”";
-        color: #666;
-        
-        }
+       
     }
     p{
         margin-top: 30px;
