@@ -278,7 +278,8 @@ export class GPSExpedomComponent{
                     for(let loc of opt.locations){
                         //directement les locations...
                         //ajoute les differents points
-                        if (this.search==null || loc.label.indexOf(this.search)!= -1) {
+                        let lbl = loc.label.toUpperCase();
+                        if (this.search==null || lbl.indexOf(this.search.toUpperCase())!= -1) {
                             truc["locations"].push(loc);//bon pour affichage
                             list.push(loc.label);
                         }

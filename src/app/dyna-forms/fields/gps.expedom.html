@@ -20,9 +20,9 @@
 
                 <div class="content" *ngIf="qfilter.locations && trigger.checked">
                      <p>{{qfilter.description}}</p>
-                      <div class="schrink">
+                      <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
                         <div class="input-container">
-                            <input *ngIf="question['use-text-filter'] == '1' "
+                            <input 
 
                             type="text" 
                             list="choices"
@@ -30,9 +30,10 @@
                             [formControlName]="search_form_ctrl"
                             placeholder="Entrez les premieres lettres"
                                 >
-                            <label>{{question.title}}</label>        
+                            <label>{{question.title}}</label>   
+                           
                         </div>
-                       
+                        <a (click)="search = null"><i class="fa fa-times centered" aria-hidden="true"></i></a>     
                     </div>
 
 
@@ -65,8 +66,10 @@
                         <div class="inline-form">
                            
                                 <div class="input-container">
-                                    <input type="text" value="Un autre departement" #zipcode  [value]="srch_zipcode || '' "
-                                    [class.full]="zipcode.value!=''">
+                                    <!--input type="text" value="Un autre departement" #zipcode [(NgValue)]="srch_zipcode" [value]="srch_zipcode || '' "
+                                    [class.full]="zipcode.value!=''"-->
+                                     <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || ''" 
+                                    [class.ng-valid]="zipcode.value!=''" >
                                     <label>Entrez votre adresse.</label>        
                                 </div>
                                 <button type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
