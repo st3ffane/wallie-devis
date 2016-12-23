@@ -247,7 +247,14 @@ export class DynaArborescence2Component{
     //le controle n'est plus valide
     annul(id){
         this.question.__value = null;//cause une erreur expression already checked en mode dev...
-
+        setTimeout (()=>{
+                let top = document.getElementById(id).offsetTop - 100; //Getting Y of target element
+                let  w_top = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
+                setTimeout( (v)=>{
+                console.log("scroll into view "+id)
+                window.scrollTo(0,top-100);
+            }, 100)
+        })
         //force le check???
         //au mieux, scroll to the new components 
         // let top = document.getElementById(id).offsetTop - 100; //Getting Y of target element

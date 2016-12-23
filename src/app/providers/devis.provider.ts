@@ -609,7 +609,7 @@ export class DevisProvider {
         // console.log("create geo url");
         // console.log(zipcode);
         //endpoint vers le webservice avec les infos de positions
-        let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode
+        let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&form_name="+this.current_key+"&departement_code="+zipcode
                 +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise="+this.devis_infos["form_marchandise"].fields[0].value : "";

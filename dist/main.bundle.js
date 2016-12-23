@@ -7656,7 +7656,7 @@ var DevisProvider = (function () {
         // console.log("create geo url");
         // console.log(zipcode);
         //endpoint vers le webservice avec les infos de positions
-        var request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code=" + zipcode
+        var request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&form_name=" + this.current_key + "&departement_code=" + zipcode
             + "&lat=" + position.lat + "&lng=" + position.lng + "&city=" + position.city;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise=" + this.devis_infos["form_marchandise"].fields[0].value : "";
@@ -61275,6 +61275,14 @@ var DynaArborescence2Component = (function () {
     //le controle n'est plus valide
     DynaArborescence2Component.prototype.annul = function (id) {
         this.question.__value = null; //cause une erreur expression already checked en mode dev...
+        setTimeout(function () {
+            var top = document.getElementById(id).offsetTop - 100; //Getting Y of target element
+            var w_top = (window.pageYOffset || document.documentElement.scrollTop) - (document.documentElement.clientTop || 0);
+            setTimeout(function (v) {
+                console.log("scroll into view " + id);
+                window.scrollTo(0, top - 100);
+            }, 100);
+        });
         //force le check???
         //au mieux, scroll to the new components 
         // let top = document.getElementById(id).offsetTop - 100; //Getting Y of target element
