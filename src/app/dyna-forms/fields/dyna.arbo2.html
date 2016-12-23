@@ -2,7 +2,9 @@
 
  <div  *ngFor="let level of groups_level">
      <div [class.hideIfInactive]="level.parent!=null && form.controls[level.parent].value != level.groupName ">
-        <h3>{{level.title}}</h3>
+        <div *ngIf="level.title" [id]="level.title">
+            <small>merci de préciser:</small><h3>{{level.title}}</h3>
+        </div>
         
         <div class="choice-cmp inline">
             <div  *ngFor="let it of level.options" >
@@ -19,21 +21,21 @@
                         >
                         <span>{{it.label}}</span></label>
                         <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
-                    </div>
-                    <div *ngIf="it.isGroup">
-                        <label > 
-                            <input   [formControlName]="it.groupName"                        
-                            type="radio" 
-                           
-                            (change)="annul()"
-                            [value]="it.value"
-                            [attr.name]="it.groupName"
-                            
-                            class=" check-container radio group"
-                            >
-                            <span>{{it.label}}</span></label>
-                            <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
-                    </div>
+                </div>
+                <div *ngIf="it.isGroup">
+                    <label > 
+                        <input   [formControlName]="it.groupName"                        
+                        type="radio" 
+                        
+                        (change)="annul(it.label)"
+                        [value]="it.value"
+                        [attr.name]="it.groupName"
+                        
+                        class=" check-container radio group"
+                        >
+                        <span>{{it.label}}</span></label>
+                        <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
+                </div>
             </div>
         </div>
     </div>

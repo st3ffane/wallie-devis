@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, ViewChildren} from "@angular/core";
 import {FormGroup, FormControl, Validators} from "@angular/forms";
 
 
@@ -245,10 +245,20 @@ export class DynaArborescence2Component{
     //si clic sur une radio node (ie, ayant un sous-groupe/options),
     //annule le choix precedement effectué 
     //le controle n'est plus valide
-    annul(){
+    annul(id){
         this.question.__value = null;//cause une erreur expression already checked en mode dev...
+
+        //force le check???
         //au mieux, scroll to the new components 
+        // let top = document.getElementById(id).offsetTop - 100; //Getting Y of target element
+        //  console.log("position: "+top)
+        // let  w_top = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
         
+        // setTimeout( (v)=>{
+        //      console.log("scroll into view "+id)
+        //      window.scrollTo(0,top-100);
+        // }, 100)
+       
     }
 
     /** si selectionne un element (leaf), desactive tous les radio nodes (ayant des options)
@@ -296,5 +306,6 @@ export class DynaArborescence2Component{
 
         
     }
+
 
 }
