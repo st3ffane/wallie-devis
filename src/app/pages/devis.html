@@ -59,8 +59,8 @@
             </div>
             <div id="actions">
                 <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button-->
-                <a class="btn btn-primary btn-action" [href]='pdf_file'>Telecharger le devis en pdf</a>
-                <button class="btn btn-primary btn-action" >reservez maintenant!</button>
+                <a class="btn btn-primary btn-action" [href]='pdf_file' target="_blank">Telecharger le devis en pdf</a>
+                <a  class="btn btn-primary btn-action" [href]="'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID" >reservez maintenant!</a>
                 <button class="btn btn-primary wide" (click)="create_devis()">Nouveau devis</button>
             </div>
         </div>
