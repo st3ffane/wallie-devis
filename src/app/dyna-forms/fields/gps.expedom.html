@@ -66,10 +66,10 @@
                            
                                 <div class="input-container">
                                     <input type="text" value="Un autre departement" #zipcode  [value]="srch_zipcode || '' "
-                                    [class.full]="srch_zipcode!=''">
+                                    [class.full]="zipcode.value!=''">
                                     <label>Entrez votre adresse.</label>        
                                 </div>
-                                <button type="button" [attr.disabled]="zipcode.value=='' || null" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+                                <button type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
                         
                                 
                         </div>
