@@ -1,3 +1,5 @@
+@import "../dyna-forms/material/colors";
+
 
 .logo{
     background-image: url("/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png");
@@ -77,6 +79,18 @@ tbody{
             li{
                 white-space: nowrap;
                 padding-left: 10px;
+                
+                &.header{
+                    font-size: 1.2em;
+                    font-weight: 700;
+                    margin-top: 10px;
+                }
+                &.result{
+                    font-size: 1.5em;
+                    font-weight: 700;
+                    padding: 10px;
+                    border-top: 1px dashed #E3E3E3;
+                }
                 .label{
                     font-weight: initial;
                     width: 67%;
@@ -95,4 +109,27 @@ tbody{
                 }
             }
         }
+}
+
+#actions{
+    display: flex;
+    margin-bottom: 30px;
+    .btn-primary{
+        width: 50% !important;
+        padding: 5px;
+        margin: 10px;
+    }
+    .btn-action{
+        background-color: $focus_color;
+    }
+    .btn-action:hover {
+    background-color: $focus-shadow-color!important;
+    box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5);
+    }
+    .btn-action:focus,
+    .btn-action:active{
+    background-color: $focus-shadow-color!important;
+    box-shadow: none;
+    }
+  
 }

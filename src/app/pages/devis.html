@@ -22,35 +22,45 @@
             <h3>Votre estimation: </h3>
             
             <ul>
+                <li class="header">Depuis Lieu de prise en charge jusqu'a rendu bord navire/port d'arrivée</li>
+                <li><span class="label">Port de depart:</span><strong class="result_value">{{devis_details.PORT_DE_DEPART}}</strong></li>
+                
+                 <li><span class="label">Prise en charge </span><strong class="result_value">{{devis_details.PC | number:'2.2-2' || 'non applicable'}}€</strong></li>
+                 <li><span class="label">Prix du transport (port à port)</span><strong class="result_value">{{devis_details.P | number:'2.2-2'}}€</strong></li>
+                 <li><span class="label">Assurance:</span><strong class="result_value">{{devis_details.A | number:'2.2-2'}}€</strong></li>
+                
+
+                <li class="header">Recapitulatif des taxes à titre indicatif</li>
                 <li><span class="label">Valeur de la marchandise:</span><strong class="result_value">{{devis_details.V | number:'2.2-2'}}€</strong></li>
                 <li><span class="label">valeur taxable sur marchandise:</span><strong class="result_value">{{devis_details.CAF | number:'2.2-2'}}€</strong></li>
                 <li><span class="label">Taxe sur marchandise:</span><strong class="result_value">{{devis_details.TSM | number:'2.2-2'}}€</strong></li>
-                <li>&nbsp;</li>
-                <li><span class="label">Assurance:</span><strong class="result_value">{{devis_details.A | number:'2.2-2'}}€</strong></li>
-                <li>&nbsp;</li>
-                <li><span class="label">Port de depart:</span><strong class="result_value">{{devis_details.PORT_DE_DEPART}}</strong></li>
-                <li><span class="label">Prix du transport (port à port)</span><strong class="result_value">{{devis_details.P | number:'2.2-2'}}€</strong></li>
-                <li><span class="label">Prise en charge </span><strong class="result_value">{{devis_details.PC | number:'2.2-2' || 'non applicable'}}€</strong></li>
-                <li><span class="label">Livraison à domicile</span> <strong class="result_value">{{devis_details.PT | number:'2.2-2'}}€</strong></li>
-                <li><h4>Droits de douanes à titre indicatif</h4></li>
+                
                 <li><span class="label">taux de TVA:</span><strong class="result_value">{{devis_details.TVA | number:'2.2-2' || 'non applicable'}}</strong>%</li>
                 <li><span class="label">valeur TVA:</span><strong class="result_value">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">taux Octroi de mer:</span><strong class="result_value">{{devis_details.OM?.om | number:'2.2-2'}}%</strong></li>
+                <li><span class="label">valeur Octroi de mer:</span><strong class="result_value">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}%</strong></li>
+                <li><span class="label">taux Octroi de mer regionnal:</span><strong class="result_value">{{devis_details.OM?.omr | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">valeur Octroi de mer regionnal:</span><strong class="result_value">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</strong></li>
+                
+                <li class="header">Depuis bord navire/port d'arrivée jusqu'a lieu de livraison</li>
                 <li><span class="label">taux TVA sur prestation:</span><strong class="result_value">{{devis_details.TVA_RU | number:'2.2-2'}}</strong>%</li>
                 <li><span class="label">valeur TVA sur prestation:</span><strong class="result_value">{{devis_details.TVA_RU_VALUE | number:'2.2-2'}}€</strong></li>
-                <li><span class="label">Total taxes locales:</span><strong class="result_value">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</strong></li>
                 <li><span class="label">Taxes avant dedoienement:</span><strong class="result_value">{{devis_details.TAXES | number:'2.2-2'}}€</strong></li>
-                <li><span class="label">Dedoienement:</span><strong class="result_value">{{devis_details.FR | number:'2.2-2'}}€</strong></li>
-                <li>&nbsp;</li>
-                <li>&nbsp;</li>
+                <li><span class="label">Dedouanement:</span><strong class="result_value">{{devis_details.FR | number:'2.2-2'}}€</strong></li>
+                
+                <li><span class="label">Livraison à domicile</span> <strong class="result_value">{{devis_details.PT | number:'2.2-2'}}€</strong></li>
+                <li><span class="label">Total taxes locales:</span><strong class="result_value">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</strong></li>
+                
 
-                <li><span class="label">Totalà payer:</span><strong class="result_value">{{devis_details.TOTAL_A_PAYER | number:'2.2-2'}}€</strong></li>
+                <li class="result"><span class="label">Total à payer:</span><strong class="result_value">{{devis_details.TOTAL_A_PAYER | number:'2.2-2'}}€</strong></li>
                 
             </ul>
-            <a [href]='pdf_file'>Telecharger le devis en pdf</a>
+            
             </div>
             <div id="actions">
-                <button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button>
-                <button class="btn btn-primary wide" >Effefctuer la reservation maintenant!</button>
+                <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button-->
+                <a class="btn btn-primary btn-action" [href]='pdf_file'>Telecharger le devis en pdf</a>
+                <button class="btn btn-primary btn-action" >reservez maintenant!</button>
                 <button class="btn btn-primary wide" (click)="create_devis()">Nouveau devis</button>
             </div>
         </div>

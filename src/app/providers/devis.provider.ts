@@ -478,9 +478,9 @@ export class DevisProvider {
         for (let key of Object.keys(this.devis_infos)){
             
 
-            console.log("clé:"+key);
+            
             let form = this.devis_infos[key];
-            console.log(form);
+            
 
             
             if(form.fields == null) continue;
@@ -606,8 +606,8 @@ export class DevisProvider {
     //genere l'URL pour la geolocation: recupere les valeurs pour les prises en charge a domicile
     create_geolocation_url(position:any){
         let zipcode = position.zipcode? position.zipcode.slice(0,2) : "";//juste le dep si dispo 
-        console.log("create geo url");
-        console.log(zipcode);
+        // console.log("create geo url");
+        // console.log(zipcode);
         //endpoint vers le webservice avec les infos de positions
         let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&departement_code="+zipcode
                 +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;
@@ -763,18 +763,18 @@ export class DevisProvider {
 
                     //probleme value_label: si options, doit recuperer le label de l'option 
                     if(field.options && field["value"]!=null){
-                        console.log("recherche le label de la reponse...");
+                        
                         let v  = this.get_label_for_value(field["value"], field.options);
-                        console.log("label: "+v);
+                        
                         if(v) obj["value_label"] = v;
 
                     }
                     //certains fields utilise la geolocalisation et ont un field position a sauvegarder
                     if(field["position"]) {
-                        console.log(field["value"]);
+                        
                         if (field["value"] && field["value"].startsWith("domicile")){
                             //recherche dans les options de domicile
-                            console.log("domicile");
+                            
                             obj["value_label"] = "Prise en charge à domicile";
                         }
                         //un GPS!
@@ -803,7 +803,7 @@ export class DevisProvider {
      */
     private get_label_for_value(value, options){
         for (let opt of options){
-            console.log(opt);
+            
             
             if (opt["options"] || opt["locations"]){
                 let lbl = this.get_label_for_value(value, opt["options"] || opt["locations"] );

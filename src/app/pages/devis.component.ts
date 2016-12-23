@@ -81,12 +81,10 @@ export class DevisComponent implements OnInit{
         .then( (res:any)=>{
 
             return new Promise( (resolve, reject)=>{
-                console.log("fin chargment du devis...");
-
+                
                 //recup le devis courant avec les valeurs de l'utilisateur
                 let devis = this._devis.get_devis();
-                console.log(devis);
-
+                
                 //recupere le workflow 
                 let datas = res.calculated_datas;
                 let wf = res.workflow;
@@ -113,8 +111,7 @@ export class DevisComponent implements OnInit{
         }).then( (res:any)=>{
                 
                 //le recapitulatif des données
-                console.log("affichage!!!!");
-                console.log(res.workflow);
+                
                 this.workflow = res.workflow;
                 //le devis 
                 this.devis_details = res.calculated_datas;

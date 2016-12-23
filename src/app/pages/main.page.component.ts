@@ -64,12 +64,12 @@ export class MainPageComponent{
         
 
         //charge les devis sauvegardés precedement (tous?)
-        this._devis.get_all_saved_devis().then( (devis)=>{
-            // console.log(devis);
-            this.saved_devis = <Array<any>>devis;
-        }).catch( (err)=>{
-            console.log(err);
-        })
+        // this._devis.get_all_saved_devis().then( (devis)=>{
+        //     // console.log(devis);
+        //     this.saved_devis = <Array<any>>devis;
+        // }).catch( (err)=>{
+        //     console.log(err);
+        // })
     }
 
 
