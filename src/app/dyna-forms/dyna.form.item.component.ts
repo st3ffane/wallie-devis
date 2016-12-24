@@ -15,7 +15,7 @@ import {FormGroup} from "@angular/forms";
 @Component({
     selector:'df-question',
     templateUrl:"dyna.form.item.html",
-    styleUrls:["dyna.form.item.scss"]
+    //styleUrls:["dyna.form.item.scss"]
 })
 export class DynaFormItemComponent{
     @Input()question:any;

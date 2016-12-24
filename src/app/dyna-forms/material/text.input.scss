@@ -10,8 +10,10 @@
     display: inline-block;
     position: relative;
     margin-top: 16px;
-    
+    text-align: left!important;
     width: 100%;
+    color:#3E3E3E!important;
+
     input[type=text],
     input[type=password],
     input[type=search],
@@ -42,7 +44,7 @@
         box-sizing: border-box;
         z-index : 1;
         width: 100%;
-
+        color:#3E3E3E!important;
         &+label{
             
             position: absolute;

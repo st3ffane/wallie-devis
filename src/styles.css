@@ -1,15 +1,16 @@
 /* You can add global styles to this file, and also import other style files */
 app-root{
       /*text-shadow: 1px 1px #A3A3A3;*/
+      background-color: rgb(8,72,126);
 }
 
 
-
+/*
 .entry-content{
   width: 100%!important;
 }
-/* un loading widget, present partout... */
-/* Absolute Center Spinner */
+/* un loading widget, present partout... *
+/* Absolute Center Spinner *
 .loading {
   position: fixed;
   z-index: 999;
@@ -23,7 +24,7 @@ app-root{
   right: 0;
 }
 
-/* Transparent Overlay */
+/* Transparent Overlay *
 .loading:before {
   content: '';
   display: block;
@@ -35,9 +36,9 @@ app-root{
   background-color: transparent;
 }
 
-/* :not(:required) hides these rules from IE9 and below */
+/* :not(:required) hides these rules from IE9 and below *
 .loading:not(:required) {
-  /* hide "loading..." text */
+  /* hide "loading..." text *
   font: 0/0 a;
   color: transparent;
   text-shadow: none;
@@ -62,7 +63,7 @@ app-root{
   box-shadow: #f19300 1.5em 0 0 0, #f19300 1.1em 1.1em 0 0, #f19300 0 1.5em 0 0, #f19300 -1.1em 1.1em 0 0, #00aad2 -1.5em 0 0 0, #00aad2 -1.1em -1.1em 0 0, #00aad2 0 -1.5em 0 0, #00aad2 1.1em -1.1em 0 0;
 }
 
-/* Animation */
+/* Animation *
 
 @-webkit-keyframes spinner {
   0% {
@@ -130,7 +131,7 @@ app-root{
 }
 
 
-/* une reecriture des styles buttons */
+/* une reecriture des styles buttons *
 .btn-primary{
   background-color: #00aad2;
   transition: all 250ms ease-out;
@@ -152,4 +153,4 @@ app-root{
   background-color: #0087a7!important;
   box-shadow: none;
 }
-  
+  */

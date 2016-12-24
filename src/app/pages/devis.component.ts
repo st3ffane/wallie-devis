@@ -40,7 +40,7 @@ import { Router } from "@angular/router";
 @Component({
     selector:"devis-result",
     templateUrl: "./devis.html",
-    styleUrls:['./devis.scss']
+    //styleUrls:['./devis.scss']
 })
 export class DevisComponent implements OnInit{
     devis_infos: any;//les informations du devis

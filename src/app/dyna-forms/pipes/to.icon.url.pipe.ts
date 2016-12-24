@@ -4,12 +4,12 @@
  * a chaque tick si les données sont encore valide...)
  */
 import { Pipe, PipeTransform } from '@angular/core';
-
+import {TARGET} from "../../target";
 
 @Pipe({name: 'toIconUrl'})
 export class ToIconUrlPipes implements PipeTransform {
   transform(value: any): string {
-      return "/wp-content/plugins/quote-generator/assets/img/marker-"+value+".svg";
+      return TARGET+"/wp-content/plugins/quote-generator/assets/img/marker-"+value+".svg";
    
   }
 }

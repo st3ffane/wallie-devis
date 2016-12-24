@@ -20,7 +20,7 @@ import {DevisProvider} from "../providers/devis.provider";
     //moduleId: module.id,
     selector: 'dynamic-form',
     templateUrl:"./dyna.form.html",
-    styleUrls:["./dyna.form.scss"]
+    //styleUrls:["./dyna.form.scss"]
 })
 export class DynamicFormComponent implements OnInit{
     @Input() formulaire:DynaForm; //les questions du formulaire a afficher

@@ -10,7 +10,7 @@ import { Router, ActivatedRoute, Params, NavigationEnd } from '@angular/router';
 @Component({
   selector: 'devis-main',
   templateUrl:"dyn.forms.html",
-  styleUrls:["dyn.forms.scss"]
+  //styleUrls:["dyn.forms.scss"]
 //   styles: [`
 // .container{
 //     width: 100%;

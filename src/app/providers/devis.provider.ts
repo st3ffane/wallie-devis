@@ -2,12 +2,14 @@ import {Injectable} from "@angular/core";
 import {Http, Response, Headers} from "@angular/http";
 import { Observable} from 'rxjs/Observable';
 
+import {TARGET} from "../target";
+
 //recriture du provider pour fonctionner avec le module de generation de 
 //formulaire...
 import {DynaForm} from "../dyna-forms/forms/dyna.form";
 
 
-const ENDPOINT = "/wp-admin/admin-ajax.php?action=init_webservice";
+const ENDPOINT = TARGET+"/wp-admin/admin-ajax.php?action=init_webservice";
 //ex d'url: wp-admin/admin-ajax.php?action=init_webservice&marchandise=voiture&motif=achat_vente&current=modedetransport.voiture_frm
 @Injectable()
 export class DevisProvider {
@@ -540,7 +542,7 @@ export class DevisProvider {
 
         let cred = "action=generate_quote&app_datas="+JSON.stringify(details);
 
-        return this._http.post("/wp-admin/admin-ajax.php", cred,{
+        return this._http.post(TARGET+"/wp-admin/admin-ajax.php", cred,{
             headers:headers
         })
         .toPromise()
@@ -609,7 +611,7 @@ export class DevisProvider {
         // console.log("create geo url");
         // console.log(zipcode);
         //endpoint vers le webservice avec les infos de positions
-        let request = "/wp-admin/admin-ajax.php?action=webservice_geolocation_request&form_name="+this.current_key+"&departement_code="+zipcode
+        let request = TARGET+"/wp-admin/admin-ajax.php?action=webservice_geolocation_request&form_name="+this.current_key+"&departement_code="+zipcode
                 +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise="+this.devis_infos["form_marchandise"].fields[0].value : "";

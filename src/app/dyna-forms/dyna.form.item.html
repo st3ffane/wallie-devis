@@ -14,12 +14,13 @@
                      -->
         <div class="schrink">
             <div class="input-container">
+                <label>{{question.title}}</label>  
                 <input #texted type="text" [ngClass]="{'full':texted.value != ''}" 
                 [formControlName]="question.id"
                     [id]="question.id" type="text" 
                     [(ngModel)]="question.__value"
                     >
-                <label>{{question.title}}</label>        
+                      
             </div>
             <span>(<small>{{question.description}}</small>)</span>
         </div>
@@ -31,12 +32,13 @@
         <div *ngSwitchCase="'number'" class="form-group">
             <div  class="schrink">
                 <div class="input-container">
+                    <label>{{question.title}}</label>
                     <input #texted type="text" [ngClass]="{'full':texted.value != ''}" 
                     [formControlName]="question.id"
                         [id]="question.id" type="number" 
                         [(ngModel)]="question.__value"
                         >
-                    <label>{{question.title}}</label>        
+                            
                 </div>
                 <span>(<small>{{question.description}}</small>)</span>
             </div>
@@ -47,12 +49,13 @@
         <div *ngSwitchCase="'email'" class="form-group">
             <div  class="schrink">
                 <div class="input-container">
+                     <label>{{question.title}}</label>   
                     <input #texted type="text" [ngClass]="{'full':texted.value != ''}" 
                     [formControlName]="question.id"
                         [id]="question.id" type="email" 
                         [(ngModel)]="question.__value"
                         >
-                    <label>{{question.title}}</label>        
+                        
                 </div>
                 <span>(<small>{{question.description}}</small>)</span>
             </div>
@@ -64,12 +67,13 @@
         <div *ngSwitchCase="'textarea'" class="form-group">
             <div  class="schrink">
                 <div class='input-container'>
+                    <label>{{question.title}}</label> 
                     <textarea #texted [formControlName]="question.id" [ngClass]="{'full':texted.value != ''}"
                         [id]="question.id" [(ngModel)]="question.__value"
                          
                          height="3em"
                         ></textarea>
-                <label>{{question.title}}</label>        
+                       
                 </div>
                 <span>(<small>{{question.description}}</small>)</span>
             </div>
@@ -87,11 +91,12 @@
         <div *ngSwitchCase="'select'" class="form-group">
             <div class="schrink">
                 <div class='input-container'>
+                    <label>{{question.title}}</label> 
                     <select #texted [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
                        [ngClass]="{'full':texted.value != ''}" required>
                             <option *ngFor="let opt of question.options" [value]="opt.value">{{opt.label}}</option>
                     </select>
-                <label>{{question.title}}</label>        
+                       
                 </div>
                 <span>(<small>{{question.description}}</small>)</span>
             </div>
@@ -115,15 +120,14 @@
                   <p class="row">{{question.description}}</p>
                   <div class="choice-cmp inline"><!-- [class.inline]="question.options.length<3"-->
                     <div class="text-left"  *ngFor="let it of question.options">                        
-                        <label> 
+                        
                             <input   [formControlName]="question.id"                        
                             type="radio" 
                             [(ngModel)]="question.__value"
                             [value]="it.value"
-                            required
+                            
                             class=" check-container radio"
-                            >
-                            <span>{{it.label}}</span></label>    
+                            ><label> {{it.label}}</label>    
                             <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
                     </div>    
                     

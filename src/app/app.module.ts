@@ -61,7 +61,7 @@ let routes = RouterModule.forRoot([
     component: DynaTestComponent  //juste pour pouvoir tester a fond les forms dynamiques
   },
  {
-    path:"dev/:id",
+    path:"devis-transport-demenagement-reunion",
     component:MainPageComponent
   },
   {

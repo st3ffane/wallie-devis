@@ -85,7 +85,7 @@ $check-width:30px;
   color: #fff;
   cursor: pointer;
   display: inline-block;
-  outline: none;
+  outline: none!important;
   position: relative;
   margin-right: 0.5rem;
   z-index: 1000;
@@ -93,7 +93,7 @@ $check-width:30px;
     top: -0.5em;
   margin-left: 40px;
    &::before{
-       outline: none;
+       outline: none!important;
           width: 40px;
             height: 40px;
             position: absolute;

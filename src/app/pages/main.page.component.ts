@@ -14,7 +14,7 @@ import { Router } from "@angular/router";
 @Component({
     selector:"hello-cmp",
     templateUrl:'main.page.html',
-    styleUrls:['main.page.scss']
+    //styleUrls:['main.page.scss']
     // template:`
     // <div>
     //     <h1>Bienvenue dans l'application de generation de devis</h1>
