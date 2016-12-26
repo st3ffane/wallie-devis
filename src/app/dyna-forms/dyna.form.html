@@ -4,8 +4,8 @@
     </div>
     <form #devisForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="form">
         <div class="row panel-heading">
-            <div class="title">{{formulaire.title}}</div>
-            <p>{{formulaire.description}}</p>
+            <h3>{{formulaire.title}}</h3>
+            <div [innerHTML]="formulaire.description | safeHTML"></div>
         </div>
         <div class="center-block">
             <div *ngFor='let field of formulaire.fields' class='form-row' class="row options-group">

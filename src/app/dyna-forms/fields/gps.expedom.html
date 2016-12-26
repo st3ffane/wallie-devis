@@ -21,7 +21,9 @@
                 <div class="content" *ngIf="qfilter.locations && trigger.checked">
                      <p>{{qfilter.description}}</p>
                       <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
+                        
                         <div class="input-container">
+                            <label>{{question.title}}</label>
                             <input 
 
                             type="text" 
@@ -30,10 +32,11 @@
                             [formControlName]="search_form_ctrl"
                             placeholder="Entrez les premieres lettres"
                                 >
-                            <label>{{question.title}}</label>   
+                               
                            
                         </div>
-                        <a (click)="search = null"><i class="fa fa-times centered" aria-hidden="true"></i></a>     
+                        <a (click)="search = null"><i class="fa fa-times centered black" aria-hidden="true"></i></a>  
+                          
                     </div>
 
 
@@ -62,20 +65,6 @@
 
 
                 <div class="content" *ngIf="trigger.checked">
-                    
-                        <div class="inline-form">
-                           
-                                <div class="input-container">
-                                    <!--input type="text" value="Un autre departement" #zipcode [(NgValue)]="srch_zipcode" [value]="srch_zipcode || '' "
-                                    [class.full]="zipcode.value!=''"-->
-                                     <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || ''" 
-                                    [class.ng-valid]="zipcode.value!=''" >
-                                    <label>Entrez votre adresse.</label>        
-                                </div>
-                                <button type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
-                        
-                                
-                        </div>
                         <div>
                             <div *ngIf="!position">
                                 <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>
@@ -91,6 +80,21 @@
                                 
                             </div>      
                         </div>
+                        <div class="inline-form">
+                           
+                                <div class="input-container">
+                                    <!--input type="text" value="Un autre departement" #zipcode [(NgValue)]="srch_zipcode" [value]="srch_zipcode || '' "
+                                    [class.full]="zipcode.value!=''"-->
+                                     <label>Entrez votre adresse.</label>  
+                                     <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || ''" 
+                                    [class.ng-valid]="zipcode.value!=''" >
+                                         
+                                </div>
+                                <button type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+                        
+                                
+                        </div>
+                        
                 </div>
             </div>
         </div>

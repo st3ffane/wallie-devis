@@ -1,9 +1,29 @@
 /* You can add global styles to this file, and also import other style files */
-app-root{
+.app-root{
       /*text-shadow: 1px 1px #A3A3A3;*/
-      background-color: rgb(8,72,126);
+     
+      min-height: 400px;
+      padding: 0;
 }
 
+input[type="text"],
+input[type="number"],
+input[type="email"],
+textarea,
+select{
+  color:#3E3E3E!important;
+}
+.inflow>.btPreloader{
+  position: inherit;
+}
+.simpleLoader>.btPreloader> .btLoader{
+            border-top:5px solid rgb(8,72,126);
+            border-left: 5px solid #f19300;
+            border-right: 5px solid #f19300;
+            border-bottom: 5px solid #f19300;
+        
+    
+}
 
 /*
 .entry-content{

@@ -40,7 +40,7 @@ import { Router } from "@angular/router";
 @Component({
     selector:"devis-result",
     templateUrl: "./devis.html",
-    //styleUrls:['./devis.scss']
+    styleUrls:['./devis.scss']
 })
 export class DevisComponent implements OnInit{
     devis_infos: any;//les informations du devis
@@ -54,7 +54,7 @@ export class DevisComponent implements OnInit{
     //requested_keys = [];
     workflow = [];
 
-
+    show_details:boolean = false;
 
     constructor( private _devis:DevisProvider,
                 private _router:Router){}
@@ -69,7 +69,8 @@ export class DevisComponent implements OnInit{
         //l'historique du formulaire!!!!
         this._devis.deactive_historic();
         this.loading = true;
-
+        this.devis_infos = this._devis.get_devis();
+       
 
 
 

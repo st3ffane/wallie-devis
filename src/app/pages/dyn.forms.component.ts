@@ -65,9 +65,7 @@ export class DynFormsComponent implements OnInit{
 
   ngOnInit(){
     
-    //initialisation du composant:
-
-
+    
     //en cas de back/prev directement depuis le navigateur, listen to Location.popstate...
     //ecoute les events du router
     this.routerSubscription = this._router.events.map( event => event instanceof NavigationEnd )
@@ -113,7 +111,8 @@ export class DynFormsComponent implements OnInit{
         
         if(fi) {
           this.infos = fi;//affichage
-        this._ref.nativeElement.scrollIntoView();
+          window.scrollTo(0,0);
+        //this._ref.nativeElement.scrollIntoView();
       }
 
         
@@ -144,6 +143,10 @@ export class DynFormsComponent implements OnInit{
     
 
     this.loading = true;
+    //initialisation du composant:
+     //FUN but not GOOD
+        window.scrollTo(0,0);
+
     this._devis.next(this.group,this.form).then( (fi)=>{
             //on est parti!!!
             this.loading = false;

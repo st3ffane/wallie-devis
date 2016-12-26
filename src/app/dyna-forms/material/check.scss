@@ -1,12 +1,20 @@
 @import "./colors";
 
-.choice-cmp{
-    
-    label{
+$step : 700px;
 
+input[type='radio'],
+input[type="checkbox"]{
+     /* original check box are push outside the viexport */
+  z-index : 0;
+}
+.choice-cmp{
+    margin-bottom: 20px;
+    label{
+        margin: 0!important;
         display: flex;
         font-weight: 700;
         font-size: 1.1em;
+        
         span{
             display: inline-block;
             width: 80%;
@@ -16,9 +24,15 @@
         }
         &+span{
             small{
+                text-align: justify;
                 padding-left: 80px;
                 padding-right: 40px;
                 display: block;
+
+                @media screen and (max-width:$step){
+                    padding: 0;
+                    width: 100%!important;
+                }
             }
         }
     }
@@ -28,6 +42,8 @@
     
         display: flex;
         flex-wrap: wrap;
+        
+  
         &>*{
             flex-grow:1;
             align-content: center;
@@ -35,8 +51,9 @@
             align-self: center;
             width: 40%;
             border: none;
+            margin-bottom: 40px;
             &:nth-child(odd){
-                 border-right: 1px dashed #3E3E3E;
+                 border-right: 1px dashed white;
             }
            
 
@@ -49,7 +66,7 @@
                 text-align:center;
             }
 
-            @media screen and (max-width:700px){
+            @media screen and (max-width:$step){
                 width: 80%;
                 &:nth-child(odd){
                     border-right: none;
@@ -57,22 +74,29 @@
             }
         }
         span{
-            width: 60%!important;
-            @media screen and (max-width:700px){
-                //width: 80%!important;
+            //width: 60%!important;
+            small{
+                @media screen and (max-width:$step){
+                    width: 80%!important;
+                    padding-left: 0;
+                    padding-right: 0;
+                }
             }
+            
         }
     
 }
 
 $check-width:30px;
 .check-container {
-    
+   
   -webkit-appearance: none;
   -moz-appearance: none;
   -ms-appearance: none;
   -o-appearance: none;
   appearance: none;
+
+
   position: relative;
   top: 13.33333px;
   width: 40px;
@@ -90,8 +114,13 @@ $check-width:30px;
   margin-right: 0.5rem;
   z-index: 1000;
       position: relative;
-    top: -0.5em;
+    top: -0.6em;
   margin-left: 40px;
+
+
+  @media screen and (max-width: 700px){
+      margin: 0 5px 0 0;
+  }
    &::before{
        outline: none!important;
           width: 40px;
@@ -128,7 +157,7 @@ $check-width:30px;
   }
   &:checked{
       background: $focus_color;
-      
+      box-shadow:none!important;
       &::before{
           width: 40px;
             height: 40px;

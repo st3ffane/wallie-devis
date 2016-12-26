@@ -1,16 +1,21 @@
 <div>
-    <div *ngIf="loading" class="loading">Loading&#8230;</div>
+    <div *ngIf="loading" class="simpleLoader">
+    <div class="btPreloader">
+    
+      <div class="btLoader"></div> 
+    </div>
+  </div>
     <h3 class="text-center">Bienvenue dans l'application de generation de devis EXPEDOM.com</h3>
     <p class="text-center">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>
 
     <div *ngIf='reload' class="overlay" [class.open]="reload">
         <div >
-            <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>
+            <h4>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</h4>
             <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}
                     </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:"form_from":"from"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:"form_to":"to"}}</span></p>
             <button class="btn btn-primary" (click)="reload_devis()">Reprendre mon ancien devis</button>
+            <p>ou</p>
             
-            <button class="btn btn-primary" (click)="annul_reload()">Non merci!</button>
            
         </div>
     </div>

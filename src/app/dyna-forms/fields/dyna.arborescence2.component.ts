@@ -1,4 +1,4 @@
-import {Component, Input, ViewChildren} from "@angular/core";
+import {Component, Input, ChangeDetectorRef} from "@angular/core";
 import {FormGroup, FormControl, Validators} from "@angular/forms";
 
 
@@ -33,7 +33,7 @@ export class DynaArborescence2Component{
     @Input() groupName:string;//le nom du 'sous-groupe' auquel appartiennent les radios de ce niveau
     @Input() ctrlActive:boolean;
 
-    
+    constructor( private _change:ChangeDetectorRef){}
     groupValue:string = "";//le binding pour les groupes de ce niveau
 
     main_level = null;//les choix de base
@@ -247,72 +247,76 @@ export class DynaArborescence2Component{
     //le controle n'est plus valide
     annul(id){
         this.question.__value = null;//cause une erreur expression already checked en mode dev...
+        this._change.detectChanges() ;
 
+       
+        //scroll smooth vers l'element
         
-        setTimeout (()=>{
-            this.smoothScroll(id);
-        })
+       
+         
+        
         //force le check???
         //au mieux, scroll to the new components 
         // let top = document.getElementById(id).offsetTop - 100; //Getting Y of target element
         //  console.log("position: "+top)
         // let  w_top = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
         
-        // setTimeout( (v)=>{
-        //      console.log("scroll into view "+id)
-        //      window.scrollTo(0,top-100);
-        // }, 100)
+        setTimeout( (v)=>{
+             scrollIt(id, 300, 'easeInQuad');
+        }, 100)
        
     }
 
     /**
      * ALERT: utilise le smooth scrolling pour afficher les nouveaux elements, pas franchement angular2-spirit!!!
+     * 
+     * code trouvé sur le web... appel a des timeout, voir a trouver mieux que ca...
      */
-    private currentYPosition() {
-        // Firefox, Chrome, Opera, Safari
-        if (self.pageYOffset) return self.pageYOffset;
-        // Internet Explorer 6 - standards mode
-        if (document.documentElement && document.documentElement.scrollTop)
-            return document.documentElement.scrollTop;
-        // Internet Explorer 6, 7 and 8
-        if (document.body.scrollTop) return document.body.scrollTop;
-        return 0;
-    }
-    private elmYPosition(eID) {
-        var elm = document.getElementById(eID);
-        var y = elm.offsetTop;
-        var node:any = elm;
-        while (node.offsetParent && node.offsetParent != document.body) {
-            node = node.offsetParent;
-            y += node.offsetTop;
+    // private currentYPosition() {
+    //     // Firefox, Chrome, Opera, Safari
+    //     if (self.pageYOffset) return self.pageYOffset;
+    //     // Internet Explorer 6 - standards mode
+    //     if (document.documentElement && document.documentElement.scrollTop)
+    //         return document.documentElement.scrollTop;
+    //     // Internet Explorer 6, 7 and 8
+    //     if (document.body.scrollTop) return document.body.scrollTop;
+    //     return 0;
+    // }
+    // private elmYPosition(eID) {
+    //     var elm = document.getElementById(eID);
+    //     var y = elm.offsetTop;
+    //     var node:any = elm;
+    //     while (node.offsetParent && node.offsetParent != document.body) {
+    //         node = node.offsetParent;
+    //         y += node.offsetTop;
 
 
-        } return y - 100;
-    }
-    private smoothScroll(eID) {
-        var startY = this.currentYPosition();
-        var stopY = this.elmYPosition(eID);
-        var distance = stopY > startY ? stopY - startY : startY - stopY;
-        if (distance < 100) {
-            scrollTo(0, stopY); return;
-        }
-        var speed = Math.round(distance / 100);
-        if (speed >= 10) speed = 10;
-        var step = Math.round(distance / 25);
-        var leapY = stopY > startY ? startY + step : startY - step;
-        var timer = 0;
-        if (stopY > startY) {
-            for ( var i=startY; i<stopY; i+=step ) {
-                setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
-                leapY += step; if (leapY > stopY) leapY = stopY; timer++;
-            } return;
-        }
-        for ( var i=startY; i>stopY; i-=step ) {
-            setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
-            leapY -= step; if (leapY < stopY) leapY = stopY; timer++;
-        }
-        return false;
-    }
+    //     } return y - 100;
+    // }
+    // private smoothScroll(eID) {
+    //     var startY = this.currentYPosition();
+    //     var stopY = this.elmYPosition(eID);
+    //     var distance = stopY > startY ? stopY - startY : startY - stopY;
+    //     if (distance < 100) {
+    //         scrollTo(0, stopY); return;
+    //     }
+    //     var speed = Math.round(distance / 100);
+    //     if (speed >= 10) speed = 10;
+    //     var step = Math.round(distance / 25);
+    //     var leapY = stopY > startY ? startY + step : startY - step;
+    //     var timer = 0;
+    //     if (stopY > startY) {
+    //         for ( var i=startY; i<stopY; i+=step ) {
+    //             setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
+    //             leapY += step; if (leapY > stopY) leapY = stopY; timer++;
+    //         } return;
+    //     }
+    //     for ( var i=startY; i>stopY; i-=step ) {
+    //         setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
+    //         leapY -= step; if (leapY < stopY) leapY = stopY; timer++;
+    //     }
+    //     return false;
+    // }
 
     /** si selectionne un element (leaf), desactive tous les radio nodes (ayant des options)
     // de son niveau et des niveaux inferieurs
@@ -361,4 +365,87 @@ export class DynaArborescence2Component{
     }
 
 
+}
+
+function scrollIt(elementID, duration = 200, easing = 'linear', callback=null) {
+  let element = document.getElementById(elementID);
+  if(!element) return;
+console.log(element.offsetTop);
+
+  // define timing functions
+  const easings = {
+    linear(t) {
+      return t;
+    },
+    easeInQuad(t) {
+      return t * t;
+    },
+    easeOutQuad(t) {
+      return t * (2 - t);
+    },
+    easeInOutQuad(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    },
+    easeInCubic(t) {
+      return t * t * t;
+    },
+    easeOutCubic(t) {
+      return (--t) * t * t + 1;
+    },
+    easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+    },
+    easeInQuart(t) {
+      return t * t * t * t;
+    },
+    easeOutQuart(t) {
+      return 1 - (--t) * t * t * t;
+    },
+    easeInOutQuart(t) {
+      return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t;
+    },
+    easeInQuint(t) {
+      return t * t * t * t * t;
+    },
+    easeOutQuint(t) {
+      return 1 + (--t) * t * t * t * t;
+    },
+    easeInOutQuint(t) {
+      return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t;
+    }
+  };
+
+  // Returns document.documentElement for Chrome and Safari
+  // document.body for rest of the world
+  function checkBody() {
+    document.documentElement.scrollTop += 1;
+    const body = (document.documentElement.scrollTop !== 0) ? document.documentElement : document.body;
+    document.documentElement.scrollTop -= 1;
+    return body;
+  }
+
+  const body = checkBody();
+  const start = body.scrollTop;
+  const startTime = Date.now();
+
+  // Height checks to prevent requestAnimationFrame from infinitely looping
+  // If the function tries to scroll below the visible document area
+  // it should only scroll to the bottom of the document
+  const documentHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+  const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.getElementsByTagName('body')[0].clientHeight;
+  const destination = documentHeight - element.offsetTop < windowHeight ? documentHeight - windowHeight : element.offsetTop;
+
+  function scroll() {
+    const now = Date.now();
+    const time = Math.min(1, ((now - startTime) / duration));
+    const timeFunction = easings[easing](time);
+    body.scrollTop = (timeFunction * (destination - start)) + start;
+
+    if (body.scrollTop === destination) {
+      if (callback) callback();
+      return;
+    }
+    requestAnimationFrame(scroll);
+  }
+  scroll();
 }

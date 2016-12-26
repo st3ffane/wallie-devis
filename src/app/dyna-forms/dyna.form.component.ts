@@ -101,10 +101,7 @@ export class DynamicFormComponent implements OnInit{
             //sinon, groupe existe deja....
         }
         this.form = new FormGroup(group);//renvoie le groupe d'infos
-        //met le focus sur le premier input 
-        if(first && this.form.controls){
-            this.form.controls[first].enable();
-        }
+        
     }
 
     /**

@@ -1,29 +1,38 @@
 @import "../material/colors";
-@import '../material/text.input';
+//@import '../material/text.input';
 
-
-.border{
-  padding: 2px;
-   box-shadow: 1px 1px 4px 2px rgba(31, 31, 31, 0.2);
-  border: 1px solid #E3E3E3;
+.black{
+  color: #3E3E3E;
+}
+.input-container{
+  width: 100%;
+  text-align: left;
+  input{
+    border: 1px solid #3E3E3E;
+  }
 }
 .tabs {
   position: relative;   
   min-height: 200px; /* This part sucks */
   clear: both;
   margin: 25px 0;
-  background-color: #E8E8E8;
+  
+  @media screen and (max-width:700px){
+    min-height: 250px;
+  }
+  
 }
 .tab {
   float: left;
+  
 }
 .tab label {
 //   background: #eee; 
 //  padding: 10px; 
 //   border: 1px solid #ccc; 
-  margin-left: -1px; 
+   
   position: relative;
-  left: 1px; 
+  
   cursor:pointer;
   //min-width: 200px;
     font-size: 1em;
@@ -42,6 +51,7 @@
 }
 .content {
   background-color: white;
+  color:#3E3E3E;
   position: absolute;
   top: 44px;
   left: 0;
@@ -59,6 +69,9 @@
   width: 100%;
     display: block;
     padding-bottom: 10px;
+    border-radius: 5px 5px 0 0;
+    //border: 1px solid #3E3E3E;
+  border-bottom: none;
 //   z-index: 2;
 }
 [type=radio]:checked ~ label ~ .content {
@@ -74,20 +87,23 @@ sebm-google-map-info-window > div{
 }
 
 .inline{
-   margin-top: 30px;
+   //margin-top: 30px;
   display: flex;
 }
 .centered{
 position: relative;
-    top: 50%;
+    top: 30%;
    cursor: pointer;
+   &:hover{
+     color: red;
+   }
 }
 .inline-form{
  
-  margin-top: 30px;
+ 
   display: flex;
  align-items: flex-end;
- 
+  flex-wrap: wrap;
   div{
     flex-grow:1;
     label{
@@ -98,11 +114,21 @@ position: relative;
   button {
     flex-grow: 0;
     max-width: 150px;
+    line-height: 1.9em;
+    margin-left: 5px;
+
+    @media screen and (max-width: 700px){
+      flex-grow: 1;
+      margin: 0;
+      max-width: none;
+    }
   }
   
 }
 
 .infos{
+  color: #3E3E3E;
+
   fieldset{
     display: flex;
     flex-direction: column;
@@ -116,6 +142,7 @@ position: relative;
           
             background-color: $focus_color;
             border:none!important;
+            
   
         }
         &:checked+.btn-primary:hover {
@@ -132,6 +159,7 @@ position: relative;
       {
         display: block;
         width: 100%;
+        @media screen and(max-width: 700px){white-space: normal!important;}
       }
       
     }

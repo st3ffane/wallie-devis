@@ -1,6 +1,21 @@
 @import "../dyna-forms/material/colors";
 
+.hidden{ display:none;}
+.simplecheck{
+    width: 100%;
+    input{
+        display: none;
+    }
 
+    input:checked ~ span{
+        background-color: #f19300;
+    } 
+}
+h5{
+    strong{
+        color: #f19300;
+    }
+}
 .logo{
     background-image: url("/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png");
     background-position: center;
@@ -24,21 +39,21 @@
         display: table-row;
 }
 tbody{
-    width: 100%;
+    width: 80%;
+    margin: auto;
     display: table;
 }
-#recap{
+.recap{
     // display: table;
     // border-collapse: separate;
     width: 100%;
     .form_infos{
-        // display: table-row-group;
-        // margin-bottom: 20px;
-        
+         //display: table-row-group;
+         //margin-bottom: 20px;
         .form_title{
         //    display: table-row;
         //    position: relative;
-           font-size: 1.1em;
+           font-size: 1.5em;
             font-weight: 700;
             padding-top: 10px;
         }
@@ -50,67 +65,60 @@ tbody{
                 // display: table-cell;
                     padding-left: 10px;
                     vertical-align: top;
+
+                   
             }
             .field_value{
                 // display: table-cell;
-                font-size: 1em;
+                font-size: 1.1em;
                 font-weight: 700;
                 text-transform: uppercase;
-                width: 33%;
+                width: 30%;
                 vertical-align: top;
                 
                 
             }
         }
+        
     }
 }
+.form_title{
+        //    display: table-row;
+        //    position: relative;
+           font-size: 1.5em;
+            font-weight: 700;
+            padding-top: 10px;
+        }
+        .form_fields{
 
-#results{
-        margin-top: 20px;
-        ul{
-            list-style:none;
+            // display: table-row;
             width: 100%;
-            padding: 0;
-            margin: 0;
-            line-height: 1.8em;
-            padding-top: 5px;
-            padding-bottom: 5px;
-            
-            li{
-                white-space: nowrap;
-                padding-left: 10px;
-                
-                &.header{
-                    font-size: 1.2em;
-                    font-weight: 700;
-                    margin-top: 10px;
-                }
-                &.result{
-                    font-size: 1.5em;
-                    font-weight: 700;
-                    padding: 10px;
-                    border-top: 1px dashed #E3E3E3;
-                }
-                .label{
-                    font-weight: initial;
-                    width: 67%;
-                    display:inline-block;
-                    text-align: left;
-                    font-size:1em;
-                    color:#3E3E3E;
-                }
-                .result_value{
-                    font-size: 1.2em;
+            &.result{
+                background-color: #f19300;
+            }
+            .field_label{
+                // display: table-cell;
+                    padding-left: 10px;
+                    vertical-align: top;
+
+                    &.result{
+                       font-size: 1.2em;
+                       vertical-align: middle;
+                   }
+            }
+            .field_value{
+                // display: table-cell;
+                font-size: 1.1em;
                 font-weight: 700;
                 text-transform: uppercase;
-                width: 33%;
+                width: 30%;
                 vertical-align: top;
-                text-overflow: ellipsis;
+                &.result{
+                    font-size: 2em;
                 }
+                
             }
         }
-}
-
 #actions{
     display: flex;
     margin-bottom: 30px;
