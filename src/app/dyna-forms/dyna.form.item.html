@@ -128,10 +128,10 @@
                             <label> <input   [formControlName]="question.id"                        
                             type="radio" 
                             [(ngModel)]="question.__value"
-                            [value]="it.value"
+                            [value]="it.value"><!--
                             
                             class=" check-container radio"
-                            ><span>{{it.label}}</span></label>    
+                            --><div class=" check-container radio"></div><span>{{it.label}}</span></label>    
                             <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
                     </div>    
                     
@@ -148,9 +148,9 @@
                          [(ngModel)]="question.__value"
                          [value]="question.selected"
                          
-                         class="check-container check"
-                    >{{question.title}}</label>    
-                    <span><small>{{question.description}}</small></span>
+                        
+                    ><div class=" check-container check"></div><span>{{question.title}}</span></label>    
+                    <span class="check_clear"><small>{{question.description}}</small></span>
                  
             
         </div>

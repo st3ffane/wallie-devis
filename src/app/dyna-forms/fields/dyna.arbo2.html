@@ -15,11 +15,12 @@
                         [(ngModel)]="question.__value"
                         (change)="clear_groups(level)"
                         [value]="it.value"
-                        [attr.name]="question.id"
+                        [attr.name]="question.id">
                         
-                        class=" check-container radio"
-                        >
-                        <span>{{it.label}}</span></label>
+                        <!--
+                            
+                            class=" check-container radio"
+                            --><div class=" check-container radio"></div><span>{{it.label}}</span></label>
                         <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
                 </div>
                 <div *ngIf="it.isGroup">
@@ -29,11 +30,12 @@
                         
                         (change)="annul(it.label)"
                         [value]="it.value"
-                        [attr.name]="it.groupName"
+                        [attr.name]="it.groupName">
                         
-                        class=" check-container radio group"
-                        >
-                        <span>{{it.label}}</span></label>
+                        <!--
+                            
+                            class=" check-container radio"
+                            --><div class=" check-container radio group"></div><span>{{it.label}}</span></label>
                         <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
                 </div>
             </div>

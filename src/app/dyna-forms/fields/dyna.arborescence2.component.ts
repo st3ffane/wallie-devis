@@ -263,6 +263,7 @@ export class DynaArborescence2Component{
         
         setTimeout( (v)=>{
              scrollIt(id, 300, 'easeInQuad');
+             console.log("hello")
         }, 100)
        
     }
@@ -435,16 +436,27 @@ console.log(element.offsetTop);
   const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.getElementsByTagName('body')[0].clientHeight;
   const destination = documentHeight - element.offsetTop < windowHeight ? documentHeight - windowHeight : element.offsetTop;
 
+
+console.log(destination+","+windowHeight+","+documentHeight)
   function scroll() {
     const now = Date.now();
     const time = Math.min(1, ((now - startTime) / duration));
     const timeFunction = easings[easing](time);
-    body.scrollTop = (timeFunction * (destination - start)) + start;
+    let rest = (destination - start);
+    rest = rest < 1 ? 1 : rest;
 
-    if (body.scrollTop === destination) {
+    let amout = (timeFunction * rest ) + start;
+    
+    body.scrollTop = amout ;
+
+    if (amout >= destination) {
       if (callback) callback();
+
+      
       return;
     }
+    
+   
     requestAnimationFrame(scroll);
   }
   scroll();
