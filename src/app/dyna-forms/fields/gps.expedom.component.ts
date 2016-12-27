@@ -130,6 +130,8 @@ export class GPSExpedomComponent{
             if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
             }
+
+            console.log("valid!!!");
             this.position = rep;
             this.question["position"] = this.position;
             
