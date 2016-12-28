@@ -9,12 +9,32 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({name: 'GetDevisDetailsPipe'})
 export class GetDevisResultPipe implements PipeTransform {
   transform(value: any, group: string, name:string): string {
-      
-     let frm = value[group];
+      if(value == null) return "";
+      let frm = null;
+      if(Array.isArray(value)){
+          //resultats
+          console.log(value);
+          for(let v of value){
+              console.log(v);
+              let [type,key]=v.form_id.split('/');
+              if(key == group){
+                  frm = v;
+                  break;
+              }
+          }
+      }
+    else{
+        //formulaires
+
+        frm =  value[group];
+    } 
+    
         if(frm) {
             //recherche le field
             for(let field of frm.fields){
-                if(name == field.id) return field.value_label || "-- --";
+                if(name == field.id) {
+                    return field.value_label || "-- --";
+                }
             }
             
             

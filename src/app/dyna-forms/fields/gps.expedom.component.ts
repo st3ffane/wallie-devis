@@ -104,7 +104,7 @@ export class GPSExpedomComponent{
     ngOnInit(){
         //creation des elements de formulaires necessaires (angular)
         this.create_forms_elements();
-        this.question["position"] = {};
+        //this.question["position"] = {};//sauf si viens du cache....
 
         console.log("Geolocation:");
         console.log(this.question["use-geolocation"])
@@ -117,10 +117,79 @@ export class GPSExpedomComponent{
     ngAfterViewInit(){
         //recupere les coordonnées GPS si dispo et les informations sur les prix d'enlevement/livraison 
         //a domicile
-        if(!this.noGeo) return; 
+        //si a des valeurs en cache, met en place 
+        let has_location = false;
+
+        //DOIT PAS SE FAIRE ICI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if(this.question.__value){
+            //si domicile, a part 
+            
+            if(this.question.__value.startsWith("domicile")){
+                //recup de la geolocation
+                //2 cas, ou arrive par un prec, ou arrive par un reload???
+                
+                this.position = this.question.position;
+
+                console.log(this.question);
+                console.log(this.question['position']);
+                //a deja les options???
+                if(this.position && this.position.options){
+                    console.log ("recherche directement dans les options");
+                    for (let opt of this.position.options){
+                        if(opt.value == this.question.__value){
+                            //trouvé, affichera de toute facon la popup
+                            this.filter = "domicile";
+                            has_location = true; //annule le chargment
+                        }
+                    }
+                }
+                else if(this.position && this.position.latitude){
+                    
+                    has_location = true;//evite de relancer la geolocalisation
+                    this._devis.load_domicile_prices(this.position).then( (dt)=>{
+                            //valide la position et enregistre
+                                this.position['options'] = dt;
+                                //recherche la valeur 
+                                for (let opt of this.position.options){
+                                    if(opt.value == this.question.__value){
+                                        //trouvé
+                                        this.filter = "domicile";
+
+                                    }
+                                }
+
+                    }).catch( (err)=>{
+                        console.log("Error geolocalisation");
+                        this.position={};//objet vide???
+                        // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+                        this.is_localising = false;
+                    });
+                }
+                //recupere les valeurs 
+               
+
+            } else {
+                //une reponse en cache, doit selectionner le filtre correspondant
+                for (let filtre of this.question.options){
+                    for(let opt of filtre.locations){
+                        for(let v of opt.options){
+                            if(v.value == this.question.__value){
+                                this.filter = filtre.label;//affiche avec le filtre defini...
+                                opt["open_window"] = true;
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            
+        }
+
+        if(!this.noGeo || has_location) return; //si a deja une location (geo ou une adresse...), ne fait rien...
     
         this.geolocalise().then( (pos:any)=> {
-
+            console.log("geolocalise:");
+            console.log(pos);
             //demande le nom du patelin 
             return this._gmap.get_departement_from_coords_async(pos.latitude,pos.longitude);
 
@@ -146,6 +215,7 @@ export class GPSExpedomComponent{
 
         }).catch( (err)=>{
             console.log("Error geolocalisation");
+            this.position={};//objet vide???
             // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
@@ -201,19 +271,27 @@ export class GPSExpedomComponent{
      */
     private geolocalise(){
         return new Promise ( (resolve, reject)=>{
+            console.log("geolocalise");
              if(navigator.geolocation){
                  
                 navigator.geolocation.getCurrentPosition((pos)=>{
+                    
                     if(pos.coords){
+                       
                         resolve(pos.coords);
                         
                     }  
-                    else reject("no coords");
+                    else {
+                       
+                        reject("no coords");
+                    }
                 },
                 (err)=>{
+                   
                     reject(err);
                 });
             } else {
+               
                 reject("geolocalisation OFF");
             }
         });
@@ -343,5 +421,18 @@ export class GPSExpedomComponent{
         });
        
 
+    }
+
+
+    /**
+     * click sur un marqueur pour l'ouvrir, verifie combien d'options
+     * si une seule, selectionne
+     */
+    check_options(location:any){
+        console.log("click");
+        if(location.options && location.options.length == 1){
+            //selectionne 
+            this.question.__value = location.options[0].value;
+        }
     }
 }

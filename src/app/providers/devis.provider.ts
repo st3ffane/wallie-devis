@@ -158,8 +158,29 @@ export class DevisProvider {
     //et diminuer la taille des données 
     //le surcoup au load et unload semble negligeable ici (peut de données)
     //mais garder un oeil dessus
-    set_devis_from_localstorage(devis){
+    set_devis_from_localstorage(devis, form_datas?:any){
         this.devis_infos = devis;//NOTE/ unqiuement les données en cache
+        //doit repopulate le dernier form a partir du cache...
+        if(form_datas){
+            console.log("repopulate from historical form");
+            console.log(form_datas);
+            let d = this.devis_infos[form_datas.form];
+            let h = form_datas.datas;
+            if(d){
+                for(let field of h.fields){
+                    this.setFormValue(d,field);
+                    
+                }
+            }
+        }
+        
+    }
+    private setFormValue(form, field){
+        if(form[field.id]){            
+             form[field.id]=field.value;
+             console.log("check for position in field");
+             if(field.position) form[field.id].position = field.position;
+        }
     }
 
     /**
@@ -227,7 +248,7 @@ export class DevisProvider {
 
             let key =form; //clé du formulaire, unqieument le nom du focrmulaire
 
-            
+            console.log(" get form descriptor");
             let fi = null;
             //recherche dans les formulaires deja chargés...
             //probleme, peuvent etre du cache....
@@ -235,7 +256,7 @@ export class DevisProvider {
                     
                     fi = this.devis_infos[key];
                     //if(fi["key"]){
-                //    console.log("veridie si datas valides")
+                    console.log("veridie si datas valides")
                     if(group == 'global'){
 
                         // console.log("form valide, repopulate")
@@ -262,9 +283,10 @@ export class DevisProvider {
                         
 
                     } else {
-
+                        console.log("euh, la, je sais pas....")
                     }
                     this.current_key = fi.key; //la clé du formulaire courant
+                    console.log(fi)
                         return Promise.resolve(fi);//renvoie le formulaire 
                     
             }
@@ -365,7 +387,7 @@ export class DevisProvider {
             if(this.devis_infos[form_name]){
 
                 if (group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    // console.log("form global ou connue, repopulate")
+                    console.log("form global ou connue, repopulate")
                     
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
@@ -376,11 +398,18 @@ export class DevisProvider {
                             // console.log(fi.fields[i]);
 
                             fi.fields[i]['value'] = cache[i] ? cache[i]['value'] : '';//enregistre le cache
-
-                            let debug = fi.fields[i];
+                            console.log("verifie cache dedie au GPS");
+                            if(cache[i].position){ 
+                                console.log("une position:!:::");
+                                console.log(cache[i].position)
+                                 fi.fields[i]["position"] = cache[i].position;
+                            }
+                            //let debug = fi.fields[i];
                             // console.log(debug.id+":"+debug.value);
                         }
                      }
+                     //le cas GPS
+                     
                     
                 }
                 
@@ -480,7 +509,7 @@ export class DevisProvider {
         for (let key of Object.keys(this.devis_infos)){
             
 
-            
+            //normalement, key est le nom du formulaire
             let form = this.devis_infos[key];
             
 
@@ -658,11 +687,24 @@ export class DevisProvider {
         if(window.localStorage){
             this._form_historic = JSON.parse(window.localStorage.getItem("historic")) || [];
             //this.last_visited_url_LS = window.localStorage.getItem("last_url");
-            if(this._form_historic.length > 0) this.last_visited_url_LS = this._form_historic[this._form_historic.length -1].url;
+            let form_datas = null;
+            if(this._form_historic.length > 0) {
+                //supprime le dernier element 
+                console.log("un historique");
+
+                let hist = this._form_historic[this._form_historic.length -1];//.pop();
+                this.last_visited_url_LS = hist.url;
+                form_datas ={ 
+                    "group": hist.group,
+                    "form":hist.form,
+                    "datas":hist.datas
+                };
+            
+            }
             let devis = JSON.parse(window.localStorage.getItem("app_datas"));
             if(devis){
                 //donne au provider 
-                this.set_devis_from_localstorage(devis);
+                this.set_devis_from_localstorage(devis, form_datas);
                
             }
         }
@@ -691,9 +733,11 @@ export class DevisProvider {
                 //dans un formulaire, indique le dans l'historique 
                 let last_frm = this.devis_infos[key[1]];
                 let dt = null;
-                if(group == "global")dt = this.compact_datas(last_frm);//global, garde les données
-                else  dt = this.compact_form_datas(last_frm);//les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
+                //if(group == "global")dt = this.compact_datas(last_frm);//global, garde les données
+                //else  dt = this.compact_form_datas(last_frm);//les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
 
+                //recupere les données actuelles du formulaire (en cas de modif de la saisie)
+                dt = this.compact_form_datas(last_frm);
                 this.addToHistoric(key[0],key[1],last_frm["url"], dt);
 
                 window.localStorage.setItem('historic',JSON.stringify(this._form_historic));//l'historique de la navigation dans les formulaires 
@@ -752,6 +796,9 @@ export class DevisProvider {
                 let fields = form.fields;
                 if(fields == null ) return;
 
+
+                console.log("compacte form datas");
+               
                 let url = form.url;//url pour recup les données
                 for (let field of fields){
                     let obj =
@@ -792,12 +839,12 @@ export class DevisProvider {
                     }
                     fds.push(obj);
                 }
-
+                console.log(form);
                 return  {
                     "fields":fds,//pour les differents champs du formulaire 
                     "url":url, //pour le rechargement 
                     "title": form.title,//pour le devis final: voir a mettre un champs devis_title????
-                    
+                    "form_id":form.key || form.form_id//clé du formulaire: group/nom
                 };
     }
     /**
@@ -821,10 +868,14 @@ export class DevisProvider {
         let dt = { };
         let f = [];
         for (let field of form.fields){
-            f.push({
+            let dt = {
                 "value":field.__value || null,
                 "id":field.id
-            });
+            };
+            
+            //si une position, enregistre 
+            if (field.position) dt["position"] = field.position;
+            f.push(dt);
         }
         dt["fields"] = f;
         dt["url"] = form["url"];

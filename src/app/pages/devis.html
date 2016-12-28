@@ -12,8 +12,8 @@
   </div>
     <div *ngIf='!loading'>
             
-            <h5>Pour un transport de <strong>{{devis_infos | GetDevisDetailsPipe:'form_marchandise':'marchandise'}}</strong> au départ de <strong>{{devis_infos | GetDevisDetailsPipe:'form_from':'from'}}</strong> et à destination de 
-            <strong>{{devis_infos | GetDevisDetailsPipe:'form_to':'to'}}</strong></h5>
+            <h5>Pour un transport de <strong>{{workflow | GetDevisDetailsPipe:'form_marchandise':'marchandise'}}</strong> au départ de <strong>{{workflow | GetDevisDetailsPipe:'form_from':'from'}}</strong> et à destination de 
+            <strong>{{workflow | GetDevisDetailsPipe:'form_to':'to'}}</strong></h5>
             
             <label class="simplecheck"><input type="checkbox" name="details" [(ngModel)]="show_details"><span class="btn btn-primary ">Voir les details</span></label>
             <table class="recap" [class.hidden]="!show_details">

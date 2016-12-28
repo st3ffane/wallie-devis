@@ -122,10 +122,10 @@
                     <sebm-google-map-marker  *ngFor="let m of opt.locations"
                         [latitude]="m?.lat" [longitude]="m?.lng" 
                         [iconUrl]="opt.label | toIconUrl"
-                        >
+                        (markerClick)="check_options(m)">
 
                         <!-- si une seule reponse, affiche directement l'infos window???  -->
-                        <sebm-google-map-info-window [isOpen]="opt.locations.length == 1">
+                        <sebm-google-map-info-window [isOpen]="opt.locations.length == 1 || m.open_window">
                             <div class="infos">
                                 <strong>{{m?.label}}</strong>
                                 <p>{{m?.description}}</p>

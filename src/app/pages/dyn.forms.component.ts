@@ -99,7 +99,7 @@ export class DynFormsComponent implements OnInit{
    */
   make_form_from_url(){
     this.loading = true;
-
+console.log("creation du formulaire depuis URL");
 
     //recupere les parametres de l'URL
     this.group = this.route.snapshot.params['group']; //recup imediatement les données  
@@ -113,6 +113,8 @@ export class DynFormsComponent implements OnInit{
           this.infos = fi;//affichage
           window.scrollTo(0,0);
         //this._ref.nativeElement.scrollIntoView();
+      } else {
+        console.log("pass de FI????")
       }
 
         
