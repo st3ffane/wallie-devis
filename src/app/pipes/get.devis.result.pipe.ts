@@ -13,9 +13,9 @@ export class GetDevisResultPipe implements PipeTransform {
       let frm = null;
       if(Array.isArray(value)){
           //resultats
-          console.log(value);
+          
           for(let v of value){
-              console.log(v);
+              
               let [type,key]=v.form_id.split('/');
               if(key == group){
                   frm = v;

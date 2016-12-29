@@ -39,6 +39,8 @@ export class DevisProvider {
     //a la rigueur, on peut eviter de le mettre en dur et le faire generer par le title du formulaire (ou
     //le name, ou id...)
     devis_infos = {};
+    
+
     current_key : string = null;//la clé du formulaire actuellement affiché
 
     last_visited_url_LS = null;//la derniere url de formulaire visitée, provennant du localstorage
@@ -53,6 +55,9 @@ export class DevisProvider {
      */
 
     _form_historic=[];//historique du formulaire actuel 
+    _form_current_historic=null;//le dernier formulaire visité (historic)
+    _current_historic_index = -1;//index de navigation
+
 
     /**au startup de la page (formulaire), demande a ajouter une entrée a l'historique du formulaire
      * @param group: le nom du group du formulaire (ex: global, vehicule,...)
@@ -60,7 +65,7 @@ export class DevisProvider {
      * @param url: l'url qui permet de charger le formulaire 
      * @param datas: des données a enregistrer avec l'historique (principalement, les entrées du formulaire courant)
      */
-    addToHistoric(group, form, url, datas?:any){
+    addToHistoric(group, form, url,name, datas?:any){
         //verifie si n'a pas deja ce nom de formulaire qqpart 
         
        
@@ -83,9 +88,10 @@ export class DevisProvider {
             
         }
         //ajoute a l'historique
-        if(datas) this._form_historic.push({"group":group,"form":form, "url":url,"datas":datas});
-        else this._form_historic.push({"group":group,"form":form, "url":url});
+        if(datas) this._form_historic.push({"group":group,"form":form,"name":name, "url":url,"datas":datas});
+        else this._form_historic.push({"group":group,"form":form, "name":name,"url":url});
        
+        this._current_historic_index = this._form_historic.length -1;
     }
     /**
      * Remet l'historique a ZERO 
@@ -93,6 +99,7 @@ export class DevisProvider {
      */
     clearHistoric(){
         this._form_historic = [];//vide compleetement l'historique si commence un nouveau formulaire
+        this._current_historic_index = -1;
     }
 
     /**
@@ -114,17 +121,29 @@ export class DevisProvider {
             //ajoute une entrée a l'historique: state=url, title: non supporté, url: devis/group/form
             window.history.pushState (h["url"],'',"/devis/"+h['group']+"/"+h['form']);
         } 
-        let h = this._form_historic[total-1];
-        // console.log("dernier formulaire chargé:");
-        // console.log(h);
+        let h = null;
+        if(this._form_current_historic){
+            //probleme, le dernier a ete pop!!!!
+            h = this._form_current_historic;
+            // console.log("dernier formulaire chargé:");
+            // console.log(h);
 
-        //pour le reload
-        this.last_visited_url_LS = h["url"];
-        //les données de cache....
-        this.devis_infos[h["form"]] = h["datas"];
-
+            //pour le reload
+            this.last_visited_url_LS = h["url"];
+            //les données de cache....
+            this.devis_infos[h["form"]] = h["datas"];
+            //remet a zero 
+            this._form_current_historic = null;
+            this._current_historic_index = total -1;//index courant
+            
+        }
         return h;
     }
+    public back(){
+        this._current_historic_index --;//1 de moins 
+        window.history.back();
+    }
+
 
     /**
      * Permet, pour certaines pages (mainpage et resultat du devis) de desactiver l'enregistrement de l'historique 
@@ -162,8 +181,8 @@ export class DevisProvider {
         this.devis_infos = devis;//NOTE/ unqiuement les données en cache
         //doit repopulate le dernier form a partir du cache...
         if(form_datas){
-            console.log("repopulate from historical form");
-            console.log(form_datas);
+            // console.log("repopulate from historical form");
+            // console.log(form_datas);
             let d = this.devis_infos[form_datas.form];
             let h = form_datas.datas;
             if(d){
@@ -224,6 +243,7 @@ export class DevisProvider {
         //     return Promise.resolve({"group":group,"form":form});//renvoie la route a suivre
         // } else {
             //doit charger la description du formulaire 
+            
             return this.load_next_page_url_async(group,form);
         // }
 
@@ -248,15 +268,14 @@ export class DevisProvider {
 
             let key =form; //clé du formulaire, unqieument le nom du focrmulaire
 
-            console.log(" get form descriptor");
+            // console.log(" get form descriptor");
             let fi = null;
             //recherche dans les formulaires deja chargés...
-            //probleme, peuvent etre du cache....
             if(this.devis_infos[key] && this.devis_infos[key]["key"]){
                     
                     fi = this.devis_infos[key];
                     //if(fi["key"]){
-                    console.log("veridie si datas valides")
+                    // console.log("veridie si datas valides")
                     if(group == 'global'){
 
                         // console.log("form valide, repopulate")
@@ -282,18 +301,21 @@ export class DevisProvider {
                         //for (let field of fi.fields) field.value = undefined;//remet a null au cas ou les données ne soient pas coherentes
                         
 
-                    } else {
-                        console.log("euh, la, je sais pas....")
-                    }
+                     }// else {
+                    //     console.log("euh, la, je sais pas....")
+                    // }
                     this.current_key = fi.key; //la clé du formulaire courant
-                    console.log(fi)
-                        return Promise.resolve(fi);//renvoie le formulaire 
+                    // console.log(fi)
+                    return Promise.resolve(fi);//renvoie le formulaire 
                     
             }
 
 
             //pas de formulaire en memoire, regarde les données d'URL 
             //d'abord l'etat actuel, sinon celui chargé au load et sinon, celui du localStorage
+            //window.history.state: si navigue par bouton Back/prev du navigateur
+            //_history_state: si arrive directement sur la page depuis ailleurs???? probleme du a angular qui efface les données d'url 
+            //last_visited: si proviens du bouton Reprendre mon ancien formulaire 
             let url = window.history.state || this._history_state || this.last_visited_url_LS;
             
             
@@ -348,8 +370,11 @@ export class DevisProvider {
     
 
     /**
-     * charge la prochaine partie du workflow, probleme, on espere que ce sera toujours pareil....
-     * @param form: le nom du formulaire a charger (ex: marchandises, coordonnees....)
+     * charge la prochaine partie du workflow
+     * si a deja des données en cache et que le cache est valide, recupere les données
+     * 
+     * @param group, form: le group et form du formulaire actuel (ex: global, form_marchandise)
+     * @param endpoint: url du formulaire a charger (si ne proviens pas de next())
      * 
      * @return Promise<DynaForm>: le formulaire a afficher coté client
      */
@@ -387,7 +412,7 @@ export class DevisProvider {
             if(this.devis_infos[form_name]){
 
                 if (group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    console.log("form global ou connue, repopulate")
+                    // console.log("form global ou connue, repopulate")
                     
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
@@ -398,10 +423,10 @@ export class DevisProvider {
                             // console.log(fi.fields[i]);
 
                             fi.fields[i]['value'] = cache[i] ? cache[i]['value'] : '';//enregistre le cache
-                            console.log("verifie cache dedie au GPS");
+                            // console.log("verifie cache dedie au GPS");
                             if(cache[i].position){ 
-                                console.log("une position:!:::");
-                                console.log(cache[i].position)
+                                // console.log("une position:!:::");
+                                // console.log(cache[i].position)
                                  fi.fields[i]["position"] = cache[i].position;
                             }
                             //let debug = fi.fields[i];
@@ -692,13 +717,14 @@ export class DevisProvider {
                 //supprime le dernier element 
                 console.log("un historique");
 
-                let hist = this._form_historic[this._form_historic.length -1];//.pop();
+                let hist = this._form_historic.pop();//[this._form_historic.length -1];//.pop();
                 this.last_visited_url_LS = hist.url;
                 form_datas ={ 
                     "group": hist.group,
                     "form":hist.form,
                     "datas":hist.datas
                 };
+                this._form_current_historic = hist;//garde en memoire en cas de repop
             
             }
             let devis = JSON.parse(window.localStorage.getItem("app_datas"));
@@ -738,7 +764,7 @@ export class DevisProvider {
 
                 //recupere les données actuelles du formulaire (en cas de modif de la saisie)
                 dt = this.compact_form_datas(last_frm);
-                this.addToHistoric(key[0],key[1],last_frm["url"], dt);
+                this.addToHistoric(key[0],key[1],last_frm["url"],last_frm["title"], dt);
 
                 window.localStorage.setItem('historic',JSON.stringify(this._form_historic));//l'historique de la navigation dans les formulaires 
             }
@@ -845,6 +871,9 @@ export class DevisProvider {
                     "url":url, //pour le rechargement 
                     "title": form.title,//pour le devis final: voir a mettre un champs devis_title????
                     "form_id":form.key || form.form_id//clé du formulaire: group/nom
+                    //je dois passer par une prop du nom form_id et pas key car la presence de key m'indique si 
+                    //les données en memoires sont ou pas un descripteur de formulaire
+                    //uniqumenet utilisé pour les resultats???
                 };
     }
     /**

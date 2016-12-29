@@ -43,6 +43,7 @@ export class DynFormsComponent implements OnInit{
   loading:boolean = true;
 
   
+  prec_form_name: string = null;//pour le bouton retour: le nom du formulaire precedent
 
  //IMPORTANT
   group:string;//le groupe du formulaire (global, voitures,...)
@@ -78,6 +79,7 @@ export class DynFormsComponent implements OnInit{
           //SAUF si navigation via BACK ou NEXT...
           this.error = null;
           //tente d'afficher les données du formulaire
+          
           this.make_form_from_url();
         }
     
@@ -99,7 +101,7 @@ export class DynFormsComponent implements OnInit{
    */
   make_form_from_url(){
     this.loading = true;
-console.log("creation du formulaire depuis URL");
+
 
     //recupere les parametres de l'URL
     this.group = this.route.snapshot.params['group']; //recup imediatement les données  
@@ -110,6 +112,15 @@ console.log("creation du formulaire depuis URL");
     this._devis.get_form_descriptor(this.group, this.form).then( (fi) =>{
         
         if(fi) {
+
+          //recup le nom du formulaire dans historic -2
+console.log(this._devis._current_historic_index);
+console.log(this._devis._form_historic.length);
+          if(this._devis._form_historic.length>0 && this._devis._current_historic_index>=0)  this.prec_form_name = this._devis._form_historic[this._devis._current_historic_index]["name"];
+          //probleme: si revient depuis historique....
+
+
+          
           this.infos = fi;//affichage
           window.scrollTo(0,0);
         //this._ref.nativeElement.scrollIntoView();
@@ -168,6 +179,10 @@ console.log("creation du formulaire depuis URL");
     
   }
 
+  back(){
+    //recharge la page precedente 
+    this._devis.back();
+  }
   //@DEPRECATED
   set_value(cat:string, value:string, singular:boolean = true){
     //passe a la page suivante, enregistre la valeur actuelle

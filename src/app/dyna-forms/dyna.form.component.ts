@@ -65,7 +65,7 @@ export class DynamicFormComponent implements OnInit{
         //ajoute une entrée a l'historique 
         let k = this.formulaire['key'];
         k = k.split('/');
-        this._devis.addToHistoric(k[0],k[1],this.formulaire["url"]);
+        this._devis.addToHistoric(k[0],k[1],this.formulaire["url"], this.formulaire["title"]);
 
 
         return true;
@@ -166,7 +166,7 @@ export class DynamicFormComponent implements OnInit{
             
         }
         //desactive le required pour les checkboxs
-        if(field.type != "checkbox"  && field.required !== false){
+        if(field.required !== false){
             valids.push(Validators.required);
         }
         return valids;
