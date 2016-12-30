@@ -21,8 +21,17 @@
                     <!-- le nom du formulaire -->
                     <tr><td  colspan="2" class="form_title">{{form.title}}</td></tr>
                     <tr class="form_fields" *ngFor="let field of form.fields">
-                        <td class="field_label">{{field.title}}</td><td class="field_value">{{field.value_label}}</td>
                         
+                        <td class="field_label">{{field.title}} </td>
+                        <td class="field_value" >
+                           
+                                <div [ngSwitch]="field['data-type']">
+                                        <span *ngSwitchCase="'currency'"  >{{field.value_label | number:'2.2-2'}}€</span>
+                                        <span *ngSwitchDefault >{{field.value_label}}</span>
+                                </div>
+                            
+                            
+                        </td>
                     </tr>
                     
                 </div>

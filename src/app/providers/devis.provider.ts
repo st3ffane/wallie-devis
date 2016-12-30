@@ -852,6 +852,10 @@ export class DevisProvider {
                 console.log("compacte form datas");
                
                 let url = form.url;//url pour recup les données
+
+
+
+
                 for (let field of fields){
                     let obj =
                     {
@@ -860,6 +864,7 @@ export class DevisProvider {
                         "id": field["id"],
                         'title': field.title,//pour affichage dans le devis final 
                         //voir si autre chose?????
+                        "data-type":field["data-type"]
                     };
 
                     //probleme value_label: si options, doit recuperer le label de l'option 
@@ -872,14 +877,13 @@ export class DevisProvider {
                     }
                     //certains fields utilise la geolocalisation et ont un field position a sauvegarder
                     if(field["position"]) {
-                        
+                        let pos = field["position"];
                         if (field["value"] && field["value"].startsWith("domicile")){
-                            //recherche dans les options de domicile
-                            
-                            obj["value_label"] = "Prise en charge à domicile";
+                            //recherche dans les options de domicile                            
+                            obj["value_label"] = "Prise en charge à domicile ("+(pos['city']||pos['zipcode'])+")";
                         }
                         //un GPS!
-                        let pos = field["position"];
+                        
 
                         obj['position'] = {
                             'city':pos.city,

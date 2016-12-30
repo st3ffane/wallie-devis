@@ -46,8 +46,9 @@ export class GmapGeocodeProvider {
                 // console.log("des reponses");
                 let address = rep.results[0].address_components;//la plus precise
 
+                let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address);
                 this.cached_position = {
-                    "city": this.get_type("locality", address),
+                    "city":city,
                     "lat":latitude,
                     "lng": longitude,
                     "name":this.get_type("administrative_area_level_2", address),
