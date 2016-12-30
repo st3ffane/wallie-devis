@@ -400,6 +400,9 @@ export class GPSExpedomComponent{
      * depuis le webservice
      */
     positionne_marker(evt){
+
+        console.log("ici, "+this.filter);
+
         if(this.filter!='domicile') return;
 
 
@@ -410,15 +413,16 @@ export class GPSExpedomComponent{
         //enregistre la position: permet d'afficher imediatement le marqueur
        this.position = evt.coords;
        
-       
+       console.log(evt.coords);
 
        this._gmap.get_departement_from_coords_async(this.position.lat,this.position.lng,true).then( (rep)=>{
             
             //VERIFIE SI LE PAYS EST BON.....
-            if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+            
+            /*if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 
                 throw "not in place!";
-            }
+            }*/
             this.position = rep;
             this.question["position"] = this.position;
             console.log(rep);
