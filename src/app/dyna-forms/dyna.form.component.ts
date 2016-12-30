@@ -27,7 +27,11 @@ export class DynamicFormComponent implements OnInit{
     form: FormGroup; //le group d'inputs de ce formulaire
     error:string;//en cas de non validation des contraintes de formulaires
 
-    @Output() submit = new EventEmitter();//pour prevenir le component parent que le formulaire a ete submitted
+
+    show_confirm : boolean = false; //si une confirmation, trigger pour l'afficher
+
+
+    @Output() submitted = new EventEmitter();//pour prevenir le component parent que le formulaire a ete submitted
     constructor(private _devis:DevisProvider){}
 
 
@@ -57,9 +61,36 @@ export class DynamicFormComponent implements OnInit{
         //     }
         // }
 
+        if(this.isConfirmNeeded() ){
+            //affiche la dialog de confirmation 
+            this.show_confirm = true;
+            return false; //attends la confirmation du code
+
+        }
 
         //switch toutes les __value vers value (pour eviter de faire n'importe quoi avec les next/prev du navigateur)
         // permet de decoupler l'interface graphique des veritables données 
+        // for (let question of this.formulaire.fields) question.value = question.__value;//
+
+        // //ajoute une entrée a l'historique 
+        // let k = this.formulaire['key'];
+        // k = k.split('/');
+        // this._devis.addToHistoric(k[0],k[1],this.formulaire["url"], this.formulaire["title"]);
+
+
+        // return true;
+        this.doSubmit(true);
+        return true;
+    }
+
+    private doSubmit(evt?:any){
+        //switch toutes les __value vers value (pour eviter de faire n'importe quoi avec les next/prev du navigateur)
+        // permet de decoupler l'interface graphique des veritables données 
+         //remet la dialog en place
+        this.show_confirm = false;
+        if(!evt){
+            return;
+        }
         for (let question of this.formulaire.fields) question.value = question.__value;//
 
         //ajoute une entrée a l'historique 
@@ -68,10 +99,28 @@ export class DynamicFormComponent implements OnInit{
         this._devis.addToHistoric(k[0],k[1],this.formulaire["url"], this.formulaire["title"]);
 
 
-        return true;
+        this.submitted.emit();
+
     }
 
-    
+    doConfirmReturn(ok){
+        if(ok) this.doSubmit();
+    }
+
+    private isConfirmNeeded():boolean{
+        let confirm = this.formulaire["confirm"];
+        if(!confirm) return false;
+
+        if(confirm["if"]){
+            //les tests
+            let field_name = confirm["if"]["field"];
+            let value = confirm["if"]["value"];
+
+            return this.form.controls[field_name].value == value;
+        }
+        //sinon, demande toujours confirmation
+        return true;
+    }
 
     ngOnChanges(){
 

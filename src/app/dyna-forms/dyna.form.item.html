@@ -96,8 +96,9 @@
             <div class="schrink">
                 <div class='input-container'>
                     <label>{{question.title}}</label> 
+                    <p>{{question.description}}</p>
                     <select #texted [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
-                       [attr.placeholder]="question.description">
+                      >
                             <option *ngFor="let opt of question.options" [value]="opt.value">{{opt.label}}</option>
                     </select>
                        

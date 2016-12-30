@@ -106,10 +106,24 @@ export class GPSExpedomComponent{
         this.create_forms_elements();
         //this.question["position"] = {};//sauf si viens du cache....
 
-        console.log("Geolocation:");
-        console.log(this.question["use-geolocation"])
+        
         this.noGeo = this.question["use-geolocation"] === undefined ? true : this.question["use-geolocation"] == "1"  ;
-        console.log(this.noGeo)
+        
+
+        //trie les options des locations pour affichage 
+
+        for (let opt of this.question.options){
+            for (let loc of opt.locations){
+                if(loc.options){
+                     let sorted = loc.options.sort( (elem1:any, elem2:any)=>{
+                        let v1 = +elem1.value.split('|')[1];
+                        let v2 = +elem2.value.split('|')[1];
+                        return v1 - v2;
+                    });
+                    loc.options = sorted;
+                }
+            }
+        }
         //mappe les locations a afficher sur la map
         this.remap_options();
     }
@@ -130,11 +144,9 @@ export class GPSExpedomComponent{
                 
                 this.position = this.question.position;
 
-                console.log(this.question);
-                console.log(this.question['position']);
+                
                 //a deja les options???
                 if(this.position && this.position.options){
-                    console.log ("recherche directement dans les options");
                     for (let opt of this.position.options){
                         if(opt.value == this.question.__value){
                             //trouvé, affichera de toute facon la popup
@@ -160,6 +172,7 @@ export class GPSExpedomComponent{
 
                     }).catch( (err)=>{
                         console.log("Error geolocalisation");
+                        console.log(err);
                         this.position={};//objet vide???
                         // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
                         this.is_localising = false;
@@ -174,8 +187,9 @@ export class GPSExpedomComponent{
                     for(let opt of filtre.locations){
                         for(let v of opt.options){
                             if(v.value == this.question.__value){
-                                this.filter = filtre.label;//affiche avec le filtre defini...
+                                
                                 opt["open_window"] = true;
+                                this.filter = filtre.label;//affiche avec le filtre defini...
                             }
                         }
                         
@@ -188,7 +202,7 @@ export class GPSExpedomComponent{
         if(!this.noGeo || has_location) return; //si a deja une location (geo ou une adresse...), ne fait rien...
     
         this.geolocalise().then( (pos:any)=> {
-            console.log("geolocalise:");
+            
             console.log(pos);
             //demande le nom du patelin 
             return this._gmap.get_departement_from_coords_async(pos.latitude,pos.longitude);
@@ -215,7 +229,8 @@ export class GPSExpedomComponent{
 
         }).catch( (err)=>{
             console.log("Error geolocalisation");
-            this.position={};//objet vide???
+            console.log(err);
+            this.position=null;//objet vide???
             // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
@@ -271,7 +286,7 @@ export class GPSExpedomComponent{
      */
     private geolocalise(){
         return new Promise ( (resolve, reject)=>{
-            console.log("geolocalise");
+            
              if(navigator.geolocation){
                  
                 navigator.geolocation.getCurrentPosition((pos)=>{
@@ -406,7 +421,7 @@ export class GPSExpedomComponent{
             }
             this.position = rep;
             this.question["position"] = this.position;
-            
+            console.log(rep);
             this.is_localising = false;
             return this._devis.load_domicile_prices(this.position);
             

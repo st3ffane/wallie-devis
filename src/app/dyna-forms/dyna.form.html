@@ -16,4 +16,6 @@
             <button class="btn-lg btn-primary btn-block" type="submit" [disabled]="devisForm.form?.valid == false">Suivant</button>
         </div>
     </form>
+
+    <confirm-dlg [display]="show_confirm" *ngIf="formulaire.confirm" [confirm]="formulaire.confirm" (onAnswered)="doSubmit($event)"></confirm-dlg>
 </div>

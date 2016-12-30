@@ -1,6 +1,7 @@
 @import "../material/colors";
 //@import '../material/text.input';
 
+
 .black{
   color: #3E3E3E;
 }
@@ -152,9 +153,28 @@ position: relative;
   fieldset{
     display: flex;
     flex-direction: column;
+
+    div:first-child{
+      position: relative;
+      &:after{
+        content:url('/wp-content/plugins/quote-generator/assets/img/meilleur-prix.svg');
+        position: absolute;
+        width: 45px;
+        height: 45px;
+        z-index:9999;
+        right:-10px;
+        top: -20px;
+      }
+    }
+    
     label{
       flex-grow:1;
       width: 100%;
+
+      
+
+
+
       input{
         display:none;
         

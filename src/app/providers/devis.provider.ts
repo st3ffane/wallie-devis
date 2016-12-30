@@ -56,7 +56,7 @@ export class DevisProvider {
 
     _form_historic=[];//historique du formulaire actuel 
     _form_current_historic=null;//le dernier formulaire visité (historic)
-    _current_historic_index = -1;//index de navigation
+    //_current_historic_index = -1;//index de navigation
 
 
     /**au startup de la page (formulaire), demande a ajouter une entrée a l'historique du formulaire
@@ -91,7 +91,7 @@ export class DevisProvider {
         if(datas) this._form_historic.push({"group":group,"form":form,"name":name, "url":url,"datas":datas});
         else this._form_historic.push({"group":group,"form":form, "name":name,"url":url});
        
-        this._current_historic_index = this._form_historic.length -1;
+        //this._current_historic_index = this._form_historic.length -1;
     }
     /**
      * Remet l'historique a ZERO 
@@ -99,7 +99,7 @@ export class DevisProvider {
      */
     clearHistoric(){
         this._form_historic = [];//vide compleetement l'historique si commence un nouveau formulaire
-        this._current_historic_index = -1;
+        //this._current_historic_index = -1;
     }
 
     /**
@@ -134,16 +134,30 @@ export class DevisProvider {
             this.devis_infos[h["form"]] = h["datas"];
             //remet a zero 
             this._form_current_historic = null;
-            this._current_historic_index = total -1;//index courant
+            //this._current_historic_index = total -1;//index courant
             
         }
         return h;
     }
     public back(){
-        this._current_historic_index --;//1 de moins 
+        //this._current_historic_index --;//1 de moins 
         window.history.back();
     }
-
+    //recupere le titre du formulaire precedent dans l'historique de navigation
+    getTitleFromHistoric(group, form){
+        if(this._form_historic.length == 0) return "";
+        let total = this._form_historic.length;
+        let i = 0;
+        for ( i = 0; i<total;i++){
+            let h = this._form_historic[i];
+            if(h.group == group && h.form == form){
+                break;
+            }
+        }
+        //si pas de break, renvoie le dernier
+        if(i > 0) return this._form_historic[i-1].name;
+        return "";
+    }
 
     /**
      * Permet, pour certaines pages (mainpage et resultat du devis) de desactiver l'enregistrement de l'historique 
@@ -612,7 +626,19 @@ export class DevisProvider {
         return this._http.get(this.create_geolocation_url(zipcode))
         .toPromise().then( (dt:any)=>{
             // console.log(dt);
-            return JSON.parse(dt._body);
+            let options = JSON.parse(dt._body);
+            if(options  && Array.isArray(options)){
+                let sorted = options.sort( (elem1:any, elem2:any)=>{
+                    let v1 = +elem1.value.split('|')[1];
+                    let v2 = +elem2.value.split('|')[1];
+                    return v1 - v2;
+                });
+
+                options = sorted;
+            }
+            
+
+            return options;
         });
     }
     //une methode bien pourrie pour l'instant...

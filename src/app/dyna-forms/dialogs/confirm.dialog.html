@@ -1,0 +1,17 @@
+<div *ngIf="display" class="fullsize">
+    <div class="confirm">
+        <!--form (submit)="return false;" #confirmForm="ngForm"-->
+            <h4>{{confirm.title}}</h4>
+            <p [innerHTML]="confirm.description | safeHTML"></p>
+            <div class="choice-cmp centered">
+            <label *ngIf="confirm.check">
+                <input type="checkbox" [(ngModel)]="is_Checked" name="checker">
+                <div class=" check-container check"></div><span><strong>{{confirm.check}}</strong></span></label>
+            </div>
+            <div class='actions'>
+                <button class="btn btn-primary" type="button" (click)="onSubmit(true)" [disabled]="is_Checked !== true" value="1">OK</button>
+                <button class="btn btn-primary" type="button" (click)="onSubmit(false)"  value="0">Cancel</button>
+            </div>
+    </div>
+        <!--/form-->
+</div>

@@ -24,7 +24,9 @@ select{
         
     
 }
-
+.gm-style-iw > div{
+  overflow: visible!important;
+}
 /*
 .entry-content{
   width: 100%!important;

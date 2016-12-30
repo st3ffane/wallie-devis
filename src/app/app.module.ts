@@ -37,7 +37,8 @@ import {DynaFormItemComponent} from "./dyna-forms/dyna.form.item.component";
 import {DynaArborescenceComponent} from "./dyna-forms/fields/dyna.arborescence.component";
 import {DynaArborescence2Component} from "./dyna-forms/fields/dyna.arborescence2.component";
 
-import {AutoScrollComponent} from "./directives/autoscroll.component";
+//import {AutoScrollComponent} from "./directives/autoscroll.component";
+import {ConfirmDialog} from "./dyna-forms/dialogs/confirm.dialog";
 
 import {GPSExpedomComponent} from "./dyna-forms/fields/gps.expedom.component";
 
@@ -108,7 +109,8 @@ let routes = RouterModule.forRoot([
     ToIconUrlPipes,
     SafeHtmlPipe,
     
-    AutoScrollComponent
+    //AutoScrollComponent
+    ConfirmDialog
 
   ],
   imports: [

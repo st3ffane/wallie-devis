@@ -11,7 +11,7 @@ import {DynaFormTestProvider} from "../providers/dyna.form.test.provider";
         <div>
             <h3>Test formulaire dynamique</h3>
             <div *ngIf="infos" class="formulaire">
-                <dynamic-form [formulaire]="infos" (submit)="next()"></dynamic-form>
+                <dynamic-form [formulaire]="infos" (submitted)="next()"></dynamic-form>
             <div>
         </div>
     `
@@ -24,5 +24,9 @@ export class DynaTestComponent implements OnInit{
     ngOnInit(){
         //recupere le formulaire a tester et affiche...
         this._test.load_form_description().then( (form)=> this.infos = form);
+    }
+
+    next(){
+        console.log("doing submit!!!!");
     }
 }

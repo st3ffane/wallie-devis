@@ -69,7 +69,8 @@ export class DynaArborescence2Component{
                 radios.push({
                     'label':option.label,
                     'groupName': groupName,
-                    'value': option.value
+                    'value': option.value,
+                    'description':option.description
                 });
             } else if(option.options){
                 //doit recreer un groupe specifique...
@@ -87,7 +88,8 @@ export class DynaArborescence2Component{
                     'label':option.label,
                     'isGroup': true,
                     'value': option.label,
-                    'groupName': groupName
+                    'groupName': groupName,
+                    'description':option.description
                 })
                 let groups = this.get_level_options(option.label, "", option.options,groupName, option.label);//recupere les sous groupes 
                 for (let g of groups) subs.push(g);//ajoute au sous groupe....

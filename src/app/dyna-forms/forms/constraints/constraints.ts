@@ -27,6 +27,12 @@ class Constraints{
         } 
 
     }
+    "if_equal" = function (c:any, form:any){
+
+    }
+    "confirm" = function (c:any, form:any){
+        
+    }
 }
 const FORM_CONSTRAINTS = new Constraints();
 function getFieldByKey(key, form){

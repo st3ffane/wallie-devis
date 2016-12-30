@@ -154,8 +154,8 @@
                         [iconUrl]="'domicile' | toIconUrl">
                             <sebm-google-map-info-window   [isOpen]="position" >
                             <div class="infos">
-                                <strong>Retrait/livraison à domicile</strong>
-                                <p>Une description?</p>
+                                <strong>{{question.default_location?.label}}</strong>
+                                <p>{{question.default_location?.description}}</p>
 
                                 <fieldset *ngIf="position.options">
                                     <div  *ngFor="let price of position?.options">

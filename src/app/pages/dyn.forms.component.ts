@@ -102,7 +102,7 @@ export class DynFormsComponent implements OnInit{
   make_form_from_url(){
     this.loading = true;
 
-
+    
     //recupere les parametres de l'URL
     this.group = this.route.snapshot.params['group']; //recup imediatement les données  
     this.form = this.route.snapshot.params['form']; //recup imediatement les données
@@ -114,9 +114,10 @@ export class DynFormsComponent implements OnInit{
         if(fi) {
 
           //recup le nom du formulaire dans historic -2
-console.log(this._devis._current_historic_index);
+//console.log(this._devis._current_historic_index);
 console.log(this._devis._form_historic.length);
-          if(this._devis._form_historic.length>0 && this._devis._current_historic_index>=0)  this.prec_form_name = this._devis._form_historic[this._devis._current_historic_index]["name"];
+          this.prec_form_name = this._devis.getTitleFromHistoric(this.group, this.form);
+         // if(this._devis._form_historic.length>0 && this._devis._current_historic_index>=0)  this.prec_form_name = this._devis._form_historic[this._devis._current_historic_index]["name"];
           //probleme: si revient depuis historique....
 
 
@@ -151,8 +152,8 @@ console.log(this._devis._form_historic.length);
    * NOTE: si pas de formulaire en retour, part vers le resultats
    *      a revoir !!!!!
    */
-  next(evt:any){
-
+  next(){
+console.log("Calling NEXT");
     
 
     this.loading = true;
