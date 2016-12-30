@@ -573,7 +573,7 @@ module.exports = function(it){
 "use strict";
 "use strict";
 var root_1 = __webpack_require__(49);
-var toSubscriber_1 = __webpack_require__(720);
+var toSubscriber_1 = __webpack_require__(726);
 var observable_1 = __webpack_require__(239);
 /**
  * A representation of any set of values over any amount of time. This the most basic building block
@@ -3074,7 +3074,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var isFunction_1 = __webpack_require__(389);
 var Subscription_1 = __webpack_require__(150);
-var Observer_1 = __webpack_require__(690);
+var Observer_1 = __webpack_require__(696);
 var rxSubscriber_1 = __webpack_require__(240);
 /**
  * Implements the {@link Observer} interface and extends the
@@ -5220,7 +5220,7 @@ function escapeRegExp(s) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_operator_concatAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_operator_concatAll__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_every__ = __webpack_require__(386);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_every___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_operator_every__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last__ = __webpack_require__(709);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last__ = __webpack_require__(715);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_operator_last__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__ = __webpack_require__(102);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__);
@@ -5377,7 +5377,7 @@ var ctx      = __webpack_require__(75)
   , IObject  = __webpack_require__(97)
   , toObject = __webpack_require__(32)
   , toLength = __webpack_require__(26)
-  , asc      = __webpack_require__(541);
+  , asc      = __webpack_require__(542);
 module.exports = function(TYPE, $create){
   var IS_MAP        = TYPE == 1
     , IS_FILTER     = TYPE == 2
@@ -5441,7 +5441,7 @@ module.exports = __webpack_require__(17) ? function(object, key, value){
 var Map     = __webpack_require__(370)
   , $export = __webpack_require__(1)
   , shared  = __webpack_require__(145)('metadata')
-  , store   = shared.store || (shared.store = new (__webpack_require__(662)));
+  , store   = shared.store || (shared.store = new (__webpack_require__(663)));
 
 var getOrCreateMetadataMap = function(target, targetKey, create){
   var targetMetadata = store.get(target);
@@ -7244,6 +7244,7 @@ var DevisProvider = (function () {
          * dans le dernier etat du formulaire
          */
         this._form_historic = []; //historique du formulaire actuel 
+        this._form_current_historic = null; //le dernier formulaire visité (historic)
         //tente, pour le fun de recuperer le state de la page
         //Note: du fait de la gestion de l'url par angular, on reload d'une page, va faire un replaceState sur l'historique
         //mais ne garde pas les données precedement enregistrées (etrangement, c'est peut etre juste un oubli ou un bug??)
@@ -7252,13 +7253,14 @@ var DevisProvider = (function () {
         // console.log("last visit:");
         // console.log(this._history_state);
     }
+    //_current_historic_index = -1;//index de navigation
     /**au startup de la page (formulaire), demande a ajouter une entrée a l'historique du formulaire
      * @param group: le nom du group du formulaire (ex: global, vehicule,...)
      * @param form: le nom du formulaire (ex: form_to, form_motif....)
      * @param url: l'url qui permet de charger le formulaire
      * @param datas: des données a enregistrer avec l'historique (principalement, les entrées du formulaire courant)
      */
-    DevisProvider.prototype.addToHistoric = function (group, form, url, datas) {
+    DevisProvider.prototype.addToHistoric = function (group, form, url, name, datas) {
         //verifie si n'a pas deja ce nom de formulaire qqpart 
         var index = 0;
         var founded = false;
@@ -7278,9 +7280,10 @@ var DevisProvider = (function () {
         }
         //ajoute a l'historique
         if (datas)
-            this._form_historic.push({ "group": group, "form": form, "url": url, "datas": datas });
+            this._form_historic.push({ "group": group, "form": form, "name": name, "url": url, "datas": datas });
         else
-            this._form_historic.push({ "group": group, "form": form, "url": url });
+            this._form_historic.push({ "group": group, "form": form, "name": name, "url": url });
+        //this._current_historic_index = this._form_historic.length -1;
     };
     /**
      * Remet l'historique a ZERO
@@ -7288,6 +7291,7 @@ var DevisProvider = (function () {
      */
     DevisProvider.prototype.clearHistoric = function () {
         this._form_historic = []; //vide compleetement l'historique si commence un nouveau formulaire
+        //this._current_historic_index = -1;
     };
     /**
      * Si reprends un devis de l'historique, permet de remettre TOUTES les
@@ -7308,14 +7312,41 @@ var DevisProvider = (function () {
             //ajoute une entrée a l'historique: state=url, title: non supporté, url: devis/group/form
             window.history.pushState(h_1["url"], '', "/devis/" + h_1['group'] + "/" + h_1['form']);
         }
-        var h = this._form_historic[total - 1];
-        // console.log("dernier formulaire chargé:");
-        // console.log(h);
-        //pour le reload
-        this.last_visited_url_LS = h["url"];
-        //les données de cache....
-        this.devis_infos[h["form"]] = h["datas"];
+        var h = null;
+        if (this._form_current_historic) {
+            //probleme, le dernier a ete pop!!!!
+            h = this._form_current_historic;
+            // console.log("dernier formulaire chargé:");
+            // console.log(h);
+            //pour le reload
+            this.last_visited_url_LS = h["url"];
+            //les données de cache....
+            this.devis_infos[h["form"]] = h["datas"];
+            //remet a zero 
+            this._form_current_historic = null;
+        }
         return h;
+    };
+    DevisProvider.prototype.back = function () {
+        //this._current_historic_index --;//1 de moins 
+        window.history.back();
+    };
+    //recupere le titre du formulaire precedent dans l'historique de navigation
+    DevisProvider.prototype.getTitleFromHistoric = function (group, form) {
+        if (this._form_historic.length == 0)
+            return "";
+        var total = this._form_historic.length;
+        var i = 0;
+        for (i = 0; i < total; i++) {
+            var h = this._form_historic[i];
+            if (h.group == group && h.form == form) {
+                break;
+            }
+        }
+        //si pas de break, renvoie le dernier
+        if (i > 0)
+            return this._form_historic[i - 1].name;
+        return "";
     };
     /**
      * Permet, pour certaines pages (mainpage et resultat du devis) de desactiver l'enregistrement de l'historique
@@ -7336,8 +7367,29 @@ var DevisProvider = (function () {
     //et diminuer la taille des données 
     //le surcoup au load et unload semble negligeable ici (peut de données)
     //mais garder un oeil dessus
-    DevisProvider.prototype.set_devis_from_localstorage = function (devis) {
+    DevisProvider.prototype.set_devis_from_localstorage = function (devis, form_datas) {
         this.devis_infos = devis; //NOTE/ unqiuement les données en cache
+        //doit repopulate le dernier form a partir du cache...
+        if (form_datas) {
+            // console.log("repopulate from historical form");
+            // console.log(form_datas);
+            var d = this.devis_infos[form_datas.form];
+            var h = form_datas.datas;
+            if (d) {
+                for (var _i = 0, _a = h.fields; _i < _a.length; _i++) {
+                    var field = _a[_i];
+                    this.setFormValue(d, field);
+                }
+            }
+        }
+    };
+    DevisProvider.prototype.setFormValue = function (form, field) {
+        if (form[field.id]) {
+            form[field.id] = field.value;
+            console.log("check for position in field");
+            if (field.position)
+                form[field.id].position = field.position;
+        }
     };
     /**
      * Lorsqu'on demarre un nouveau devis, remet l'historique a ZERO, mais
@@ -7392,26 +7444,30 @@ var DevisProvider = (function () {
         //cherche si a deja les données du formulaire
         //attention: savoir si toujours valide?????
         var key = form; //clé du formulaire, unqieument le nom du focrmulaire
+        // console.log(" get form descriptor");
         var fi = null;
         //recherche dans les formulaires deja chargés...
-        //probleme, peuvent etre du cache....
         if (this.devis_infos[key] && this.devis_infos[key]["key"]) {
             fi = this.devis_infos[key];
             //if(fi["key"]){
-            //    console.log("veridie si datas valides")
+            // console.log("veridie si datas valides")
             if (group == 'global') {
                 // console.log("form valide, repopulate")
                 //sauvegarde l'URL dans l'history 
                 window.history.replaceState(fi['url'], 'a title'); //ajoute juste l'url demandé au state....
                 this.last_visited_url_LS = fi["url"]; //...et dans le LS
-            }
-            else {
-            }
+            } // else {
+            //     console.log("euh, la, je sais pas....")
+            // }
             this.current_key = fi.key; //la clé du formulaire courant
+            // console.log(fi)
             return Promise.resolve(fi); //renvoie le formulaire 
         }
         //pas de formulaire en memoire, regarde les données d'URL 
         //d'abord l'etat actuel, sinon celui chargé au load et sinon, celui du localStorage
+        //window.history.state: si navigue par bouton Back/prev du navigateur
+        //_history_state: si arrive directement sur la page depuis ailleurs???? probleme du a angular qui efface les données d'url 
+        //last_visited: si proviens du bouton Reprendre mon ancien formulaire 
         var url = window.history.state || this._history_state || this.last_visited_url_LS;
         if (url && url != "undefined") {
             //page avec une navigation, recharge le formulaire 
@@ -7431,8 +7487,11 @@ var DevisProvider = (function () {
         return form && form["key"] && (requestedGroup == "global" || form["url"].indexOf(request) !== -1);
     };
     /**
-     * charge la prochaine partie du workflow, probleme, on espere que ce sera toujours pareil....
-     * @param form: le nom du formulaire a charger (ex: marchandises, coordonnees....)
+     * charge la prochaine partie du workflow
+     * si a deja des données en cache et que le cache est valide, recupere les données
+     *
+     * @param group, form: le group et form du formulaire actuel (ex: global, form_marchandise)
+     * @param endpoint: url du formulaire a charger (si ne proviens pas de next())
      *
      * @return Promise<DynaForm>: le formulaire a afficher coté client
      */
@@ -7475,7 +7534,12 @@ var DevisProvider = (function () {
                         for (var i = 0; i < total; i++) {
                             // console.log(fi.fields[i]);
                             fi.fields[i]['value'] = cache[i] ? cache[i]['value'] : ''; //enregistre le cache
-                            var debug = fi.fields[i];
+                            // console.log("verifie cache dedie au GPS");
+                            if (cache[i].position) {
+                                // console.log("une position:!:::");
+                                // console.log(cache[i].position)
+                                fi.fields[i]["position"] = cache[i].position;
+                            }
                         }
                     }
                 }
@@ -7556,6 +7620,7 @@ var DevisProvider = (function () {
         var details = {};
         for (var _i = 0, _a = Object.keys(this.devis_infos); _i < _a.length; _i++) {
             var key = _a[_i];
+            //normalement, key est le nom du formulaire
             var form = this.devis_infos[key];
             if (form.fields == null)
                 continue;
@@ -7607,7 +7672,16 @@ var DevisProvider = (function () {
         return this._http.get(this.create_geolocation_url(zipcode))
             .toPromise().then(function (dt) {
             // console.log(dt);
-            return JSON.parse(dt._body);
+            var options = JSON.parse(dt._body);
+            if (options && Array.isArray(options)) {
+                var sorted = options.sort(function (elem1, elem2) {
+                    var v1 = +elem1.value.split('|')[1];
+                    var v2 = +elem2.value.split('|')[1];
+                    return v1 - v2;
+                });
+                options = sorted;
+            }
+            return options;
         });
     };
     //une methode bien pourrie pour l'instant...
@@ -7696,12 +7770,23 @@ var DevisProvider = (function () {
         if (window.localStorage) {
             this._form_historic = JSON.parse(window.localStorage.getItem("historic")) || [];
             //this.last_visited_url_LS = window.localStorage.getItem("last_url");
-            if (this._form_historic.length > 0)
-                this.last_visited_url_LS = this._form_historic[this._form_historic.length - 1].url;
+            var form_datas = null;
+            if (this._form_historic.length > 0) {
+                //supprime le dernier element 
+                console.log("un historique");
+                var hist = this._form_historic.pop(); //[this._form_historic.length -1];//.pop();
+                this.last_visited_url_LS = hist.url;
+                form_datas = {
+                    "group": hist.group,
+                    "form": hist.form,
+                    "datas": hist.datas
+                };
+                this._form_current_historic = hist; //garde en memoire en cas de repop
+            }
             var devis = JSON.parse(window.localStorage.getItem("app_datas"));
             if (devis) {
                 //donne au provider 
-                this.set_devis_from_localstorage(devis);
+                this.set_devis_from_localstorage(devis, form_datas);
             }
         }
     };
@@ -7723,11 +7808,11 @@ var DevisProvider = (function () {
                 //dans un formulaire, indique le dans l'historique 
                 var last_frm = this.devis_infos[key[1]];
                 var dt = null;
-                if (group == "global")
-                    dt = this.compact_datas(last_frm); //global, garde les données
-                else
-                    dt = this.compact_form_datas(last_frm); //les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
-                this.addToHistoric(key[0], key[1], last_frm["url"], dt);
+                //if(group == "global")dt = this.compact_datas(last_frm);//global, garde les données
+                //else  dt = this.compact_form_datas(last_frm);//les informations entrées dans le formulaire MAIS PAS ENCORE VALIDEES
+                //recupere les données actuelles du formulaire (en cas de modif de la saisie)
+                dt = this.compact_form_datas(last_frm);
+                this.addToHistoric(key[0], key[1], last_frm["url"], last_frm["title"], dt);
                 window.localStorage.setItem('historic', JSON.stringify(this._form_historic)); //l'historique de la navigation dans les formulaires 
             }
             else {
@@ -7776,6 +7861,7 @@ var DevisProvider = (function () {
         var fields = form.fields;
         if (fields == null)
             return;
+        console.log("compacte form datas");
         var url = form.url; //url pour recup les données
         for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
             var field = fields_1[_i];
@@ -7809,10 +7895,12 @@ var DevisProvider = (function () {
             }
             fds.push(obj);
         }
+        console.log(form);
         return {
             "fields": fds,
             "url": url,
             "title": form.title,
+            "form_id": form.key || form.form_id //clé du formulaire: group/nom
         };
     };
     /**
@@ -7837,10 +7925,14 @@ var DevisProvider = (function () {
         var f = [];
         for (var _i = 0, _a = form.fields; _i < _a.length; _i++) {
             var field = _a[_i];
-            f.push({
+            var dt_1 = {
                 "value": field.__value || null,
                 "id": field.id
-            });
+            };
+            //si une position, enregistre 
+            if (field.position)
+                dt_1["position"] = field.position;
+            f.push(dt_1);
         }
         dt["fields"] = f;
         dt["url"] = form["url"];
@@ -9564,7 +9656,7 @@ var Observable_1 = __webpack_require__(5);
 var Subscriber_1 = __webpack_require__(22);
 var Subscription_1 = __webpack_require__(150);
 var ObjectUnsubscribedError_1 = __webpack_require__(388);
-var SubjectSubscription_1 = __webpack_require__(692);
+var SubjectSubscription_1 = __webpack_require__(698);
 var rxSubscriber_1 = __webpack_require__(240);
 /**
  * @class SubjectSubscriber<T>
@@ -12831,7 +12923,7 @@ var XSRFStrategy = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_rxjs_operator_mergeAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_rxjs_operator_mergeAll__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_rxjs_operator_mergeMap__ = __webpack_require__(103);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_rxjs_operator_mergeMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_rxjs_operator_mergeMap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce__ = __webpack_require__(711);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce__ = __webpack_require__(717);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_rxjs_operator_reduce__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__apply_redirects__ = __webpack_require__(491);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__config__ = __webpack_require__(492);
@@ -20813,11 +20905,11 @@ exports.OuterSubscriber = OuterSubscriber;
 "use strict";
 "use strict";
 var isArray_1 = __webpack_require__(243);
-var isObject_1 = __webpack_require__(718);
+var isObject_1 = __webpack_require__(724);
 var isFunction_1 = __webpack_require__(389);
 var tryCatch_1 = __webpack_require__(391);
 var errorObject_1 = __webpack_require__(242);
-var UnsubscriptionError_1 = __webpack_require__(717);
+var UnsubscriptionError_1 = __webpack_require__(723);
 /**
  * Represents a disposable resource, such as the execution of an Observable. A
  * Subscription has one important method, `unsubscribe`, that takes no argument
@@ -21093,7 +21185,7 @@ var isArray_1 = __webpack_require__(243);
 var isPromise_1 = __webpack_require__(390);
 var Observable_1 = __webpack_require__(5);
 var iterator_1 = __webpack_require__(238);
-var InnerSubscriber_1 = __webpack_require__(688);
+var InnerSubscriber_1 = __webpack_require__(694);
 var observable_1 = __webpack_require__(239);
 function subscribeToResult(outerSubscriber, result, outerValue, outerIndex) {
     var destination = new InnerSubscriber_1.InnerSubscriber(outerSubscriber, outerValue, outerIndex);
@@ -30886,7 +30978,7 @@ module.exports = '\x09\x0A\x0B\x0C\x0D\x20\xA0\u1680\u180E\u2000\u2001\u2002\u20
 
 "use strict";
 "use strict";
-var FromObservable_1 = __webpack_require__(702);
+var FromObservable_1 = __webpack_require__(708);
 exports.from = FromObservable_1.FromObservable.create;
 //# sourceMappingURL=from.js.map
 
@@ -44227,7 +44319,7 @@ function provideRouterInitializer() {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatMap__ = __webpack_require__(385);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatMap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter__ = __webpack_require__(707);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter__ = __webpack_require__(713);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_operator_filter__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_mergeAll__ = __webpack_require__(151);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_mergeAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_operator_mergeAll__);
@@ -45586,10 +45678,10 @@ var AppComponent = (function () {
     AppComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "app-root",
-            template: __webpack_require__(679),
+            template: __webpack_require__(684),
             //<a routerLink="/test">dev test</a>
             //
-            styles: [__webpack_require__(675)]
+            styles: [__webpack_require__(676)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _a) || Object])
     ], AppComponent);
@@ -45789,311 +45881,44 @@ var __metadata = (this && this.__metadata) || function (k, v) {
  * @DEBUG ONLY: a supprimer avant mise en production
  *
  */
+//un formulaire tout simple avec chq type simple possible
+//test formulaire radio: +constraint sur valeur 
 var TEST_FORM = {
-    key: "precisions_frm",
-    title: "Précisions sur votre marchandise",
-    description: "Merci de nous renseigner sur les caracteristiques de votre marchandise",
-    fields: [
+    "key": "voiture\/form_pec",
+    "title": "Prise en charge de votre v\u00e9hicule",
+    "description": "Vous pouvez amener votre v\u00e9hicule au port de d\u00e9part, ou dans un de nos d\u00e9p\u00f4ts Expedom partout en France, ou encore le faire enlever \u00e0 votre domicile.",
+    "confirm": {
+        "if": {
+            "field": "anid",
+            "value": 0
+        },
+        "title": "un titre pour la confirm",
+        "description": "le texte de description <strong>(html friendly)</strong>",
+        "check": "Je confirme avoir bien lu tout ca",
+        "cancellable": true //si true, ajoute un bouton Annuler a la dialog
+    },
+    "fields": [
         {
-            id: "motif",
-            type: "arbo2-radio",
-            description: "une super description des motifs",
-            title: "Pour quel motif?",
-            options: [
+            "id": "anid",
+            "type": "radio",
+            "title": "un text",
+            "options": [
                 {
-                    label: "Demenagement",
-                    value: "DEM"
+                    "label": "un label",
+                    "value": 0
                 },
                 {
-                    label: "Succession de biens",
-                    value: "SUC"
+                    "label": "un label 2",
+                    "value": 1
                 },
                 {
-                    label: "Achat ou vente",
-                    options: [
-                        {
-                            label: "Neuf HT",
-                            options: [
-                                {
-                                    label: "Importation Directe",
-                                    value: "IMP"
-                                },
-                                {
-                                    label: "Transit 1 mois",
-                                    value: "T1"
-                                },
-                                {
-                                    label: "Transit 2 mois",
-                                    value: "T2"
-                                }
-                            ]
-                        },
-                        {
-                            label: "Occasion HT",
-                            value: "OHT"
-                        },
-                        {
-                            label: "Neuf TTC",
-                            value: "NTTC"
-                        },
-                        {
-                            label: "Occasion TTC",
-                            options: [
-                                {
-                                    label: "Particulier avec contrat",
-                                    value: "PAP"
-                                },
-                                {
-                                    label: "Particulier Argus",
-                                    value: "PAR"
-                                },
-                                {
-                                    label: "Professionnel/concessionnaire",
-                                    value: "PRO"
-                                }
-                            ]
-                        }
-                    ]
+                    "label": "un label3",
+                    "value": 2
                 }
             ]
         }
     ]
 };
-/*
-const TEST_FORM = {
-    "key":"voiture\/form_pec",
-    "title":"Prise en charge de votre v\u00e9hicule",
-    "description":"Vous pouvez amener votre v\u00e9hicule au port de d\u00e9part, ou dans un de nos d\u00e9p\u00f4ts Expedom partout en France, ou encore le faire enlever \u00e0 votre domicile.",
-    "fields":[
-        {
-            "type":"gps",
-            "id":"pec",
-            "title":"Prise en charge",
-            "description":"",
-            "use-text-filter":true,
-            "options":[
-                {
-                    "label":"port",
-                    "description":"J'am\u00e8ne mon v\u00e9hicule directement au port de d\u00e9part",
-                    "selected":true,
-                    "locations":[
-                        {"id":"pepot_roissy","title":"D\u00e9p\u00f4t Expedom Roissy CDG","description":"","lat":49.0098288,"lng":-2.5222987,
-                    "options":[
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"DEP-BRDX-MAR"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"q"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"Dds"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"efdfsf"
-                        }
-                    ]},
-                        {"id":"pepot_toulouse","title":"D\u00e9p\u00f4t Expedom Toulouse","description":"","lat":45.1637045,"lng":-12.7266732,
-                    "options":[
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"DdAR"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"cdcsq"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"bh"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"htttr"
-                        }
-                    ]},
-                        {"id":"pepot_lyon","title":"D\u00e9p\u00f4t Expedom Lyon","description":"","lat":45.7527021,"lng":4.8031399,
-                    "options":[
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"dvds"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"vdvsv"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"vdssee"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"zaaz"
-                        }
-                    ]},
-                        
-                    ]
-                },
-                {
-                    "label":"depot",
-                    "description":"J'am\u00e8ne mon v\u00e9hicule dans un des d\u00e9p\u00f4ts Expedom",
-                    "selected":false,
-                    "locations":
-                    [
-                        
-                        {
-                            "id":"depot_le_havre",
-                            "title":"D\u00e9p\u00f4t Expedom Le Havre",
-                            "description":"",
-                            "lat":49.4812929,
-                            "lng":0.1047474,
-                            "options":[
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"ooiR"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"oimii"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"uity"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"trry"
-                        }
-                    ]
-                        },
-                        {"id":"depot_valenton","title":"D\u00e9p\u00f4t Expedom Valenton","description":"","lat":48.763651,"lng":2.4223637,
-                    "options":[
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"aghn"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"imfg"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"trzv"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"ggf"
-                        }
-                    ]},
-                        {"id":"depot_rouen","title":"D\u00e9p\u00f4t Expedom Rouen","description":"","lat":49.4475502,"lng":1.0503412,
-                    "options":[
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"DuyyiiulAR"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"luidbfr"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"sgjyukulyl"
-                        },
-                        {
-                            "title":"Via Marseille",
-                            "description":"via port de marseille 400€",
-                            "value":"zzzrg"
-                        }
-                    ]},
-                        {"id":"depot_nantes","title":"D\u00e9p\u00f4t Expedom Nantes","description":"","lat":47.2130902,"lng":-1.5530707},
-                        {"id":"depot_aubagne","title":"D\u00e9p\u00f4t Expedom Aubagne","description":"","lat":43.2960761,"lng":5.5569343},
-                        {"id":"depot_plaisir","title":"D\u00e9p\u00f4t Expedom Plaisir","description":"","lat":48.8118961,"lng":1.9128194}
-                    ]
-                },
-                {
-                    "label":"domicile",
-                    "description":"Recuperer la marchandise chez moi: 400€",
-                    "value":"DOM",
-                    "useGeo":true
-                }
-                
-            ]}]};
-//un formulaire tout simple avec chq type simple possible
-/*const TEST_FORM={
-    "key":"voiture\/form_pec",
-    "title":"Prise en charge de votre v\u00e9hicule",
-    "description":"Vous pouvez amener votre v\u00e9hicule au port de d\u00e9part, ou dans un de nos d\u00e9p\u00f4ts Expedom partout en France, ou encore le faire enlever \u00e0 votre domicile.",
-    "fields":[
-        {
-            "id":"anid",
-            "type":"text",
-            "title":"un text",
-            "constraints":{
-                "required":true,
-                "minLength":3,
-                "maxLength":25,
-                "pattern":"[A-Za-z]{3}"
-            }
-
-        },
-        
-        {
-            "id":"anid2",
-            "type":"email",
-            "title":"un email",
-            "constraints":{
-                "required":true
-            }
-
-        },
-        {
-            "id":"anid3",
-            "type":"number",
-            "title":"un nombre (3-25)",
-            "constraints":{
-                "required":true,
-                "min":3,
-                "max":25
-            }
-
-        },
-        {
-            "id":"anid4",
-            "type":"textarea",
-            "title":"une textarea",
-            "constraints":{
-                "required":true
-            }
-
-        }
-    ]
-};*/
 var DynaFormTestProvider = (function () {
     function DynaFormTestProvider() {
     }
@@ -46121,8 +45946,8 @@ var DynaFormTestProvider = (function () {
 Defini le endpoint pour les XHR
 SI COMPILE POUR LE SITE EXPEDOM/DEV
  */
-//export const TARGET="/dev"; //pour les tests sur le site de dev
-var TARGET = ""; //pour le test en local OU export final
+var TARGET = "/dev"; //pour les tests sur le site de dev
+//export const TARGET="";//pour le test en local OU export final 
 
 
 /***/ },
@@ -46202,7 +46027,7 @@ module.exports = function(that, callbackfn, aLen, memo, isRight){
 'use strict';
 var aFunction  = __webpack_require__(65)
   , isObject   = __webpack_require__(8)
-  , invoke     = __webpack_require__(545)
+  , invoke     = __webpack_require__(546)
   , arraySlice = [].slice
   , factories  = {};
 
@@ -46965,9 +46790,9 @@ var global         = __webpack_require__(12)
   , uid            = __webpack_require__(101)
   , wks            = __webpack_require__(9)
   , wksExt         = __webpack_require__(367)
-  , wksDefine      = __webpack_require__(549)
-  , keyOf          = __webpack_require__(546)
-  , enumKeys       = __webpack_require__(544)
+  , wksDefine      = __webpack_require__(550)
+  , keyOf          = __webpack_require__(547)
+  , enumKeys       = __webpack_require__(545)
   , isArray        = __webpack_require__(223)
   , anObject       = __webpack_require__(4)
   , toIObject      = __webpack_require__(31)
@@ -47283,7 +47108,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 var Observable_1 = __webpack_require__(5);
 var ScalarObservable_1 = __webpack_require__(383);
 var EmptyObservable_1 = __webpack_require__(381);
-var isScheduler_1 = __webpack_require__(719);
+var isScheduler_1 = __webpack_require__(725);
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @extends {Ignored}
@@ -48001,13 +47826,13 @@ webpackEmptyContext.id = 392;
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__polyfills_ts__ = __webpack_require__(521);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__polyfills_ts__ = __webpack_require__(522);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__polyfills_ts___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__polyfills_ts__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_rxjs_operators__ = __webpack_require__(519);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_rxjs_operators__ = __webpack_require__(520);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__app_rxjs_operators___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__app_rxjs_operators__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_platform_browser_dynamic__ = __webpack_require__(472);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(520);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__environments_environment__ = __webpack_require__(521);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__app___ = __webpack_require__(513);
 
 
@@ -59192,7 +59017,7 @@ function sanitizeStyle(value) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_operator_catch__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatAll__ = __webpack_require__(384);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatAll___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_operator_concatAll__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first__ = __webpack_require__(708);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first__ = __webpack_require__(714);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_operator_first__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__ = __webpack_require__(102);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_operator_map__);
@@ -60555,12 +60380,13 @@ exports.NoOpMapsAPILoader = NoOpMapsAPILoader;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__dyna_forms_dyna_form_item_component__ = __webpack_require__(506);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__dyna_forms_fields_dyna_arborescence_component__ = __webpack_require__(507);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__dyna_forms_fields_dyna_arborescence2_component__ = __webpack_require__(508);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__directives_autoscroll_component__ = __webpack_require__(504);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__dyna_forms_dialogs_confirm_dialog__ = __webpack_require__(504);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__dyna_forms_fields_gps_expedom_component__ = __webpack_require__(509);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__dyna_forms_providers_gmap_geocode_provider__ = __webpack_require__(338);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__gmap_key__ = __webpack_require__(339);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__pipes_get_devis_details_pipe__ = __webpack_require__(518);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__pipes_get_devis_result_pipe__ = __webpack_require__(518);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_22__dyna_forms_pipes_to_icon_url_pipe__ = __webpack_require__(511);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_23__pipes_safe_html_pipe__ = __webpack_require__(519);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AppModule; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -60571,6 +60397,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+
 
 
 
@@ -60643,9 +60470,11 @@ var AppModule = (function () {
                 __WEBPACK_IMPORTED_MODULE_15__dyna_forms_fields_dyna_arborescence_component__["a" /* DynaArborescenceComponent */],
                 __WEBPACK_IMPORTED_MODULE_16__dyna_forms_fields_dyna_arborescence2_component__["a" /* DynaArborescence2Component */],
                 __WEBPACK_IMPORTED_MODULE_18__dyna_forms_fields_gps_expedom_component__["a" /* GPSExpedomComponent */],
-                __WEBPACK_IMPORTED_MODULE_21__pipes_get_devis_details_pipe__["a" /* GetDevisDetailsPipe */],
+                __WEBPACK_IMPORTED_MODULE_21__pipes_get_devis_result_pipe__["a" /* GetDevisResultPipe */],
                 __WEBPACK_IMPORTED_MODULE_22__dyna_forms_pipes_to_icon_url_pipe__["a" /* ToIconUrlPipes */],
-                __WEBPACK_IMPORTED_MODULE_17__directives_autoscroll_component__["a" /* AutoScrollComponent */]
+                __WEBPACK_IMPORTED_MODULE_23__pipes_safe_html_pipe__["a" /* SafeHtmlPipe */],
+                //AutoScrollComponent
+                __WEBPACK_IMPORTED_MODULE_17__dyna_forms_dialogs_confirm_dialog__["a" /* ConfirmDialog */]
             ],
             imports: [
                 __WEBPACK_IMPORTED_MODULE_0__angular_platform_browser__["b" /* BrowserModule */],
@@ -60678,7 +60507,7 @@ var AppModule = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AutoScrollComponent; });
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return ConfirmDialog; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -60689,20 +60518,38 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 
-var AutoScrollComponent = (function () {
-    function AutoScrollComponent(_elemRef) {
-        this._elemRef = _elemRef;
+var ConfirmDialog = (function () {
+    function ConfirmDialog() {
+        this.display = false; //pour savoir si doit etre visible ou pas 
+        this.onAnswered = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"](); //la reponse de la confirmation 
+        this.is_Checked = false;
     }
-    AutoScrollComponent.prototype.ngAfterViewInit = function () {
-        console.log("Hello autoscroll");
+    ConfirmDialog.prototype.onSubmit = function (ok) {
+        this.onAnswered.emit(ok);
     };
-    AutoScrollComponent = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Directive"])({
-            selector: "[autoscroll]"
+    __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
+        __metadata('design:type', Object)
+    ], ConfirmDialog.prototype, "confirm", void 0);
+    __decorate([
+        //les informations sur la confirmation
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
+        __metadata('design:type', Boolean)
+    ], ConfirmDialog.prototype, "display", void 0);
+    __decorate([
+        //pour savoir si doit etre visible ou pas 
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Output"])("onAnswered"), 
+        __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"]) === 'function' && _a) || Object)
+    ], ConfirmDialog.prototype, "onAnswered", void 0);
+    ConfirmDialog = __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
+            selector: "confirm-dlg",
+            template: __webpack_require__(685),
+            styles: [__webpack_require__(677)]
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _a) || Object])
-    ], AutoScrollComponent);
-    return AutoScrollComponent;
+        __metadata('design:paramtypes', [])
+    ], ConfirmDialog);
+    return ConfirmDialog;
     var _a;
 }());
 
@@ -60742,7 +60589,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var DynamicFormComponent = (function () {
     function DynamicFormComponent(_devis) {
         this._devis = _devis;
-        this.submit = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"](); //pour prevenir le component parent que le formulaire a ete submitted
+        this.show_confirm = false; //si une confirmation, trigger pour l'afficher
+        this.submitted = new __WEBPACK_IMPORTED_MODULE_0__angular_core__["EventEmitter"](); //pour prevenir le component parent que le formulaire a ete submitted
     }
     DynamicFormComponent.prototype.ngOnInit = function () {
         // silence is golden
@@ -60764,8 +60612,30 @@ var DynamicFormComponent = (function () {
         //         }
         //     }
         // }
+        if (this.isConfirmNeeded()) {
+            //affiche la dialog de confirmation 
+            this.show_confirm = true;
+            return false; //attends la confirmation du code
+        }
         //switch toutes les __value vers value (pour eviter de faire n'importe quoi avec les next/prev du navigateur)
         // permet de decoupler l'interface graphique des veritables données 
+        // for (let question of this.formulaire.fields) question.value = question.__value;//
+        // //ajoute une entrée a l'historique 
+        // let k = this.formulaire['key'];
+        // k = k.split('/');
+        // this._devis.addToHistoric(k[0],k[1],this.formulaire["url"], this.formulaire["title"]);
+        // return true;
+        this.doSubmit(true);
+        return true;
+    };
+    DynamicFormComponent.prototype.doSubmit = function (evt) {
+        //switch toutes les __value vers value (pour eviter de faire n'importe quoi avec les next/prev du navigateur)
+        // permet de decoupler l'interface graphique des veritables données 
+        //remet la dialog en place
+        this.show_confirm = false;
+        if (!evt) {
+            return;
+        }
         for (var _i = 0, _a = this.formulaire.fields; _i < _a.length; _i++) {
             var question = _a[_i];
             question.value = question.__value;
@@ -60773,7 +60643,24 @@ var DynamicFormComponent = (function () {
         //ajoute une entrée a l'historique 
         var k = this.formulaire['key'];
         k = k.split('/');
-        this._devis.addToHistoric(k[0], k[1], this.formulaire["url"]);
+        this._devis.addToHistoric(k[0], k[1], this.formulaire["url"], this.formulaire["title"]);
+        this.submitted.emit();
+    };
+    DynamicFormComponent.prototype.doConfirmReturn = function (ok) {
+        if (ok)
+            this.doSubmit();
+    };
+    DynamicFormComponent.prototype.isConfirmNeeded = function () {
+        var confirm = this.formulaire["confirm"];
+        if (!confirm)
+            return false;
+        if (confirm["if"]) {
+            //les tests
+            var field_name = confirm["if"]["field"];
+            var value = confirm["if"]["value"];
+            return this.form.controls[field_name].value == value;
+        }
+        //sinon, demande toujours confirmation
         return true;
     };
     DynamicFormComponent.prototype.ngOnChanges = function () {
@@ -60796,10 +60683,6 @@ var DynamicFormComponent = (function () {
             }
         }
         this.form = new __WEBPACK_IMPORTED_MODULE_1__angular_forms__["b" /* FormGroup */](group); //renvoie le groupe d'infos
-        //met le focus sur le premier input 
-        if (first && this.form.controls) {
-            this.form.controls[first].enable();
-        }
     };
     /**
      * angular: ajoute des validateurs de champs au formctrl
@@ -60856,7 +60739,7 @@ var DynamicFormComponent = (function () {
             }
         }
         //desactive le required pour les checkboxs
-        if (field.type != "checkbox" && field.required !== false) {
+        if (field.required !== false) {
             valids.push(__WEBPACK_IMPORTED_MODULE_1__angular_forms__["c" /* Validators */].required);
         }
         return valids;
@@ -60875,15 +60758,15 @@ var DynamicFormComponent = (function () {
         __metadata('design:type', (typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__forms_dyna_form__["a" /* DynaForm */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__forms_dyna_form__["a" /* DynaForm */]) === 'function' && _a) || Object)
     ], DynamicFormComponent.prototype, "formulaire", void 0);
     __decorate([
-        //en cas de non validation des contraintes de formulaires
+        //si une confirmation, trigger pour l'afficher
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Output"])(), 
         __metadata('design:type', Object)
-    ], DynamicFormComponent.prototype, "submit", void 0);
+    ], DynamicFormComponent.prototype, "submitted", void 0);
     DynamicFormComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             //moduleId: module.id,
             selector: 'dynamic-form',
-            template: __webpack_require__(680),
+            template: __webpack_require__(686),
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_4__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _b) || Object])
     ], DynamicFormComponent);
@@ -60953,7 +60836,8 @@ var DynaFormItemComponent = (function () {
     DynaFormItemComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'df-question',
-            template: __webpack_require__(681),
+            template: __webpack_require__(687),
+            styles: [__webpack_require__(678)]
         }), 
         __metadata('design:paramtypes', [])
     ], DynaFormItemComponent);
@@ -61109,9 +60993,9 @@ var DynaArborescenceComponent = (function () {
     DynaArborescenceComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'df-arbo2-question',
-            template: __webpack_require__(682),
+            template: __webpack_require__(688),
             styles: [
-                __webpack_require__(676)
+                __webpack_require__(679)
             ]
         }), 
         __metadata('design:paramtypes', [])
@@ -61149,7 +61033,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
  * PROBLEME: l'initialisation reste a optimiser comme il faut....
  */
 var DynaArborescence2Component = (function () {
-    function DynaArborescence2Component() {
+    function DynaArborescence2Component(_change) {
+        this._change = _change;
         this.groupValue = ""; //le binding pour les groupes de ce niveau
         this.main_level = null; //les choix de base
         this.groups_level = []; //tous les groupes possibles (levels)
@@ -61183,7 +61068,8 @@ var DynaArborescence2Component = (function () {
                 radios.push({
                     'label': option.label,
                     'groupName': groupName,
-                    'value': option.value
+                    'value': option.value,
+                    'description': option.description
                 });
             }
             else if (option.options) {
@@ -61198,7 +61084,8 @@ var DynaArborescence2Component = (function () {
                     'label': option.label,
                     'isGroup': true,
                     'value': option.label,
-                    'groupName': groupName
+                    'groupName': groupName,
+                    'description': option.description
                 });
                 var groups = this.get_level_options(option.label, "", option.options, groupName, option.label); //recupere les sous groupes 
                 for (var _a = 0, groups_1 = groups; _a < groups_1.length; _a++) {
@@ -61330,79 +61217,67 @@ var DynaArborescence2Component = (function () {
     //annule le choix precedement effectué 
     //le controle n'est plus valide
     DynaArborescence2Component.prototype.annul = function (id) {
-        var _this = this;
         this.question.__value = null; //cause une erreur expression already checked en mode dev...
-        setTimeout(function () {
-            _this.smoothScroll(id);
-        });
+        this._change.detectChanges();
+        //scroll smooth vers l'element
         //force le check???
         //au mieux, scroll to the new components 
         // let top = document.getElementById(id).offsetTop - 100; //Getting Y of target element
         //  console.log("position: "+top)
         // let  w_top = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
-        // setTimeout( (v)=>{
-        //      console.log("scroll into view "+id)
-        //      window.scrollTo(0,top-100);
-        // }, 100)
+        setTimeout(function (v) {
+            scrollIt(id, 300, 'easeInQuad');
+            console.log("hello");
+        }, 100);
     };
     /**
      * ALERT: utilise le smooth scrolling pour afficher les nouveaux elements, pas franchement angular2-spirit!!!
+     *
+     * code trouvé sur le web... appel a des timeout, voir a trouver mieux que ca...
      */
-    DynaArborescence2Component.prototype.currentYPosition = function () {
-        // Firefox, Chrome, Opera, Safari
-        if (self.pageYOffset)
-            return self.pageYOffset;
-        // Internet Explorer 6 - standards mode
-        if (document.documentElement && document.documentElement.scrollTop)
-            return document.documentElement.scrollTop;
-        // Internet Explorer 6, 7 and 8
-        if (document.body.scrollTop)
-            return document.body.scrollTop;
-        return 0;
-    };
-    DynaArborescence2Component.prototype.elmYPosition = function (eID) {
-        var elm = document.getElementById(eID);
-        var y = elm.offsetTop;
-        var node = elm;
-        while (node.offsetParent && node.offsetParent != document.body) {
-            node = node.offsetParent;
-            y += node.offsetTop;
-        }
-        return y - 100;
-    };
-    DynaArborescence2Component.prototype.smoothScroll = function (eID) {
-        var startY = this.currentYPosition();
-        var stopY = this.elmYPosition(eID);
-        var distance = stopY > startY ? stopY - startY : startY - stopY;
-        if (distance < 100) {
-            scrollTo(0, stopY);
-            return;
-        }
-        var speed = Math.round(distance / 100);
-        if (speed >= 10)
-            speed = 10;
-        var step = Math.round(distance / 25);
-        var leapY = stopY > startY ? startY + step : startY - step;
-        var timer = 0;
-        if (stopY > startY) {
-            for (var i = startY; i < stopY; i += step) {
-                setTimeout("window.scrollTo(0, " + leapY + ")", timer * speed);
-                leapY += step;
-                if (leapY > stopY)
-                    leapY = stopY;
-                timer++;
-            }
-            return;
-        }
-        for (var i = startY; i > stopY; i -= step) {
-            setTimeout("window.scrollTo(0, " + leapY + ")", timer * speed);
-            leapY -= step;
-            if (leapY < stopY)
-                leapY = stopY;
-            timer++;
-        }
-        return false;
-    };
+    // private currentYPosition() {
+    //     // Firefox, Chrome, Opera, Safari
+    //     if (self.pageYOffset) return self.pageYOffset;
+    //     // Internet Explorer 6 - standards mode
+    //     if (document.documentElement && document.documentElement.scrollTop)
+    //         return document.documentElement.scrollTop;
+    //     // Internet Explorer 6, 7 and 8
+    //     if (document.body.scrollTop) return document.body.scrollTop;
+    //     return 0;
+    // }
+    // private elmYPosition(eID) {
+    //     var elm = document.getElementById(eID);
+    //     var y = elm.offsetTop;
+    //     var node:any = elm;
+    //     while (node.offsetParent && node.offsetParent != document.body) {
+    //         node = node.offsetParent;
+    //         y += node.offsetTop;
+    //     } return y - 100;
+    // }
+    // private smoothScroll(eID) {
+    //     var startY = this.currentYPosition();
+    //     var stopY = this.elmYPosition(eID);
+    //     var distance = stopY > startY ? stopY - startY : startY - stopY;
+    //     if (distance < 100) {
+    //         scrollTo(0, stopY); return;
+    //     }
+    //     var speed = Math.round(distance / 100);
+    //     if (speed >= 10) speed = 10;
+    //     var step = Math.round(distance / 25);
+    //     var leapY = stopY > startY ? startY + step : startY - step;
+    //     var timer = 0;
+    //     if (stopY > startY) {
+    //         for ( var i=startY; i<stopY; i+=step ) {
+    //             setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
+    //             leapY += step; if (leapY > stopY) leapY = stopY; timer++;
+    //         } return;
+    //     }
+    //     for ( var i=startY; i>stopY; i-=step ) {
+    //         setTimeout("window.scrollTo(0, "+leapY+")", timer * speed);
+    //         leapY -= step; if (leapY < stopY) leapY = stopY; timer++;
+    //     }
+    //     return false;
+    // }
     /** si selectionne un element (leaf), desactive tous les radio nodes (ayant des options)
     // de son niveau et des niveaux inferieurs
     @Called sur event onChange d'une option terminale (leaf)
@@ -61471,16 +61346,101 @@ var DynaArborescence2Component = (function () {
     DynaArborescence2Component = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'df-arbo-question',
-            template: __webpack_require__(683),
+            template: __webpack_require__(689),
             styles: [
-                __webpack_require__(677)
+                __webpack_require__(680)
             ]
         }), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ChangeDetectorRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ChangeDetectorRef"]) === 'function' && _b) || Object])
     ], DynaArborescence2Component);
     return DynaArborescence2Component;
-    var _a;
+    var _a, _b;
 }());
+function scrollIt(elementID, duration, easing, callback) {
+    if (duration === void 0) { duration = 200; }
+    if (easing === void 0) { easing = 'linear'; }
+    if (callback === void 0) { callback = null; }
+    var element = document.getElementById(elementID);
+    if (!element)
+        return;
+    console.log(element.offsetTop);
+    // define timing functions
+    var easings = {
+        linear: function (t) {
+            return t;
+        },
+        easeInQuad: function (t) {
+            return t * t;
+        },
+        easeOutQuad: function (t) {
+            return t * (2 - t);
+        },
+        easeInOutQuad: function (t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        },
+        easeInCubic: function (t) {
+            return t * t * t;
+        },
+        easeOutCubic: function (t) {
+            return (--t) * t * t + 1;
+        },
+        easeInOutCubic: function (t) {
+            return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+        },
+        easeInQuart: function (t) {
+            return t * t * t * t;
+        },
+        easeOutQuart: function (t) {
+            return 1 - (--t) * t * t * t;
+        },
+        easeInOutQuart: function (t) {
+            return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t;
+        },
+        easeInQuint: function (t) {
+            return t * t * t * t * t;
+        },
+        easeOutQuint: function (t) {
+            return 1 + (--t) * t * t * t * t;
+        },
+        easeInOutQuint: function (t) {
+            return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t;
+        }
+    };
+    // Returns document.documentElement for Chrome and Safari
+    // document.body for rest of the world
+    function checkBody() {
+        document.documentElement.scrollTop += 1;
+        var body = (document.documentElement.scrollTop !== 0) ? document.documentElement : document.body;
+        document.documentElement.scrollTop -= 1;
+        return body;
+    }
+    var body = checkBody();
+    var start = body.scrollTop;
+    var startTime = Date.now();
+    // Height checks to prevent requestAnimationFrame from infinitely looping
+    // If the function tries to scroll below the visible document area
+    // it should only scroll to the bottom of the document
+    var documentHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+    var windowHeight = window.innerHeight || document.documentElement.clientHeight || document.getElementsByTagName('body')[0].clientHeight;
+    var destination = documentHeight - element.offsetTop < windowHeight ? documentHeight - windowHeight : element.offsetTop;
+    console.log(destination + "," + windowHeight + "," + documentHeight);
+    function scroll() {
+        var now = Date.now();
+        var time = Math.min(1, ((now - startTime) / duration));
+        var timeFunction = easings[easing](time);
+        var rest = (destination - start);
+        rest = rest < 1 ? 1 : rest;
+        var amout = (timeFunction * rest) + start;
+        body.scrollTop = amout;
+        if (amout >= destination) {
+            if (callback)
+                callback();
+            return;
+        }
+        requestAnimationFrame(scroll);
+    }
+    scroll();
+}
 
 
 /***/ },
@@ -61596,11 +61556,23 @@ var GPSExpedomComponent = (function () {
     GPSExpedomComponent.prototype.ngOnInit = function () {
         //creation des elements de formulaires necessaires (angular)
         this.create_forms_elements();
-        this.question["position"] = {};
-        console.log("Geolocation:");
-        console.log(this.question["use-geolocation"]);
+        //this.question["position"] = {};//sauf si viens du cache....
         this.noGeo = this.question["use-geolocation"] === undefined ? true : this.question["use-geolocation"] == "1";
-        console.log(this.noGeo);
+        //trie les options des locations pour affichage 
+        for (var _i = 0, _a = this.question.options; _i < _a.length; _i++) {
+            var opt = _a[_i];
+            for (var _b = 0, _c = opt.locations; _b < _c.length; _b++) {
+                var loc = _c[_b];
+                if (loc.options) {
+                    var sorted = loc.options.sort(function (elem1, elem2) {
+                        var v1 = +elem1.value.split('|')[1];
+                        var v2 = +elem2.value.split('|')[1];
+                        return v1 - v2;
+                    });
+                    loc.options = sorted;
+                }
+            }
+        }
         //mappe les locations a afficher sur la map
         this.remap_options();
     };
@@ -61608,9 +61580,69 @@ var GPSExpedomComponent = (function () {
         var _this = this;
         //recupere les coordonnées GPS si dispo et les informations sur les prix d'enlevement/livraison 
         //a domicile
-        if (!this.noGeo)
-            return;
+        //si a des valeurs en cache, met en place 
+        var has_location = false;
+        //DOIT PAS SE FAIRE ICI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (this.question.__value) {
+            //si domicile, a part 
+            if (this.question.__value.startsWith("domicile")) {
+                //recup de la geolocation
+                //2 cas, ou arrive par un prec, ou arrive par un reload???
+                this.position = this.question.position;
+                //a deja les options???
+                if (this.position && this.position.options) {
+                    for (var _i = 0, _a = this.position.options; _i < _a.length; _i++) {
+                        var opt = _a[_i];
+                        if (opt.value == this.question.__value) {
+                            //trouvé, affichera de toute facon la popup
+                            this.filter = "domicile";
+                            has_location = true; //annule le chargment
+                        }
+                    }
+                }
+                else if (this.position && this.position.latitude) {
+                    has_location = true; //evite de relancer la geolocalisation
+                    this._devis.load_domicile_prices(this.position).then(function (dt) {
+                        //valide la position et enregistre
+                        _this.position['options'] = dt;
+                        //recherche la valeur 
+                        for (var _i = 0, _a = _this.position.options; _i < _a.length; _i++) {
+                            var opt = _a[_i];
+                            if (opt.value == _this.question.__value) {
+                                //trouvé
+                                _this.filter = "domicile";
+                            }
+                        }
+                    }).catch(function (err) {
+                        console.log("Error geolocalisation");
+                        console.log(err);
+                        _this.position = {}; //objet vide???
+                        // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+                        _this.is_localising = false;
+                    });
+                }
+            }
+            else {
+                //une reponse en cache, doit selectionner le filtre correspondant
+                for (var _b = 0, _c = this.question.options; _b < _c.length; _b++) {
+                    var filtre = _c[_b];
+                    for (var _d = 0, _e = filtre.locations; _d < _e.length; _d++) {
+                        var opt = _e[_d];
+                        for (var _f = 0, _g = opt.options; _f < _g.length; _f++) {
+                            var v = _g[_f];
+                            if (v.value == this.question.__value) {
+                                opt["open_window"] = true;
+                                this.filter = filtre.label; //affiche avec le filtre defini...
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!this.noGeo || has_location)
+            return; //si a deja une location (geo ou une adresse...), ne fait rien...
         this.geolocalise().then(function (pos) {
+            console.log(pos);
             //demande le nom du patelin 
             return _this._gmap.get_departement_from_coords_async(pos.latitude, pos.longitude);
         }).then(function (rep) {
@@ -61618,6 +61650,7 @@ var GPSExpedomComponent = (function () {
             if (rep["country"].toUpperCase() != _this.question.default_location.country.toUpperCase()) {
                 throw "not in place!";
             }
+            console.log("valid!!!");
             _this.position = rep;
             _this.question["position"] = _this.position;
             _this.is_localising = false;
@@ -61629,6 +61662,8 @@ var GPSExpedomComponent = (function () {
             _this.position['options'] = dt;
         }).catch(function (err) {
             console.log("Error geolocalisation");
+            console.log(err);
+            _this.position = null; //objet vide???
             // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
             _this.is_localising = false;
         });
@@ -61675,8 +61710,9 @@ var GPSExpedomComponent = (function () {
                     if (pos.coords) {
                         resolve(pos.coords);
                     }
-                    else
+                    else {
                         reject("no coords");
+                    }
                 }, function (err) {
                     reject(err);
                 });
@@ -61752,19 +61788,23 @@ var GPSExpedomComponent = (function () {
      */
     GPSExpedomComponent.prototype.positionne_marker = function (evt) {
         var _this = this;
+        console.log("ici, " + this.filter);
         if (this.filter != 'domicile')
             return;
         //annule la reponse precedente
         this.question.__value = null;
         //enregistre la position: permet d'afficher imediatement le marqueur
         this.position = evt.coords;
+        console.log(evt.coords);
         this._gmap.get_departement_from_coords_async(this.position.lat, this.position.lng, true).then(function (rep) {
             //VERIFIE SI LE PAYS EST BON.....
-            if (rep["country"].toUpperCase() != _this.question.default_location.country.toUpperCase()) {
+            /*if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+                
                 throw "not in place!";
-            }
+            }*/
             _this.position = rep;
             _this.question["position"] = _this.position;
+            console.log(rep);
             _this.is_localising = false;
             return _this._devis.load_domicile_prices(_this.position);
         })
@@ -61774,6 +61814,17 @@ var GPSExpedomComponent = (function () {
             _this.position = { 'error': "Nous n'avons pas pu recuperer les informations de tarifs à partir de votre localisation..." }; // = this.question.default_location;//remet a zero??? ou garde l'ancien????
             _this.is_localising = false;
         });
+    };
+    /**
+     * click sur un marqueur pour l'ouvrir, verifie combien d'options
+     * si une seule, selectionne
+     */
+    GPSExpedomComponent.prototype.check_options = function (location) {
+        console.log("click");
+        if (location.options && location.options.length == 1) {
+            //selectionne 
+            this.question.__value = location.options[0].value;
+        }
     };
     __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Input"])(), 
@@ -61787,8 +61838,8 @@ var GPSExpedomComponent = (function () {
     GPSExpedomComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "dyna-gps",
-            template: __webpack_require__(684),
-            styles: [__webpack_require__(678)]
+            template: __webpack_require__(690),
+            styles: [__webpack_require__(681)]
         }), 
         __metadata('design:paramtypes', [(typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__providers_gmap_geocode_provider__["a" /* GmapGeocodeProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__providers_gmap_geocode_provider__["a" /* GmapGeocodeProvider */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_3__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _c) || Object])
     ], GPSExpedomComponent);
@@ -61974,6 +62025,7 @@ var DevisComponent = (function () {
         this.has_IDB = true; // pour savoir si a un acces aux base de données
         //requested_keys = [];
         this.workflow = [];
+        this.show_details = false;
     }
     DevisComponent.prototype.ngOnInit = function () {
         var _this = this;
@@ -61984,6 +62036,7 @@ var DevisComponent = (function () {
         //l'historique du formulaire!!!!
         this._devis.deactive_historic();
         this.loading = true;
+        this.devis_infos = this._devis.get_devis();
         // this._devis.load_requested_workflow().then ( (workflow:Array<string>)=>{
         //     this.requested_keys = workflow.map( (elem)=> elem.split('/')[1]); //les clés voulues
         //     return this._devis.load_devis_details_async(this.requested_keys);
@@ -62068,7 +62121,8 @@ var DevisComponent = (function () {
     DevisComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "devis-result",
-            template: __webpack_require__(685),
+            template: __webpack_require__(691),
+            styles: [__webpack_require__(682)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _b) || Object])
     ], DevisComponent);
@@ -62107,13 +62161,13 @@ var DynFormsComponent = (function () {
         this.title = 'app works!'; //parfaitement utile, clé de voute psychologique de l'application!
         this.infos = undefined; //la description du formulaire a afficher
         this.loading = true;
+        this.prec_form_name = null; //pour le bouton retour: le nom du formulaire precedent
     }
     //indique si le changement a ete validé  @DEPRECATED
     DynFormsComponent.prototype.has_changed = function () {
         return true;
     };
     DynFormsComponent.prototype.ngOnInit = function () {
-        //initialisation du composant:
         var _this = this;
         //en cas de back/prev directement depuis le navigateur, listen to Location.popstate...
         //ecoute les events du router
@@ -62150,8 +62204,17 @@ var DynFormsComponent = (function () {
         //demande au providers la description de ce formulaire 
         this._devis.get_form_descriptor(this.group, this.form).then(function (fi) {
             if (fi) {
+                //recup le nom du formulaire dans historic -2
+                //console.log(this._devis._current_historic_index);
+                console.log(_this._devis._form_historic.length);
+                _this.prec_form_name = _this._devis.getTitleFromHistoric(_this.group, _this.form);
+                // if(this._devis._form_historic.length>0 && this._devis._current_historic_index>=0)  this.prec_form_name = this._devis._form_historic[this._devis._current_historic_index]["name"];
+                //probleme: si revient depuis historique....
                 _this.infos = fi; //affichage
-                _this._ref.nativeElement.scrollIntoView();
+                window.scrollTo(0, 0);
+            }
+            else {
+                console.log("pass de FI????");
             }
             _this.loading = false;
         }).catch(function (err) {
@@ -62170,9 +62233,13 @@ var DynFormsComponent = (function () {
      * NOTE: si pas de formulaire en retour, part vers le resultats
      *      a revoir !!!!!
      */
-    DynFormsComponent.prototype.next = function (evt) {
+    DynFormsComponent.prototype.next = function () {
         var _this = this;
+        console.log("Calling NEXT");
         this.loading = true;
+        //initialisation du composant:
+        //FUN but not GOOD
+        window.scrollTo(0, 0);
         this._devis.next(this.group, this.form).then(function (fi) {
             //on est parti!!!
             _this.loading = false;
@@ -62184,6 +62251,10 @@ var DynFormsComponent = (function () {
             _this.error = err;
             _this.infos = null;
         });
+    };
+    DynFormsComponent.prototype.back = function () {
+        //recharge la page precedente 
+        this._devis.back();
     };
     //@DEPRECATED
     DynFormsComponent.prototype.set_value = function (cat, value, singular) {
@@ -62200,7 +62271,7 @@ var DynFormsComponent = (function () {
     DynFormsComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: 'devis-main',
-            template: __webpack_require__(686),
+            template: __webpack_require__(692),
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["c" /* ActivatedRoute */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["c" /* ActivatedRoute */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["ElementRef"]) === 'function' && _d) || Object])
     ], DynFormsComponent);
@@ -62241,10 +62312,13 @@ var DynaTestComponent = (function () {
         //recupere le formulaire a tester et affiche...
         this._test.load_form_description().then(function (form) { return _this.infos = form; });
     };
+    DynaTestComponent.prototype.next = function () {
+        console.log("doing submit!!!!");
+    };
     DynaTestComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "test-dyna-forms",
-            template: "\n        <div>\n            <h3>Test formulaire dynamique</h3>\n            <div *ngIf=\"infos\" class=\"formulaire\">\n                <dynamic-form [formulaire]=\"infos\" (submit)=\"next()\"></dynamic-form>\n            <div>\n        </div>\n    "
+            template: "\n        <div>\n            <h3>Test formulaire dynamique</h3>\n            <div *ngIf=\"infos\" class=\"formulaire\">\n                <dynamic-form [formulaire]=\"infos\" (submitted)=\"next()\"></dynamic-form>\n            <div>\n        </div>\n    "
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_dyna_form_test_provider__["a" /* DynaFormTestProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_dyna_form_test_provider__["a" /* DynaFormTestProvider */]) === 'function' && _a) || Object])
     ], DynaTestComponent);
@@ -62364,7 +62438,8 @@ var MainPageComponent = (function () {
     MainPageComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
             selector: "hello-cmp",
-            template: __webpack_require__(687),
+            template: __webpack_require__(693),
+            styles: [__webpack_require__(683)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__providers_devis_provider__["a" /* DevisProvider */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2__angular_router__["a" /* Router */]) === 'function' && _b) || Object])
     ], MainPageComponent);
@@ -62379,7 +62454,7 @@ var MainPageComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return GetDevisDetailsPipe; });
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return GetDevisResultPipe; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -62390,27 +62465,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 
-var GetDevisDetailsPipe = (function () {
-    function GetDevisDetailsPipe() {
+var GetDevisResultPipe = (function () {
+    function GetDevisResultPipe() {
     }
-    GetDevisDetailsPipe.prototype.transform = function (value, group, name) {
-        var frm = value[group];
+    GetDevisResultPipe.prototype.transform = function (value, group, name) {
+        if (value == null)
+            return "";
+        var frm = null;
+        if (Array.isArray(value)) {
+            //resultats
+            for (var _i = 0, value_1 = value; _i < value_1.length; _i++) {
+                var v = value_1[_i];
+                var _a = v.form_id.split('/'), type = _a[0], key = _a[1];
+                if (key == group) {
+                    frm = v;
+                    break;
+                }
+            }
+        }
+        else {
+            //formulaires
+            frm = value[group];
+        }
         if (frm) {
             //recherche le field
-            for (var _i = 0, _a = frm.fields; _i < _a.length; _i++) {
-                var field = _a[_i];
-                if (name == field.id)
-                    return field.value || "-- --";
+            for (var _b = 0, _c = frm.fields; _b < _c.length; _b++) {
+                var field = _c[_b];
+                if (name == field.id) {
+                    return field.value_label || "-- --";
+                }
             }
         }
         else
             return "NON RESEIGNE";
     };
-    GetDevisDetailsPipe = __decorate([
+    GetDevisResultPipe = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Pipe"])({ name: 'GetDevisDetailsPipe' }), 
         __metadata('design:paramtypes', [])
-    ], GetDevisDetailsPipe);
-    return GetDevisDetailsPipe;
+    ], GetDevisResultPipe);
+    return GetDevisResultPipe;
 }());
 
 
@@ -62419,19 +62512,54 @@ var GetDevisDetailsPipe = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw__ = __webpack_require__(693);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SafeHtmlPipe; });
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+var SafeHtmlPipe = (function () {
+    function SafeHtmlPipe(sanitizer) {
+        this.sanitizer = sanitizer;
+    }
+    SafeHtmlPipe.prototype.transform = function (safeHtml) {
+        return this.sanitizer.sanitize(__WEBPACK_IMPORTED_MODULE_0__angular_core__["SecurityContext"].HTML, safeHtml);
+        // return this.sanitizer.bypassSecurityTrustHtml(style);
+        // return this.sanitizer.bypassSecurityTrustXxx(style); - see docs
+    };
+    SafeHtmlPipe = __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Pipe"])({ name: 'safeHTML' }), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_0__angular_core__["Sanitizer"] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_0__angular_core__["Sanitizer"]) === 'function' && _a) || Object])
+    ], SafeHtmlPipe);
+    return SafeHtmlPipe;
+    var _a;
+}());
+
+
+/***/ },
+/* 520 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw__ = __webpack_require__(699);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_rxjs_add_observable_throw__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch__ = __webpack_require__(694);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch__ = __webpack_require__(700);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rxjs_add_operator_catch__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__ = __webpack_require__(695);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__ = __webpack_require__(701);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_debounceTime__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged__ = __webpack_require__(696);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged__ = __webpack_require__(702);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_distinctUntilChanged__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__ = __webpack_require__(697);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__ = __webpack_require__(703);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap__ = __webpack_require__(698);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap__ = __webpack_require__(704);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_rxjs_add_operator_switchMap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise__ = __webpack_require__(699);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise__ = __webpack_require__(705);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_rxjs_add_operator_toPromise__);
 // import 'rxjs/Rx'; // adds ALL RxJS statics & operators to Observable
 
@@ -62444,7 +62572,7 @@ var GetDevisDetailsPipe = (function () {
 
 
 /***/ },
-/* 520 */
+/* 521 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -62459,41 +62587,41 @@ var environment = {
 
 
 /***/ },
-/* 521 */
+/* 522 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol__ = __webpack_require__(535);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol__ = __webpack_require__(536);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_core_js_es6_symbol__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_core_js_es6_object__ = __webpack_require__(528);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_core_js_es6_object__ = __webpack_require__(529);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_core_js_es6_object___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_core_js_es6_object__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_core_js_es6_function__ = __webpack_require__(524);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_core_js_es6_function__ = __webpack_require__(525);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_core_js_es6_function___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_core_js_es6_function__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int__ = __webpack_require__(530);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int__ = __webpack_require__(531);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_core_js_es6_parse_int__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float__ = __webpack_require__(529);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float__ = __webpack_require__(530);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_core_js_es6_parse_float__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_core_js_es6_number__ = __webpack_require__(527);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_core_js_es6_number__ = __webpack_require__(528);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_core_js_es6_number___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_core_js_es6_number__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_core_js_es6_math__ = __webpack_require__(526);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_core_js_es6_math__ = __webpack_require__(527);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_core_js_es6_math___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_core_js_es6_math__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_core_js_es6_string__ = __webpack_require__(534);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_core_js_es6_string__ = __webpack_require__(535);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_core_js_es6_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_core_js_es6_string__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_core_js_es6_date__ = __webpack_require__(523);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_core_js_es6_date__ = __webpack_require__(524);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_core_js_es6_date___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_core_js_es6_date__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_core_js_es6_array__ = __webpack_require__(522);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_core_js_es6_array__ = __webpack_require__(523);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_core_js_es6_array___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_core_js_es6_array__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp__ = __webpack_require__(532);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp__ = __webpack_require__(533);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_core_js_es6_regexp__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_core_js_es6_map__ = __webpack_require__(525);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_core_js_es6_map__ = __webpack_require__(526);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_core_js_es6_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_core_js_es6_map__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_core_js_es6_set__ = __webpack_require__(533);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_core_js_es6_set__ = __webpack_require__(534);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_core_js_es6_set___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12_core_js_es6_set__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect__ = __webpack_require__(531);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect__ = __webpack_require__(532);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_core_js_es6_reflect__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__ = __webpack_require__(536);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__ = __webpack_require__(537);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_14_core_js_es7_reflect__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__ = __webpack_require__(722);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__ = __webpack_require__(728);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_15_zone_js_dist_zone__);
 
 
@@ -62514,55 +62642,55 @@ var environment = {
 
 
 /***/ },
-/* 522 */
-/***/ function(module, exports, __webpack_require__) {
-
-__webpack_require__(148);
-__webpack_require__(559);
-__webpack_require__(557);
-__webpack_require__(563);
-__webpack_require__(560);
-__webpack_require__(566);
-__webpack_require__(568);
-__webpack_require__(556);
-__webpack_require__(562);
-__webpack_require__(553);
-__webpack_require__(567);
-__webpack_require__(551);
-__webpack_require__(565);
-__webpack_require__(564);
-__webpack_require__(558);
-__webpack_require__(561);
-__webpack_require__(550);
-__webpack_require__(552);
-__webpack_require__(555);
-__webpack_require__(554);
-__webpack_require__(569);
-__webpack_require__(369);
-module.exports = __webpack_require__(11).Array;
-
-/***/ },
 /* 523 */
 /***/ function(module, exports, __webpack_require__) {
 
+__webpack_require__(148);
+__webpack_require__(560);
+__webpack_require__(558);
+__webpack_require__(564);
+__webpack_require__(561);
+__webpack_require__(567);
+__webpack_require__(569);
+__webpack_require__(557);
+__webpack_require__(563);
+__webpack_require__(554);
+__webpack_require__(568);
+__webpack_require__(552);
+__webpack_require__(566);
+__webpack_require__(565);
+__webpack_require__(559);
+__webpack_require__(562);
+__webpack_require__(551);
+__webpack_require__(553);
+__webpack_require__(556);
+__webpack_require__(555);
 __webpack_require__(570);
-__webpack_require__(572);
-__webpack_require__(571);
-__webpack_require__(574);
-__webpack_require__(573);
-module.exports = Date;
+__webpack_require__(369);
+module.exports = __webpack_require__(11).Array;
 
 /***/ },
 /* 524 */
 /***/ function(module, exports, __webpack_require__) {
 
+__webpack_require__(571);
+__webpack_require__(573);
+__webpack_require__(572);
 __webpack_require__(575);
-__webpack_require__(577);
-__webpack_require__(576);
-module.exports = __webpack_require__(11).Function;
+__webpack_require__(574);
+module.exports = Date;
 
 /***/ },
 /* 525 */
+/***/ function(module, exports, __webpack_require__) {
+
+__webpack_require__(576);
+__webpack_require__(578);
+__webpack_require__(577);
+module.exports = __webpack_require__(11).Function;
+
+/***/ },
+/* 526 */
 /***/ function(module, exports, __webpack_require__) {
 
 __webpack_require__(147);
@@ -62572,10 +62700,9 @@ __webpack_require__(370);
 module.exports = __webpack_require__(11).Map;
 
 /***/ },
-/* 526 */
+/* 527 */
 /***/ function(module, exports, __webpack_require__) {
 
-__webpack_require__(578);
 __webpack_require__(579);
 __webpack_require__(580);
 __webpack_require__(581);
@@ -62592,16 +62719,16 @@ __webpack_require__(591);
 __webpack_require__(592);
 __webpack_require__(593);
 __webpack_require__(594);
+__webpack_require__(595);
 module.exports = __webpack_require__(11).Math;
 
 /***/ },
-/* 527 */
+/* 528 */
 /***/ function(module, exports, __webpack_require__) {
 
-__webpack_require__(595);
-__webpack_require__(605);
-__webpack_require__(606);
 __webpack_require__(596);
+__webpack_require__(606);
+__webpack_require__(607);
 __webpack_require__(597);
 __webpack_require__(598);
 __webpack_require__(599);
@@ -62610,73 +62737,74 @@ __webpack_require__(601);
 __webpack_require__(602);
 __webpack_require__(603);
 __webpack_require__(604);
+__webpack_require__(605);
 module.exports = __webpack_require__(11).Number;
-
-/***/ },
-/* 528 */
-/***/ function(module, exports, __webpack_require__) {
-
-__webpack_require__(377);
-__webpack_require__(608);
-__webpack_require__(610);
-__webpack_require__(609);
-__webpack_require__(612);
-__webpack_require__(614);
-__webpack_require__(619);
-__webpack_require__(613);
-__webpack_require__(611);
-__webpack_require__(621);
-__webpack_require__(620);
-__webpack_require__(616);
-__webpack_require__(617);
-__webpack_require__(615);
-__webpack_require__(607);
-__webpack_require__(618);
-__webpack_require__(622);
-__webpack_require__(147);
-
-module.exports = __webpack_require__(11).Object;
 
 /***/ },
 /* 529 */
 /***/ function(module, exports, __webpack_require__) {
 
+__webpack_require__(377);
+__webpack_require__(609);
+__webpack_require__(611);
+__webpack_require__(610);
+__webpack_require__(613);
+__webpack_require__(615);
+__webpack_require__(620);
+__webpack_require__(614);
+__webpack_require__(612);
+__webpack_require__(622);
+__webpack_require__(621);
+__webpack_require__(617);
+__webpack_require__(618);
+__webpack_require__(616);
+__webpack_require__(608);
+__webpack_require__(619);
 __webpack_require__(623);
-module.exports = __webpack_require__(11).parseFloat;
+__webpack_require__(147);
+
+module.exports = __webpack_require__(11).Object;
 
 /***/ },
 /* 530 */
 /***/ function(module, exports, __webpack_require__) {
 
 __webpack_require__(624);
-module.exports = __webpack_require__(11).parseInt;
+module.exports = __webpack_require__(11).parseFloat;
 
 /***/ },
 /* 531 */
 /***/ function(module, exports, __webpack_require__) {
 
 __webpack_require__(625);
-__webpack_require__(626);
-__webpack_require__(627);
-__webpack_require__(628);
-__webpack_require__(629);
-__webpack_require__(632);
-__webpack_require__(630);
-__webpack_require__(631);
-__webpack_require__(633);
-__webpack_require__(634);
-__webpack_require__(635);
-__webpack_require__(636);
-__webpack_require__(638);
-__webpack_require__(637);
-module.exports = __webpack_require__(11).Reflect;
+module.exports = __webpack_require__(11).parseInt;
 
 /***/ },
 /* 532 */
 /***/ function(module, exports, __webpack_require__) {
 
+__webpack_require__(626);
+__webpack_require__(627);
+__webpack_require__(628);
+__webpack_require__(629);
+__webpack_require__(630);
+__webpack_require__(633);
+__webpack_require__(631);
+__webpack_require__(632);
+__webpack_require__(634);
+__webpack_require__(635);
+__webpack_require__(636);
+__webpack_require__(637);
 __webpack_require__(639);
+__webpack_require__(638);
+module.exports = __webpack_require__(11).Reflect;
+
+/***/ },
+/* 533 */
+/***/ function(module, exports, __webpack_require__) {
+
 __webpack_require__(640);
+__webpack_require__(641);
 __webpack_require__(371);
 __webpack_require__(372);
 __webpack_require__(373);
@@ -62685,7 +62813,7 @@ __webpack_require__(375);
 module.exports = __webpack_require__(11).RegExp;
 
 /***/ },
-/* 533 */
+/* 534 */
 /***/ function(module, exports, __webpack_require__) {
 
 __webpack_require__(147);
@@ -62695,31 +62823,31 @@ __webpack_require__(376);
 module.exports = __webpack_require__(11).Set;
 
 /***/ },
-/* 534 */
+/* 535 */
 /***/ function(module, exports, __webpack_require__) {
 
-__webpack_require__(650);
-__webpack_require__(654);
-__webpack_require__(661);
-__webpack_require__(148);
-__webpack_require__(645);
-__webpack_require__(646);
 __webpack_require__(651);
 __webpack_require__(655);
-__webpack_require__(657);
-__webpack_require__(641);
+__webpack_require__(662);
+__webpack_require__(148);
+__webpack_require__(646);
+__webpack_require__(647);
+__webpack_require__(652);
+__webpack_require__(656);
+__webpack_require__(658);
 __webpack_require__(642);
 __webpack_require__(643);
 __webpack_require__(644);
-__webpack_require__(647);
+__webpack_require__(645);
 __webpack_require__(648);
 __webpack_require__(649);
-__webpack_require__(652);
+__webpack_require__(650);
 __webpack_require__(653);
-__webpack_require__(656);
-__webpack_require__(658);
+__webpack_require__(654);
+__webpack_require__(657);
 __webpack_require__(659);
 __webpack_require__(660);
+__webpack_require__(661);
 __webpack_require__(372);
 __webpack_require__(373);
 __webpack_require__(374);
@@ -62727,7 +62855,7 @@ __webpack_require__(375);
 module.exports = __webpack_require__(11).String;
 
 /***/ },
-/* 535 */
+/* 536 */
 /***/ function(module, exports, __webpack_require__) {
 
 __webpack_require__(377);
@@ -62735,23 +62863,23 @@ __webpack_require__(147);
 module.exports = __webpack_require__(11).Symbol;
 
 /***/ },
-/* 536 */
+/* 537 */
 /***/ function(module, exports, __webpack_require__) {
 
-__webpack_require__(663);
 __webpack_require__(664);
-__webpack_require__(666);
 __webpack_require__(665);
-__webpack_require__(668);
 __webpack_require__(667);
+__webpack_require__(666);
 __webpack_require__(669);
+__webpack_require__(668);
 __webpack_require__(670);
 __webpack_require__(671);
+__webpack_require__(672);
 module.exports = __webpack_require__(11).Reflect;
 
 
 /***/ },
-/* 537 */
+/* 538 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -62783,7 +62911,7 @@ module.exports = [].copyWithin || function copyWithin(target/*= 0*/, start/*= 0,
 };
 
 /***/ },
-/* 538 */
+/* 539 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -62804,7 +62932,7 @@ module.exports = function fill(value /*, start = 0, end = @length */){
 };
 
 /***/ },
-/* 539 */
+/* 540 */
 /***/ function(module, exports, __webpack_require__) {
 
 var forOf = __webpack_require__(141);
@@ -62817,7 +62945,7 @@ module.exports = function(iter, ITERATOR){
 
 
 /***/ },
-/* 540 */
+/* 541 */
 /***/ function(module, exports, __webpack_require__) {
 
 var isObject = __webpack_require__(8)
@@ -62838,18 +62966,18 @@ module.exports = function(original){
 };
 
 /***/ },
-/* 541 */
+/* 542 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 9.4.2.3 ArraySpeciesCreate(originalArray, length)
-var speciesConstructor = __webpack_require__(540);
+var speciesConstructor = __webpack_require__(541);
 
 module.exports = function(original, length){
   return new (speciesConstructor(original))(length);
 };
 
 /***/ },
-/* 542 */
+/* 543 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -62938,7 +63066,7 @@ module.exports = {
 };
 
 /***/ },
-/* 543 */
+/* 544 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -62953,7 +63081,7 @@ module.exports = function(hint){
 };
 
 /***/ },
-/* 544 */
+/* 545 */
 /***/ function(module, exports, __webpack_require__) {
 
 // all enumerable object keys, includes symbols
@@ -62973,7 +63101,7 @@ module.exports = function(it){
 };
 
 /***/ },
-/* 545 */
+/* 546 */
 /***/ function(module, exports) {
 
 // fast apply, http://jsperf.lnkit.com/fast-apply/5
@@ -62994,7 +63122,7 @@ module.exports = function(fn, args, that){
 };
 
 /***/ },
-/* 546 */
+/* 547 */
 /***/ function(module, exports, __webpack_require__) {
 
 var getKeys   = __webpack_require__(77)
@@ -63009,7 +63137,7 @@ module.exports = function(object, el){
 };
 
 /***/ },
-/* 547 */
+/* 548 */
 /***/ function(module, exports, __webpack_require__) {
 
 // all object keys, includes non-enumerable and symbols
@@ -63024,7 +63152,7 @@ module.exports = Reflect && Reflect.ownKeys || function ownKeys(it){
 };
 
 /***/ },
-/* 548 */
+/* 549 */
 /***/ function(module, exports) {
 
 // 7.2.9 SameValue(x, y)
@@ -63033,7 +63161,7 @@ module.exports = Object.is || function is(x, y){
 };
 
 /***/ },
-/* 549 */
+/* 550 */
 /***/ function(module, exports, __webpack_require__) {
 
 var global         = __webpack_require__(12)
@@ -63047,18 +63175,18 @@ module.exports = function(name){
 };
 
 /***/ },
-/* 550 */
+/* 551 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 22.1.3.3 Array.prototype.copyWithin(target, start, end = this.length)
 var $export = __webpack_require__(1);
 
-$export($export.P, 'Array', {copyWithin: __webpack_require__(537)});
+$export($export.P, 'Array', {copyWithin: __webpack_require__(538)});
 
 __webpack_require__(96)('copyWithin');
 
 /***/ },
-/* 551 */
+/* 552 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63074,18 +63202,18 @@ $export($export.P + $export.F * !__webpack_require__(30)([].every, true), 'Array
 });
 
 /***/ },
-/* 552 */
+/* 553 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 22.1.3.6 Array.prototype.fill(value, start = 0, end = this.length)
 var $export = __webpack_require__(1);
 
-$export($export.P, 'Array', {fill: __webpack_require__(538)});
+$export($export.P, 'Array', {fill: __webpack_require__(539)});
 
 __webpack_require__(96)('fill');
 
 /***/ },
-/* 553 */
+/* 554 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63101,7 +63229,7 @@ $export($export.P + $export.F * !__webpack_require__(30)([].filter, true), 'Arra
 });
 
 /***/ },
-/* 554 */
+/* 555 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63121,7 +63249,7 @@ $export($export.P + $export.F * forced, 'Array', {
 __webpack_require__(96)(KEY);
 
 /***/ },
-/* 555 */
+/* 556 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63141,7 +63269,7 @@ $export($export.P + $export.F * forced, 'Array', {
 __webpack_require__(96)(KEY);
 
 /***/ },
-/* 556 */
+/* 557 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63158,7 +63286,7 @@ $export($export.P + $export.F * !STRICT, 'Array', {
 });
 
 /***/ },
-/* 557 */
+/* 558 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63202,7 +63330,7 @@ $export($export.S + $export.F * !__webpack_require__(356)(function(iter){ Array.
 
 
 /***/ },
-/* 558 */
+/* 559 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63223,7 +63351,7 @@ $export($export.P + $export.F * (NEGATIVE_ZERO || !__webpack_require__(30)($nati
 });
 
 /***/ },
-/* 559 */
+/* 560 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 22.1.2.2 / 15.4.3.2 Array.isArray(arg)
@@ -63232,7 +63360,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Array', {isArray: __webpack_require__(223)});
 
 /***/ },
-/* 560 */
+/* 561 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63250,7 +63378,7 @@ $export($export.P + $export.F * (__webpack_require__(97) != Object || !__webpack
 });
 
 /***/ },
-/* 561 */
+/* 562 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63278,7 +63406,7 @@ $export($export.P + $export.F * (NEGATIVE_ZERO || !__webpack_require__(30)($nati
 });
 
 /***/ },
-/* 562 */
+/* 563 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63294,7 +63422,7 @@ $export($export.P + $export.F * !__webpack_require__(30)([].map, true), 'Array',
 });
 
 /***/ },
-/* 563 */
+/* 564 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63319,7 +63447,7 @@ $export($export.S + $export.F * __webpack_require__(7)(function(){
 });
 
 /***/ },
-/* 564 */
+/* 565 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63335,7 +63463,7 @@ $export($export.P + $export.F * !__webpack_require__(30)([].reduceRight, true), 
 });
 
 /***/ },
-/* 565 */
+/* 566 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63351,7 +63479,7 @@ $export($export.P + $export.F * !__webpack_require__(30)([].reduce, true), 'Arra
 });
 
 /***/ },
-/* 566 */
+/* 567 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63385,7 +63513,7 @@ $export($export.P + $export.F * __webpack_require__(7)(function(){
 });
 
 /***/ },
-/* 567 */
+/* 568 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63401,7 +63529,7 @@ $export($export.P + $export.F * !__webpack_require__(30)([].some, true), 'Array'
 });
 
 /***/ },
-/* 568 */
+/* 569 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63430,13 +63558,13 @@ $export($export.P + $export.F * (fails(function(){
 });
 
 /***/ },
-/* 569 */
+/* 570 */
 /***/ function(module, exports, __webpack_require__) {
 
 __webpack_require__(231)('Array');
 
 /***/ },
-/* 570 */
+/* 571 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.3.3.1 / 15.9.4.4 Date.now()
@@ -63445,7 +63573,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Date', {now: function(){ return new Date().getTime(); }});
 
 /***/ },
-/* 571 */
+/* 572 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63479,7 +63607,7 @@ $export($export.P + $export.F * (fails(function(){
 });
 
 /***/ },
-/* 572 */
+/* 573 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63499,16 +63627,16 @@ $export($export.P + $export.F * __webpack_require__(7)(function(){
 });
 
 /***/ },
-/* 573 */
+/* 574 */
 /***/ function(module, exports, __webpack_require__) {
 
 var TO_PRIMITIVE = __webpack_require__(9)('toPrimitive')
   , proto        = Date.prototype;
 
-if(!(TO_PRIMITIVE in proto))__webpack_require__(46)(proto, TO_PRIMITIVE, __webpack_require__(543));
+if(!(TO_PRIMITIVE in proto))__webpack_require__(46)(proto, TO_PRIMITIVE, __webpack_require__(544));
 
 /***/ },
-/* 574 */
+/* 575 */
 /***/ function(module, exports, __webpack_require__) {
 
 var DateProto    = Date.prototype
@@ -63524,7 +63652,7 @@ if(new Date(NaN) + '' != INVALID_DATE){
 }
 
 /***/ },
-/* 575 */
+/* 576 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.2.3.2 / 15.3.4.5 Function.prototype.bind(thisArg, args...)
@@ -63533,7 +63661,7 @@ var $export = __webpack_require__(1);
 $export($export.P, 'Function', {bind: __webpack_require__(345)});
 
 /***/ },
-/* 576 */
+/* 577 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63552,7 +63680,7 @@ if(!(HAS_INSTANCE in FunctionProto))__webpack_require__(15).f(FunctionProto, HAS
 }});
 
 /***/ },
-/* 577 */
+/* 578 */
 /***/ function(module, exports, __webpack_require__) {
 
 var dP         = __webpack_require__(15).f
@@ -63582,7 +63710,7 @@ NAME in FProto || __webpack_require__(17) && dP(FProto, NAME, {
 });
 
 /***/ },
-/* 578 */
+/* 579 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.3 Math.acosh(x)
@@ -63605,7 +63733,7 @@ $export($export.S + $export.F * !($acosh
 });
 
 /***/ },
-/* 579 */
+/* 580 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.5 Math.asinh(x)
@@ -63620,7 +63748,7 @@ function asinh(x){
 $export($export.S + $export.F * !($asinh && 1 / $asinh(0) > 0), 'Math', {asinh: asinh});
 
 /***/ },
-/* 580 */
+/* 581 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.7 Math.atanh(x)
@@ -63635,7 +63763,7 @@ $export($export.S + $export.F * !($atanh && 1 / $atanh(-0) < 0), 'Math', {
 });
 
 /***/ },
-/* 581 */
+/* 582 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.9 Math.cbrt(x)
@@ -63649,7 +63777,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 582 */
+/* 583 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.11 Math.clz32(x)
@@ -63662,7 +63790,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 583 */
+/* 584 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.12 Math.cosh(x)
@@ -63676,7 +63804,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 584 */
+/* 585 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.14 Math.expm1(x)
@@ -63686,7 +63814,7 @@ var $export = __webpack_require__(1)
 $export($export.S + $export.F * ($expm1 != Math.expm1), 'Math', {expm1: $expm1});
 
 /***/ },
-/* 585 */
+/* 586 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.16 Math.fround(x)
@@ -63717,7 +63845,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 586 */
+/* 587 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.17 Math.hypot([value1[, value2[, … ]]])
@@ -63747,7 +63875,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 587 */
+/* 588 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.18 Math.imul(x, y)
@@ -63769,7 +63897,7 @@ $export($export.S + $export.F * __webpack_require__(7)(function(){
 });
 
 /***/ },
-/* 588 */
+/* 589 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.21 Math.log10(x)
@@ -63782,7 +63910,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 589 */
+/* 590 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.20 Math.log1p(x)
@@ -63791,7 +63919,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Math', {log1p: __webpack_require__(358)});
 
 /***/ },
-/* 590 */
+/* 591 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.22 Math.log2(x)
@@ -63804,7 +63932,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 591 */
+/* 592 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.28 Math.sign(x)
@@ -63813,7 +63941,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Math', {sign: __webpack_require__(228)});
 
 /***/ },
-/* 592 */
+/* 593 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.30 Math.sinh(x)
@@ -63833,7 +63961,7 @@ $export($export.S + $export.F * __webpack_require__(7)(function(){
 });
 
 /***/ },
-/* 593 */
+/* 594 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.33 Math.tanh(x)
@@ -63850,7 +63978,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 594 */
+/* 595 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.2.2.34 Math.trunc(x)
@@ -63863,7 +63991,7 @@ $export($export.S, 'Math', {
 });
 
 /***/ },
-/* 595 */
+/* 596 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -63938,7 +64066,7 @@ if(!$Number(' 0o1') || !$Number('0b1') || $Number('+0x1')){
 }
 
 /***/ },
-/* 596 */
+/* 597 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.1.2.1 Number.EPSILON
@@ -63947,7 +64075,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Number', {EPSILON: Math.pow(2, -52)});
 
 /***/ },
-/* 597 */
+/* 598 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.1.2.2 Number.isFinite(number)
@@ -63961,7 +64089,7 @@ $export($export.S, 'Number', {
 });
 
 /***/ },
-/* 598 */
+/* 599 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.1.2.3 Number.isInteger(number)
@@ -63970,7 +64098,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Number', {isInteger: __webpack_require__(353)});
 
 /***/ },
-/* 599 */
+/* 600 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.1.2.4 Number.isNaN(number)
@@ -63983,7 +64111,7 @@ $export($export.S, 'Number', {
 });
 
 /***/ },
-/* 600 */
+/* 601 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.1.2.5 Number.isSafeInteger(number)
@@ -63998,7 +64126,7 @@ $export($export.S, 'Number', {
 });
 
 /***/ },
-/* 601 */
+/* 602 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.1.2.6 Number.MAX_SAFE_INTEGER
@@ -64007,7 +64135,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Number', {MAX_SAFE_INTEGER: 0x1fffffffffffff});
 
 /***/ },
-/* 602 */
+/* 603 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 20.1.2.10 Number.MIN_SAFE_INTEGER
@@ -64016,7 +64144,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Number', {MIN_SAFE_INTEGER: -0x1fffffffffffff});
 
 /***/ },
-/* 603 */
+/* 604 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export     = __webpack_require__(1)
@@ -64025,7 +64153,7 @@ var $export     = __webpack_require__(1)
 $export($export.S + $export.F * (Number.parseFloat != $parseFloat), 'Number', {parseFloat: $parseFloat});
 
 /***/ },
-/* 604 */
+/* 605 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export   = __webpack_require__(1)
@@ -64034,7 +64162,7 @@ var $export   = __webpack_require__(1)
 $export($export.S + $export.F * (Number.parseInt != $parseInt), 'Number', {parseInt: $parseInt});
 
 /***/ },
-/* 605 */
+/* 606 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64153,7 +64281,7 @@ $export($export.P + $export.F * (!!$toFixed && (
 });
 
 /***/ },
-/* 606 */
+/* 607 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64177,7 +64305,7 @@ $export($export.P + $export.F * ($fails(function(){
 });
 
 /***/ },
-/* 607 */
+/* 608 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.3.1 Object.assign(target, source)
@@ -64186,7 +64314,7 @@ var $export = __webpack_require__(1);
 $export($export.S + $export.F, 'Object', {assign: __webpack_require__(359)});
 
 /***/ },
-/* 608 */
+/* 609 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export = __webpack_require__(1)
@@ -64194,7 +64322,7 @@ var $export = __webpack_require__(1)
 $export($export.S, 'Object', {create: __webpack_require__(76)});
 
 /***/ },
-/* 609 */
+/* 610 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export = __webpack_require__(1);
@@ -64202,7 +64330,7 @@ var $export = __webpack_require__(1);
 $export($export.S + $export.F * !__webpack_require__(17), 'Object', {defineProperties: __webpack_require__(360)});
 
 /***/ },
-/* 610 */
+/* 611 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export = __webpack_require__(1);
@@ -64210,7 +64338,7 @@ var $export = __webpack_require__(1);
 $export($export.S + $export.F * !__webpack_require__(17), 'Object', {defineProperty: __webpack_require__(15).f});
 
 /***/ },
-/* 611 */
+/* 612 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.5 Object.freeze(O)
@@ -64224,7 +64352,7 @@ __webpack_require__(37)('freeze', function($freeze){
 });
 
 /***/ },
-/* 612 */
+/* 613 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.6 Object.getOwnPropertyDescriptor(O, P)
@@ -64238,7 +64366,7 @@ __webpack_require__(37)('getOwnPropertyDescriptor', function(){
 });
 
 /***/ },
-/* 613 */
+/* 614 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.7 Object.getOwnPropertyNames(O)
@@ -64247,7 +64375,7 @@ __webpack_require__(37)('getOwnPropertyNames', function(){
 });
 
 /***/ },
-/* 614 */
+/* 615 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.9 Object.getPrototypeOf(O)
@@ -64261,7 +64389,7 @@ __webpack_require__(37)('getPrototypeOf', function(){
 });
 
 /***/ },
-/* 615 */
+/* 616 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.11 Object.isExtensible(O)
@@ -64274,7 +64402,7 @@ __webpack_require__(37)('isExtensible', function($isExtensible){
 });
 
 /***/ },
-/* 616 */
+/* 617 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.12 Object.isFrozen(O)
@@ -64287,7 +64415,7 @@ __webpack_require__(37)('isFrozen', function($isFrozen){
 });
 
 /***/ },
-/* 617 */
+/* 618 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.13 Object.isSealed(O)
@@ -64300,15 +64428,15 @@ __webpack_require__(37)('isSealed', function($isSealed){
 });
 
 /***/ },
-/* 618 */
+/* 619 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.3.10 Object.is(value1, value2)
 var $export = __webpack_require__(1);
-$export($export.S, 'Object', {is: __webpack_require__(548)});
+$export($export.S, 'Object', {is: __webpack_require__(549)});
 
 /***/ },
-/* 619 */
+/* 620 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.14 Object.keys(O)
@@ -64322,7 +64450,7 @@ __webpack_require__(37)('keys', function(){
 });
 
 /***/ },
-/* 620 */
+/* 621 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.15 Object.preventExtensions(O)
@@ -64336,7 +64464,7 @@ __webpack_require__(37)('preventExtensions', function($preventExtensions){
 });
 
 /***/ },
-/* 621 */
+/* 622 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.2.17 Object.seal(O)
@@ -64350,7 +64478,7 @@ __webpack_require__(37)('seal', function($seal){
 });
 
 /***/ },
-/* 622 */
+/* 623 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 19.1.3.19 Object.setPrototypeOf(O, proto)
@@ -64358,7 +64486,7 @@ var $export = __webpack_require__(1);
 $export($export.S, 'Object', {setPrototypeOf: __webpack_require__(230).set});
 
 /***/ },
-/* 623 */
+/* 624 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export     = __webpack_require__(1)
@@ -64367,7 +64495,7 @@ var $export     = __webpack_require__(1)
 $export($export.G + $export.F * (parseFloat != $parseFloat), {parseFloat: $parseFloat});
 
 /***/ },
-/* 624 */
+/* 625 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export   = __webpack_require__(1)
@@ -64376,7 +64504,7 @@ var $export   = __webpack_require__(1)
 $export($export.G + $export.F * (parseInt != $parseInt), {parseInt: $parseInt});
 
 /***/ },
-/* 625 */
+/* 626 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.1 Reflect.apply(target, thisArgument, argumentsList)
@@ -64397,7 +64525,7 @@ $export($export.S + $export.F * !__webpack_require__(7)(function(){
 });
 
 /***/ },
-/* 626 */
+/* 627 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.2 Reflect.construct(target, argumentsList [, newTarget])
@@ -64449,7 +64577,7 @@ $export($export.S + $export.F * (NEW_TARGET_BUG || ARGS_BUG), 'Reflect', {
 });
 
 /***/ },
-/* 627 */
+/* 628 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.3 Reflect.defineProperty(target, propertyKey, attributes)
@@ -64476,7 +64604,7 @@ $export($export.S + $export.F * __webpack_require__(7)(function(){
 });
 
 /***/ },
-/* 628 */
+/* 629 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.4 Reflect.deleteProperty(target, propertyKey)
@@ -64492,7 +64620,7 @@ $export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 629 */
+/* 630 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64524,7 +64652,7 @@ $export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 630 */
+/* 631 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.7 Reflect.getOwnPropertyDescriptor(target, propertyKey)
@@ -64539,7 +64667,7 @@ $export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 631 */
+/* 632 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.8 Reflect.getPrototypeOf(target)
@@ -64554,7 +64682,7 @@ $export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 632 */
+/* 633 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.6 Reflect.get(target, propertyKey [, receiver])
@@ -64580,7 +64708,7 @@ function get(target, propertyKey/*, receiver*/){
 $export($export.S, 'Reflect', {get: get});
 
 /***/ },
-/* 633 */
+/* 634 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.9 Reflect.has(target, propertyKey)
@@ -64593,7 +64721,7 @@ $export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 634 */
+/* 635 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.10 Reflect.isExtensible(target)
@@ -64609,16 +64737,16 @@ $export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 635 */
+/* 636 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.11 Reflect.ownKeys(target)
 var $export = __webpack_require__(1);
 
-$export($export.S, 'Reflect', {ownKeys: __webpack_require__(547)});
+$export($export.S, 'Reflect', {ownKeys: __webpack_require__(548)});
 
 /***/ },
-/* 636 */
+/* 637 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.12 Reflect.preventExtensions(target)
@@ -64639,7 +64767,7 @@ $export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 637 */
+/* 638 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.14 Reflect.setPrototypeOf(target, proto)
@@ -64659,7 +64787,7 @@ if(setProto)$export($export.S, 'Reflect', {
 });
 
 /***/ },
-/* 638 */
+/* 639 */
 /***/ function(module, exports, __webpack_require__) {
 
 // 26.1.13 Reflect.set(target, propertyKey, V [, receiver])
@@ -64695,7 +64823,7 @@ function set(target, propertyKey, V/*, receiver*/){
 $export($export.S, 'Reflect', {set: set});
 
 /***/ },
-/* 639 */
+/* 640 */
 /***/ function(module, exports, __webpack_require__) {
 
 var global            = __webpack_require__(12)
@@ -64743,7 +64871,7 @@ if(__webpack_require__(17) && (!CORRECT_NEW || __webpack_require__(7)(function()
 __webpack_require__(231)('RegExp');
 
 /***/ },
-/* 640 */
+/* 641 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64774,7 +64902,7 @@ if(__webpack_require__(7)(function(){ return $toString.call({source: 'a', flags:
 }
 
 /***/ },
-/* 641 */
+/* 642 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64787,7 +64915,7 @@ __webpack_require__(21)('anchor', function(createHTML){
 });
 
 /***/ },
-/* 642 */
+/* 643 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64800,7 +64928,7 @@ __webpack_require__(21)('big', function(createHTML){
 });
 
 /***/ },
-/* 643 */
+/* 644 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64813,7 +64941,7 @@ __webpack_require__(21)('blink', function(createHTML){
 });
 
 /***/ },
-/* 644 */
+/* 645 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64826,7 +64954,7 @@ __webpack_require__(21)('bold', function(createHTML){
 });
 
 /***/ },
-/* 645 */
+/* 646 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64841,7 +64969,7 @@ $export($export.P, 'String', {
 });
 
 /***/ },
-/* 646 */
+/* 647 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64867,7 +64995,7 @@ $export($export.P + $export.F * __webpack_require__(220)(ENDS_WITH), 'String', {
 });
 
 /***/ },
-/* 647 */
+/* 648 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64880,7 +65008,7 @@ __webpack_require__(21)('fixed', function(createHTML){
 });
 
 /***/ },
-/* 648 */
+/* 649 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64893,7 +65021,7 @@ __webpack_require__(21)('fontcolor', function(createHTML){
 });
 
 /***/ },
-/* 649 */
+/* 650 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64906,7 +65034,7 @@ __webpack_require__(21)('fontsize', function(createHTML){
 });
 
 /***/ },
-/* 650 */
+/* 651 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export        = __webpack_require__(1)
@@ -64934,7 +65062,7 @@ $export($export.S + $export.F * (!!$fromCodePoint && $fromCodePoint.length != 1)
 });
 
 /***/ },
-/* 651 */
+/* 652 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64952,7 +65080,7 @@ $export($export.P + $export.F * __webpack_require__(220)(INCLUDES), 'String', {
 });
 
 /***/ },
-/* 652 */
+/* 653 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64965,7 +65093,7 @@ __webpack_require__(21)('italics', function(createHTML){
 });
 
 /***/ },
-/* 653 */
+/* 654 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -64978,7 +65106,7 @@ __webpack_require__(21)('link', function(createHTML){
 });
 
 /***/ },
-/* 654 */
+/* 655 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export   = __webpack_require__(1)
@@ -65001,7 +65129,7 @@ $export($export.S, 'String', {
 });
 
 /***/ },
-/* 655 */
+/* 656 */
 /***/ function(module, exports, __webpack_require__) {
 
 var $export = __webpack_require__(1);
@@ -65012,7 +65140,7 @@ $export($export.P, 'String', {
 });
 
 /***/ },
-/* 656 */
+/* 657 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65025,7 +65153,7 @@ __webpack_require__(21)('small', function(createHTML){
 });
 
 /***/ },
-/* 657 */
+/* 658 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65049,7 +65177,7 @@ $export($export.P + $export.F * __webpack_require__(220)(STARTS_WITH), 'String',
 });
 
 /***/ },
-/* 658 */
+/* 659 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65062,7 +65190,7 @@ __webpack_require__(21)('strike', function(createHTML){
 });
 
 /***/ },
-/* 659 */
+/* 660 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65075,7 +65203,7 @@ __webpack_require__(21)('sub', function(createHTML){
 });
 
 /***/ },
-/* 660 */
+/* 661 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65088,7 +65216,7 @@ __webpack_require__(21)('sup', function(createHTML){
 });
 
 /***/ },
-/* 661 */
+/* 662 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65101,7 +65229,7 @@ __webpack_require__(146)('trim', function($trim){
 });
 
 /***/ },
-/* 662 */
+/* 663 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65110,7 +65238,7 @@ var each         = __webpack_require__(44)(0)
   , redefine     = __webpack_require__(20)
   , meta         = __webpack_require__(56)
   , assign       = __webpack_require__(359)
-  , weak         = __webpack_require__(542)
+  , weak         = __webpack_require__(543)
   , isObject     = __webpack_require__(8)
   , getWeak      = meta.getWeak
   , isExtensible = Object.isExtensible
@@ -65163,7 +65291,7 @@ if(new $WeakMap().set((Object.freeze || Object)(tmp), 7).get(tmp) != 7){
 }
 
 /***/ },
-/* 663 */
+/* 664 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata                  = __webpack_require__(47)
@@ -65176,7 +65304,7 @@ metadata.exp({defineMetadata: function defineMetadata(metadataKey, metadataValue
 }});
 
 /***/ },
-/* 664 */
+/* 665 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata               = __webpack_require__(47)
@@ -65196,11 +65324,11 @@ metadata.exp({deleteMetadata: function deleteMetadata(metadataKey, target /*, ta
 }});
 
 /***/ },
-/* 665 */
+/* 666 */
 /***/ function(module, exports, __webpack_require__) {
 
 var Set                     = __webpack_require__(376)
-  , from                    = __webpack_require__(539)
+  , from                    = __webpack_require__(540)
   , metadata                = __webpack_require__(47)
   , anObject                = __webpack_require__(4)
   , getPrototypeOf          = __webpack_require__(48)
@@ -65220,7 +65348,7 @@ metadata.exp({getMetadataKeys: function getMetadataKeys(target /*, targetKey */)
 }});
 
 /***/ },
-/* 666 */
+/* 667 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata               = __webpack_require__(47)
@@ -65242,7 +65370,7 @@ metadata.exp({getMetadata: function getMetadata(metadataKey, target /*, targetKe
 }});
 
 /***/ },
-/* 667 */
+/* 668 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata                = __webpack_require__(47)
@@ -65255,7 +65383,7 @@ metadata.exp({getOwnMetadataKeys: function getOwnMetadataKeys(target /*, targetK
 }});
 
 /***/ },
-/* 668 */
+/* 669 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata               = __webpack_require__(47)
@@ -65269,7 +65397,7 @@ metadata.exp({getOwnMetadata: function getOwnMetadata(metadataKey, target /*, ta
 }});
 
 /***/ },
-/* 669 */
+/* 670 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata               = __webpack_require__(47)
@@ -65290,7 +65418,7 @@ metadata.exp({hasMetadata: function hasMetadata(metadataKey, target /*, targetKe
 }});
 
 /***/ },
-/* 670 */
+/* 671 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata               = __webpack_require__(47)
@@ -65304,7 +65432,7 @@ metadata.exp({hasOwnMetadata: function hasOwnMetadata(metadataKey, target /*, ta
 }});
 
 /***/ },
-/* 671 */
+/* 672 */
 /***/ function(module, exports, __webpack_require__) {
 
 var metadata                  = __webpack_require__(47)
@@ -65324,9 +65452,9 @@ metadata.exp({metadata: function metadata(metadataKey, metadataValue){
 }});
 
 /***/ },
-/* 672 */,
 /* 673 */,
-/* 674 */
+/* 674 */,
+/* 675 */
 /***/ function(module, exports) {
 
 // shim for using process in browser
@@ -65512,85 +65640,115 @@ process.umask = function() { return 0; };
 
 
 /***/ },
-/* 675 */
+/* 676 */
 /***/ function(module, exports) {
 
 module.exports = ".app-container {\n  max-width: 960px !important;\n  font-family: Open Sans,sans-serif;\n  background: rgba(255, 255, 255, 0.8);\n  margin: 0 auto;\n  color: #444;\n  min-height: 100vh;\n  overflow-x: hidden; }\n\n.version {\n  font-size: 0.8em;\n  font-weight: 700; }\n"
 
 /***/ },
-/* 676 */
-/***/ function(module, exports) {
-
-module.exports = ".choice-cmp label {\n  display: flex;\n  font-weight: 700;\n  font-size: 1.1em; }\n  .choice-cmp label span {\n    display: inline-block;\n    width: 80%;\n    cursor: pointer; }\n  .choice-cmp label + span small {\n    padding-left: 80px;\n    padding-right: 40px;\n    display: block; }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap; }\n  .inline > * {\n    flex-grow: 1;\n    align-content: center;\n    align-items: center;\n    align-self: center;\n    width: 40%;\n    border: none; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed #3E3E3E; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    width: 60% !important; }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.5em;\n  margin-left: 40px; }\n  .check-container::before {\n    outline: none !important;\n    width: 40px;\n    height: 40px;\n    position: absolute;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container.group:checked::before {\n    content: '-'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container:checked {\n    background: #f19300; }\n    .check-container:checked::before {\n      width: 40px;\n      height: 40px;\n      position: absolute;\n      content: '\\2713';\n      display: inline-block;\n      font-size: 26.66667px;\n      text-align: center;\n      line-height: 40px;\n      color: #FFF; }\n    .check-container:checked::after {\n      -webkit-animation: click-wave 0.5s;\n      -moz-animation: click-wave 0.5s;\n      animation: click-wave 0.5s;\n      background: #f19300;\n      content: '';\n      display: block;\n      position: relative;\n      z-index: 100; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.left {\n  margin-left: 20px; }\n\n.text-left {\n  text-align: left;\n  margin-bottom: 10px; }\n\n.hideIfInactive {\n  opacity: 0;\n  display: none;\n  overflow: hidden; }\n\n.revealIfActive {\n  display: block;\n  opacity: 1;\n  overflow: visible;\n  position: relative;\n  left: 40px; }\n\n.choice-cmp label {\n  display: flex;\n  font-weight: 700;\n  font-size: 1.1em; }\n  .choice-cmp label span {\n    display: inline-block;\n    width: 80%;\n    cursor: pointer; }\n  .choice-cmp label + span small {\n    padding-left: 80px;\n    padding-right: 40px;\n    display: block; }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap; }\n  .inline > * {\n    flex-grow: 1;\n    align-content: center;\n    align-items: center;\n    align-self: center;\n    width: 40%;\n    border: none; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed #3E3E3E; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    width: 60% !important; }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.5em;\n  margin-left: 40px; }\n  .check-container::before {\n    outline: none !important;\n    width: 40px;\n    height: 40px;\n    position: absolute;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container.group:checked::before {\n    content: '-'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container:checked {\n    background: #f19300; }\n    .check-container:checked::before {\n      width: 40px;\n      height: 40px;\n      position: absolute;\n      content: '\\2713';\n      display: inline-block;\n      font-size: 26.66667px;\n      text-align: center;\n      line-height: 40px;\n      color: #FFF; }\n    .check-container:checked::after {\n      -webkit-animation: click-wave 0.5s;\n      -moz-animation: click-wave 0.5s;\n      animation: click-wave 0.5s;\n      background: #f19300;\n      content: '';\n      display: block;\n      position: relative;\n      z-index: 100; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.choice-cmp {\n  padding: 20px 0; }\n\n.inline > *.check-container {\n  text-align: center; }\n"
-
-/***/ },
 /* 677 */
 /***/ function(module, exports) {
 
-module.exports = ".choice-cmp label {\n  display: flex;\n  font-weight: 700;\n  font-size: 1.1em; }\n  .choice-cmp label span {\n    display: inline-block;\n    width: 80%;\n    cursor: pointer; }\n  .choice-cmp label + span small {\n    padding-left: 80px;\n    padding-right: 40px;\n    display: block; }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap; }\n  .inline > * {\n    flex-grow: 1;\n    align-content: center;\n    align-items: center;\n    align-self: center;\n    width: 40%;\n    border: none; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed #3E3E3E; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    width: 60% !important; }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.5em;\n  margin-left: 40px; }\n  .check-container::before {\n    outline: none !important;\n    width: 40px;\n    height: 40px;\n    position: absolute;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container.group:checked::before {\n    content: '-'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container:checked {\n    background: #f19300; }\n    .check-container:checked::before {\n      width: 40px;\n      height: 40px;\n      position: absolute;\n      content: '\\2713';\n      display: inline-block;\n      font-size: 26.66667px;\n      text-align: center;\n      line-height: 40px;\n      color: #FFF; }\n    .check-container:checked::after {\n      -webkit-animation: click-wave 0.5s;\n      -moz-animation: click-wave 0.5s;\n      animation: click-wave 0.5s;\n      background: #f19300;\n      content: '';\n      display: block;\n      position: relative;\n      z-index: 100; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.left {\n  margin-left: 20px; }\n\n.text-left {\n  text-align: left;\n  margin-bottom: 10px; }\n\n.hideIfInactive {\n  opacity: 0;\n  display: none;\n  overflow: hidden; }\n\n.revealIfActive {\n  display: block;\n  opacity: 1;\n  overflow: visible;\n  position: relative;\n  left: 40px; }\n\n.choice-cmp label {\n  display: flex;\n  font-weight: 700;\n  font-size: 1.1em; }\n  .choice-cmp label span {\n    display: inline-block;\n    width: 80%;\n    cursor: pointer; }\n  .choice-cmp label + span small {\n    padding-left: 80px;\n    padding-right: 40px;\n    display: block; }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap; }\n  .inline > * {\n    flex-grow: 1;\n    align-content: center;\n    align-items: center;\n    align-self: center;\n    width: 40%;\n    border: none; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed #3E3E3E; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    width: 60% !important; }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.5em;\n  margin-left: 40px; }\n  .check-container::before {\n    outline: none !important;\n    width: 40px;\n    height: 40px;\n    position: absolute;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container.group:checked::before {\n    content: '-'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container:checked {\n    background: #f19300; }\n    .check-container:checked::before {\n      width: 40px;\n      height: 40px;\n      position: absolute;\n      content: '\\2713';\n      display: inline-block;\n      font-size: 26.66667px;\n      text-align: center;\n      line-height: 40px;\n      color: #FFF; }\n    .check-container:checked::after {\n      -webkit-animation: click-wave 0.5s;\n      -moz-animation: click-wave 0.5s;\n      animation: click-wave 0.5s;\n      background: #f19300;\n      content: '';\n      display: block;\n      position: relative;\n      z-index: 100; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.choice-cmp {\n  padding: 20px 0; }\n\n.inline {\n  text-align: left; }\n  .inline > *.check-container {\n    text-align: left; }\n"
+module.exports = "input[type='radio'],\ninput[type=\"checkbox\"] {\n  /* original check box are push outside the viexport */\n  z-index: 0; }\n\n.choice-cmp {\n  margin-bottom: 20px; }\n  .choice-cmp label {\n    margin: 0 !important;\n    display: flex;\n    font-weight: 700;\n    font-size: 1.1em; }\n    .choice-cmp label input {\n      display: none; }\n      .choice-cmp label input:checked ~ div {\n        background: #f19300;\n        box-shadow: none !important; }\n        .choice-cmp label input:checked ~ div::before {\n          width: 40px;\n          height: 40px;\n          content: '\\2713';\n          display: inline-block;\n          font-size: 26.66667px;\n          text-align: center;\n          line-height: 40px;\n          color: #FFF; }\n        .choice-cmp label input:checked ~ div::after {\n          -webkit-animation: click-wave 0.5s;\n          -moz-animation: click-wave 0.5s;\n          animation: click-wave 0.5s;\n          background: #f19300;\n          content: '';\n          display: block;\n          position: relative;\n          top: -100%;\n          z-index: 100; }\n      .choice-cmp label input:checked ~ .group::before {\n        content: '-'; }\n    .choice-cmp label + span {\n      display: inline-block;\n      width: 80%;\n      cursor: pointer; }\n      @media screen and (max-width: 700px) {\n        .choice-cmp label + span {\n          width: 100%; } }\n      .choice-cmp label + span small {\n        text-align: justify;\n        padding-left: 80px;\n        display: block; }\n        @media screen and (max-width: 700px) {\n          .choice-cmp label + span small {\n            padding-left: 5px;\n            width: 100% !important; } }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap;\n  padding-top: 10px; }\n  .inline > * {\n    flex-grow: 1;\n    align-self: flex-start;\n    width: 40%;\n    border: none;\n    margin-bottom: 40px; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed white; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    cursor: pointer; }\n    .inline span small {\n      padding-left: 80px;\n      text-align: justify;\n      display: block; }\n      @media screen and (max-width: 700px) {\n        .inline span small {\n          width: 80% !important;\n          padding-left: 0px;\n          padding-right: 0; } }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.8em;\n  margin-left: 40px;\n  margin-bottom: 0 !important; }\n  @media screen and (max-width: 700px) {\n    .check-container {\n      margin: 0 5px 0 0; } }\n  .check-container::before {\n    outline: none !important;\n    width: 40px !important;\n    height: 40px;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n.check_clear small {\n  padding-left: 0 !important; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\ninput[type=\"checkbox\"] {\n  display: none; }\n\n.fullsize {\n  position: absolute;\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  display: flex;\n  z-index: 9999;\n  /* align-items: center; */\n  /* text-align: center; */\n  align-items: center;\n  justify-content: center; }\n  .fullsize .confirm {\n    color: #104e82;\n    background: white;\n    width: 80%;\n    padding: 10px;\n    border-radius: 5px;\n    border: 1px solid #DDD;\n    box-shadow: 2px 2px 5px 5px rgba(0, 0, 0, 0.2);\n    display: flex;\n    flex-direction: column; }\n    .fullsize .confirm .centered {\n      align-self: center; }\n    .fullsize .confirm h4 {\n      color: inherit; }\n    .fullsize .confirm p {\n      margin-bottom: 30px; }\n    .fullsize .confirm .actions {\n      display: flex;\n      flex-wrap: wrap;\n      align-self: center; }\n      .fullsize .confirm .actions button {\n        margin-left: 5px;\n        min-width: 100px; }\n"
 
 /***/ },
 /* 678 */
 /***/ function(module, exports) {
 
-module.exports = "/*input text */\n.form-group {\n  margin-bottom: 20px; }\n\n.input-container {\n  display: inline-block;\n  position: relative;\n  margin-top: 16px;\n  text-align: left !important;\n  width: 100%;\n  color: #3E3E3E !important; }\n  .input-container input[type=text],\n  .input-container input[type=password],\n  .input-container input[type=search],\n  .input-container input[type=number],\n  .input-container input[type=email],\n  .input-container select,\n  .input-container textarea {\n    position: relative;\n    vertical-align: baseline;\n    font-size: 1em;\n    border-color: #aaa;\n    -webkit-box-ordinal-group: 3;\n    -webkit-order: 2;\n    -webkit-box-shadow: none;\n    box-shadow: none;\n    order: 2;\n    display: block;\n    margin-top: 0;\n    background: none;\n    padding: 2px 2px 1px;\n    border-width: 0 0 2px;\n    line-height: 26px;\n    /*height: 1.05em;*/\n    -ms-flex-preferred-size: 26px;\n    border-radius: 0;\n    border-style: solid;\n    box-sizing: border-box;\n    z-index: 1;\n    width: 100%;\n    color: #3E3E3E !important; }\n    .input-container input[type=text] + label,\n    .input-container input[type=password] + label,\n    .input-container input[type=search] + label,\n    .input-container input[type=number] + label,\n    .input-container input[type=email] + label,\n    .input-container select + label,\n    .input-container textarea + label {\n      position: absolute;\n      bottom: 0;\n      z-index: 0;\n      transition: all 0.3s ease; }\n    .input-container input[type=text].full + label,\n    .input-container input[type=password].full + label,\n    .input-container input[type=search].full + label,\n    .input-container input[type=number].full + label,\n    .input-container input[type=email].full + label,\n    .input-container select.full + label,\n    .input-container textarea.full + label {\n      bottom: 1em;\n      font-size: 16px; }\n    .input-container input[type=text].ng-valid, .input-container input[type=text]:focus,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=password]:focus,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=search]:focus,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=number]:focus,\n    .input-container input[type=email].ng-valid,\n    .input-container input[type=email]:focus,\n    .input-container select.ng-valid,\n    .input-container select:focus,\n    .input-container textarea.ng-valid,\n    .input-container textarea:focus {\n      outline: 0;\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label, .input-container input[type=text]:focus + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=password]:focus + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=search]:focus + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=number]:focus + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container input[type=email]:focus + label,\n      .input-container select.ng-valid + label,\n      .input-container select:focus + label,\n      .input-container textarea.ng-valid + label,\n      .input-container textarea:focus + label {\n        color: #f19300;\n        text-shadow: 1px 1px #bd7501;\n        bottom: 1.2em;\n        font-size: 16px; }\n    .input-container input[type=text].ng-valid,\n    .input-container input[type=password].ng-valid,\n    .input-container input[type=search].ng-valid,\n    .input-container input[type=number].ng-valid,\n    .input-container input[type=email].ng-valid,\n    .input-container select.ng-valid,\n    .input-container textarea.ng-valid {\n      border-color: #f19300; }\n      .input-container input[type=text].ng-valid + label,\n      .input-container input[type=password].ng-valid + label,\n      .input-container input[type=search].ng-valid + label,\n      .input-container input[type=number].ng-valid + label,\n      .input-container input[type=email].ng-valid + label,\n      .input-container select.ng-valid + label,\n      .input-container textarea.ng-valid + label {\n        color: #f19300; }\n    .input-container input[type=text]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=password]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=search]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=number]:not(.ng-untouched).ng-invalid,\n    .input-container input[type=email]:not(.ng-untouched).ng-invalid,\n    .input-container select:not(.ng-untouched).ng-invalid,\n    .input-container textarea:not(.ng-untouched).ng-invalid {\n      border-color: #E31111; }\n      .input-container input[type=text]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=password]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=search]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=number]:not(.ng-untouched).ng-invalid + label,\n      .input-container input[type=email]:not(.ng-untouched).ng-invalid + label,\n      .input-container select:not(.ng-untouched).ng-invalid + label,\n      .input-container textarea:not(.ng-untouched).ng-invalid + label {\n        color: #E31111; }\n  .input-container select {\n    font-size: 1em; }\n  .input-container textarea {\n    height: 3em; }\n    .input-container textarea.full + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n    .input-container textarea.ng-valid + label, .input-container textarea:focus + label {\n      bottom: 3.2em !important;\n      font-size: 16px; }\n\n.border {\n  padding: 2px;\n  box-shadow: 1px 1px 4px 2px rgba(31, 31, 31, 0.2);\n  border: 1px solid #E3E3E3; }\n\n.tabs {\n  position: relative;\n  min-height: 200px;\n  /* This part sucks */\n  clear: both;\n  margin: 25px 0;\n  background-color: #E8E8E8; }\n\n.tab {\n  float: left; }\n\n.tab label {\n  margin-left: -1px;\n  position: relative;\n  left: 1px;\n  cursor: pointer;\n  font-size: 1em;\n  text-transform: uppercase;\n  text-align: center; }\n  .tab label span {\n    display: block;\n    padding: 10px;\n    color: #AAA; }\n\n.tab [type=radio] {\n  display: none; }\n\n.content {\n  background-color: white;\n  position: absolute;\n  top: 44px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 20px; }\n\n[type=radio]:checked ~ span {\n  background: white;\n  color: #3E3E3E !important;\n  width: 100%;\n  display: block;\n  padding-bottom: 10px; }\n\n[type=radio]:checked ~ label ~ .content {\n  z-index: 1; }\n\n.sebm-google-map-container {\n  height: 600px; }\n\nsebm-google-map-info-window > div {\n  display: flex; }\n\n.inline {\n  margin-top: 30px;\n  display: flex; }\n\n.centered {\n  position: relative;\n  top: 50%;\n  cursor: pointer; }\n\n.inline-form {\n  margin-top: 30px;\n  display: flex;\n  align-items: flex-end; }\n  .inline-form div {\n    flex-grow: 1; }\n  .inline-form button {\n    flex-grow: 0;\n    max-width: 150px; }\n\n.infos fieldset {\n  display: flex;\n  flex-direction: column; }\n  .infos fieldset label {\n    flex-grow: 1;\n    width: 100%; }\n    .infos fieldset label input {\n      display: none; }\n      .infos fieldset label input:checked + span {\n        background-color: #f19300;\n        border: none !important; }\n      .infos fieldset label input:checked + .btn-primary:hover {\n        background-color: #f19300 !important;\n        box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n    .infos fieldset label span {\n      display: block;\n      width: 100%; }\n"
+module.exports = "input[type='radio'],\ninput[type=\"checkbox\"] {\n  /* original check box are push outside the viexport */\n  z-index: 0; }\n\n.choice-cmp {\n  margin-bottom: 20px; }\n  .choice-cmp label {\n    margin: 0 !important;\n    display: flex;\n    font-weight: 700;\n    font-size: 1.1em; }\n    .choice-cmp label input {\n      display: none; }\n      .choice-cmp label input:checked ~ div {\n        background: #f19300;\n        box-shadow: none !important; }\n        .choice-cmp label input:checked ~ div::before {\n          width: 40px;\n          height: 40px;\n          content: '\\2713';\n          display: inline-block;\n          font-size: 26.66667px;\n          text-align: center;\n          line-height: 40px;\n          color: #FFF; }\n        .choice-cmp label input:checked ~ div::after {\n          -webkit-animation: click-wave 0.5s;\n          -moz-animation: click-wave 0.5s;\n          animation: click-wave 0.5s;\n          background: #f19300;\n          content: '';\n          display: block;\n          position: relative;\n          top: -100%;\n          z-index: 100; }\n      .choice-cmp label input:checked ~ .group::before {\n        content: '-'; }\n    .choice-cmp label + span {\n      display: inline-block;\n      width: 80%;\n      cursor: pointer; }\n      @media screen and (max-width: 700px) {\n        .choice-cmp label + span {\n          width: 100%; } }\n      .choice-cmp label + span small {\n        text-align: justify;\n        padding-left: 80px;\n        display: block; }\n        @media screen and (max-width: 700px) {\n          .choice-cmp label + span small {\n            padding-left: 5px;\n            width: 100% !important; } }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap;\n  padding-top: 10px; }\n  .inline > * {\n    flex-grow: 1;\n    align-self: flex-start;\n    width: 40%;\n    border: none;\n    margin-bottom: 40px; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed white; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    cursor: pointer; }\n    .inline span small {\n      padding-left: 80px;\n      text-align: justify;\n      display: block; }\n      @media screen and (max-width: 700px) {\n        .inline span small {\n          width: 80% !important;\n          padding-left: 0px;\n          padding-right: 0; } }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.8em;\n  margin-left: 40px;\n  margin-bottom: 0 !important; }\n  @media screen and (max-width: 700px) {\n    .check-container {\n      margin: 0 5px 0 0; } }\n  .check-container::before {\n    outline: none !important;\n    width: 40px !important;\n    height: 40px;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n.check_clear small {\n  padding-left: 0 !important; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n/*\r\n.text-center{\r\n  text-align: center;\r\n}\r\n.text-left{\r\n  text-align:left;\r\n  margin-bottom: 10px;\r\n  display:inline-block;\r\n  \r\n        margin: 20px  0;\r\n}\r\n.field{\r\n  margin-bottom: 40px;\r\n}\r\n\r\n*/\n.input-container {\n  text-align: left !important; }\n\n.alert {\n  color: #f37474;\n  position: relative;\n  top: -1em;\n  padding: 0; }\n  .alert ul {\n    list-style: none; }\n\n.shrink {\n  margin: 10px 0 0 10px; }\n  @media screen and (max-width: 700px) {\n    .shrink {\n      margin: 0; } }\n"
 
 /***/ },
 /* 679 */
 /***/ function(module, exports) {
 
-module.exports = "\n<div class=\"container-fluid\">\n    <router-outlet></router-outlet>   \n\n    <h5 class=\"version\">Expedom gen v. BETA 1.0</h5>\n</div>"
+module.exports = "input[type='radio'],\ninput[type=\"checkbox\"] {\n  /* original check box are push outside the viexport */\n  z-index: 0; }\n\n.choice-cmp {\n  margin-bottom: 20px; }\n  .choice-cmp label {\n    margin: 0 !important;\n    display: flex;\n    font-weight: 700;\n    font-size: 1.1em; }\n    .choice-cmp label input {\n      display: none; }\n      .choice-cmp label input:checked ~ div {\n        background: #f19300;\n        box-shadow: none !important; }\n        .choice-cmp label input:checked ~ div::before {\n          width: 40px;\n          height: 40px;\n          content: '\\2713';\n          display: inline-block;\n          font-size: 26.66667px;\n          text-align: center;\n          line-height: 40px;\n          color: #FFF; }\n        .choice-cmp label input:checked ~ div::after {\n          -webkit-animation: click-wave 0.5s;\n          -moz-animation: click-wave 0.5s;\n          animation: click-wave 0.5s;\n          background: #f19300;\n          content: '';\n          display: block;\n          position: relative;\n          top: -100%;\n          z-index: 100; }\n      .choice-cmp label input:checked ~ .group::before {\n        content: '-'; }\n    .choice-cmp label + span {\n      display: inline-block;\n      width: 80%;\n      cursor: pointer; }\n      @media screen and (max-width: 700px) {\n        .choice-cmp label + span {\n          width: 100%; } }\n      .choice-cmp label + span small {\n        text-align: justify;\n        padding-left: 80px;\n        display: block; }\n        @media screen and (max-width: 700px) {\n          .choice-cmp label + span small {\n            padding-left: 5px;\n            width: 100% !important; } }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap;\n  padding-top: 10px; }\n  .inline > * {\n    flex-grow: 1;\n    align-self: flex-start;\n    width: 40%;\n    border: none;\n    margin-bottom: 40px; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed white; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    cursor: pointer; }\n    .inline span small {\n      padding-left: 80px;\n      text-align: justify;\n      display: block; }\n      @media screen and (max-width: 700px) {\n        .inline span small {\n          width: 80% !important;\n          padding-left: 0px;\n          padding-right: 0; } }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.8em;\n  margin-left: 40px;\n  margin-bottom: 0 !important; }\n  @media screen and (max-width: 700px) {\n    .check-container {\n      margin: 0 5px 0 0; } }\n  .check-container::before {\n    outline: none !important;\n    width: 40px !important;\n    height: 40px;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n.check_clear small {\n  padding-left: 0 !important; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.left {\n  margin-left: 20px; }\n\n.text-left {\n  text-align: left;\n  margin-bottom: 10px; }\n\n.hideIfInactive {\n  opacity: 0;\n  display: none;\n  overflow: hidden; }\n\n.revealIfActive {\n  display: block;\n  opacity: 1;\n  overflow: visible;\n  position: relative;\n  left: 40px; }\n\ninput[type='radio'],\ninput[type=\"checkbox\"] {\n  /* original check box are push outside the viexport */\n  z-index: 0; }\n\n.choice-cmp {\n  margin-bottom: 20px; }\n  .choice-cmp label {\n    margin: 0 !important;\n    display: flex;\n    font-weight: 700;\n    font-size: 1.1em; }\n    .choice-cmp label input {\n      display: none; }\n      .choice-cmp label input:checked ~ div {\n        background: #f19300;\n        box-shadow: none !important; }\n        .choice-cmp label input:checked ~ div::before {\n          width: 40px;\n          height: 40px;\n          content: '\\2713';\n          display: inline-block;\n          font-size: 26.66667px;\n          text-align: center;\n          line-height: 40px;\n          color: #FFF; }\n        .choice-cmp label input:checked ~ div::after {\n          -webkit-animation: click-wave 0.5s;\n          -moz-animation: click-wave 0.5s;\n          animation: click-wave 0.5s;\n          background: #f19300;\n          content: '';\n          display: block;\n          position: relative;\n          top: -100%;\n          z-index: 100; }\n      .choice-cmp label input:checked ~ .group::before {\n        content: '-'; }\n    .choice-cmp label + span {\n      display: inline-block;\n      width: 80%;\n      cursor: pointer; }\n      @media screen and (max-width: 700px) {\n        .choice-cmp label + span {\n          width: 100%; } }\n      .choice-cmp label + span small {\n        text-align: justify;\n        padding-left: 80px;\n        display: block; }\n        @media screen and (max-width: 700px) {\n          .choice-cmp label + span small {\n            padding-left: 5px;\n            width: 100% !important; } }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap;\n  padding-top: 10px; }\n  .inline > * {\n    flex-grow: 1;\n    align-self: flex-start;\n    width: 40%;\n    border: none;\n    margin-bottom: 40px; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed white; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    cursor: pointer; }\n    .inline span small {\n      padding-left: 80px;\n      text-align: justify;\n      display: block; }\n      @media screen and (max-width: 700px) {\n        .inline span small {\n          width: 80% !important;\n          padding-left: 0px;\n          padding-right: 0; } }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.8em;\n  margin-left: 40px;\n  margin-bottom: 0 !important; }\n  @media screen and (max-width: 700px) {\n    .check-container {\n      margin: 0 5px 0 0; } }\n  .check-container::before {\n    outline: none !important;\n    width: 40px !important;\n    height: 40px;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n.check_clear small {\n  padding-left: 0 !important; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.choice-cmp {\n  padding: 20px 0; }\n\n.inline > *.check-container {\n  text-align: center; }\n"
 
 /***/ },
 /* 680 */
 /***/ function(module, exports) {
 
-module.exports = "<div>\r\n    <div *ngIf=\"error\">\r\n        {{error}}\r\n    </div>\r\n    <form #devisForm=\"ngForm\" (ngSubmit)=\"onSubmit()\" [formGroup]=\"form\">\r\n        <div class=\"row panel-heading\">\r\n            <div class=\"title\">{{formulaire.title}}</div>\r\n            <p>{{formulaire.description}}</p>\r\n        </div>\r\n        <div class=\"center-block\">\r\n            <div *ngFor='let field of formulaire.fields' class='form-row' class=\"row options-group\">\r\n            <df-question [question]=\"field\" [form]=\"form\"></df-question>\r\n            </div>\r\n        </div>\r\n        <div class=\"row next_step\">\r\n            <button class=\"btn-lg btn-primary btn-block\" type=\"submit\" [disabled]=\"devisForm.form?.valid == false\">Suivant</button>\r\n        </div>\r\n    </form>\r\n</div>"
+module.exports = "input[type='radio'],\ninput[type=\"checkbox\"] {\n  /* original check box are push outside the viexport */\n  z-index: 0; }\n\n.choice-cmp {\n  margin-bottom: 20px; }\n  .choice-cmp label {\n    margin: 0 !important;\n    display: flex;\n    font-weight: 700;\n    font-size: 1.1em; }\n    .choice-cmp label input {\n      display: none; }\n      .choice-cmp label input:checked ~ div {\n        background: #f19300;\n        box-shadow: none !important; }\n        .choice-cmp label input:checked ~ div::before {\n          width: 40px;\n          height: 40px;\n          content: '\\2713';\n          display: inline-block;\n          font-size: 26.66667px;\n          text-align: center;\n          line-height: 40px;\n          color: #FFF; }\n        .choice-cmp label input:checked ~ div::after {\n          -webkit-animation: click-wave 0.5s;\n          -moz-animation: click-wave 0.5s;\n          animation: click-wave 0.5s;\n          background: #f19300;\n          content: '';\n          display: block;\n          position: relative;\n          top: -100%;\n          z-index: 100; }\n      .choice-cmp label input:checked ~ .group::before {\n        content: '-'; }\n    .choice-cmp label + span {\n      display: inline-block;\n      width: 80%;\n      cursor: pointer; }\n      @media screen and (max-width: 700px) {\n        .choice-cmp label + span {\n          width: 100%; } }\n      .choice-cmp label + span small {\n        text-align: justify;\n        padding-left: 80px;\n        display: block; }\n        @media screen and (max-width: 700px) {\n          .choice-cmp label + span small {\n            padding-left: 5px;\n            width: 100% !important; } }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap;\n  padding-top: 10px; }\n  .inline > * {\n    flex-grow: 1;\n    align-self: flex-start;\n    width: 40%;\n    border: none;\n    margin-bottom: 40px; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed white; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    cursor: pointer; }\n    .inline span small {\n      padding-left: 80px;\n      text-align: justify;\n      display: block; }\n      @media screen and (max-width: 700px) {\n        .inline span small {\n          width: 80% !important;\n          padding-left: 0px;\n          padding-right: 0; } }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.8em;\n  margin-left: 40px;\n  margin-bottom: 0 !important; }\n  @media screen and (max-width: 700px) {\n    .check-container {\n      margin: 0 5px 0 0; } }\n  .check-container::before {\n    outline: none !important;\n    width: 40px !important;\n    height: 40px;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n.check_clear small {\n  padding-left: 0 !important; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.left {\n  margin-left: 20px; }\n\n.text-left {\n  text-align: left;\n  margin-bottom: 10px; }\n\n.hideIfInactive {\n  opacity: 0;\n  display: none;\n  overflow: hidden; }\n\n.revealIfActive {\n  display: block;\n  opacity: 1;\n  overflow: visible;\n  position: relative;\n  left: 40px; }\n\ninput[type='radio'],\ninput[type=\"checkbox\"] {\n  /* original check box are push outside the viexport */\n  z-index: 0; }\n\n.choice-cmp {\n  margin-bottom: 20px; }\n  .choice-cmp label {\n    margin: 0 !important;\n    display: flex;\n    font-weight: 700;\n    font-size: 1.1em; }\n    .choice-cmp label input {\n      display: none; }\n      .choice-cmp label input:checked ~ div {\n        background: #f19300;\n        box-shadow: none !important; }\n        .choice-cmp label input:checked ~ div::before {\n          width: 40px;\n          height: 40px;\n          content: '\\2713';\n          display: inline-block;\n          font-size: 26.66667px;\n          text-align: center;\n          line-height: 40px;\n          color: #FFF; }\n        .choice-cmp label input:checked ~ div::after {\n          -webkit-animation: click-wave 0.5s;\n          -moz-animation: click-wave 0.5s;\n          animation: click-wave 0.5s;\n          background: #f19300;\n          content: '';\n          display: block;\n          position: relative;\n          top: -100%;\n          z-index: 100; }\n      .choice-cmp label input:checked ~ .group::before {\n        content: '-'; }\n    .choice-cmp label + span {\n      display: inline-block;\n      width: 80%;\n      cursor: pointer; }\n      @media screen and (max-width: 700px) {\n        .choice-cmp label + span {\n          width: 100%; } }\n      .choice-cmp label + span small {\n        text-align: justify;\n        padding-left: 80px;\n        display: block; }\n        @media screen and (max-width: 700px) {\n          .choice-cmp label + span small {\n            padding-left: 5px;\n            width: 100% !important; } }\n\n.inline {\n  display: flex;\n  flex-wrap: wrap;\n  padding-top: 10px; }\n  .inline > * {\n    flex-grow: 1;\n    align-self: flex-start;\n    width: 40%;\n    border: none;\n    margin-bottom: 40px; }\n    .inline > *:nth-child(odd) {\n      border-right: 1px dashed white; }\n    .inline > *:last-child {\n      border-right: none; }\n    .inline > *.check-container {\n      text-align: center; }\n    @media screen and (max-width: 700px) {\n      .inline > * {\n        width: 80%; }\n        .inline > *:nth-child(odd) {\n          border-right: none; } }\n  .inline span {\n    cursor: pointer; }\n    .inline span small {\n      padding-left: 80px;\n      text-align: justify;\n      display: block; }\n      @media screen and (max-width: 700px) {\n        .inline span small {\n          width: 80% !important;\n          padding-left: 0px;\n          padding-right: 0; } }\n\n.check-container {\n  -webkit-appearance: none;\n  -moz-appearance: none;\n  -ms-appearance: none;\n  -o-appearance: none;\n  appearance: none;\n  position: relative;\n  top: 13.33333px;\n  width: 40px;\n  height: 40px;\n  -webkit-transition: all 0.15s ease-out 0;\n  -moz-transition: all 0.15s ease-out 0;\n  transition: all 0.15s ease-out 0;\n  background: #aaa;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n  display: inline-block;\n  outline: none !important;\n  position: relative;\n  margin-right: 0.5rem;\n  z-index: 1000;\n  position: relative;\n  top: -0.8em;\n  margin-left: 40px;\n  margin-bottom: 0 !important; }\n  @media screen and (max-width: 700px) {\n    .check-container {\n      margin: 0 5px 0 0; } }\n  .check-container::before {\n    outline: none !important;\n    width: 40px !important;\n    height: 40px;\n    content: '\\2713';\n    display: inline-block;\n    font-size: 26.66667px;\n    text-align: center;\n    line-height: 40px; }\n  .check-container:focus {\n    outline: none; }\n  .check-container.group::before {\n    content: '+'; }\n  .check-container:hover {\n    background: #E3E3E3; }\n  .check-container.radio {\n    border-radius: 50%; }\n    .check-container.radio::after {\n      border-radius: 50%; }\n  .check-container.check {\n    border-radius: 5%; }\n    .check-container.check::after {\n      border-radius: 5%; }\n\n.check_clear small {\n  padding-left: 0 !important; }\n\n/* animation type ripple */\n@-webkit-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-moz-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@-o-keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n@keyframes click-wave {\n  0% {\n    width: 40px;\n    height: 40px;\n    opacity: 0.35;\n    position: relative; }\n  100% {\n    width: 100px;\n    height: 100px;\n    margin-left: -30px;\n    margin-top: -30px;\n    opacity: 0.0; } }\n\n.choice-cmp {\n  padding: 20px 0; }\n\n.inline {\n  text-align: left; }\n  .inline > *.check-container {\n    text-align: left; }\n"
 
 /***/ },
 /* 681 */
 /***/ function(module, exports) {
 
-module.exports = "<div [formGroup]=\"form\" class=\"field\">\r\n      <div [ngSwitch]=\"question.type\">\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'text'\" class=\"form-group\">\r\n        \r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <input  [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                     -->\r\n        <div class=\"schrink\">\r\n            <div class=\"input-container\">\r\n                <label>{{question.title}}</label>  \r\n                <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" \r\n                    [(ngModel)]=\"question.__value\"\r\n                    >\r\n                      \r\n            </div>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n        </div>\r\n                    \r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'number'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                    <label>{{question.title}}</label>\r\n                    <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"number\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        >\r\n                            \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'email'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                     <label>{{question.title}}</label>   \r\n                    <input #texted type=\"text\" [ngClass]=\"{'full':texted.value != ''}\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"email\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        >\r\n                        \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n\r\n            \r\n        </div>\r\n\r\n\r\n        <div *ngSwitchCase=\"'textarea'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <label>{{question.title}}</label> \r\n                    <textarea #texted [formControlName]=\"question.id\" [ngClass]=\"{'full':texted.value != ''}\"\r\n                        [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                         \r\n                         height=\"3em\"\r\n                        ></textarea>\r\n                       \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <textarea [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                    ></textarea-->\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'select'\" class=\"form-group\">\r\n            <div class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <label>{{question.title}}</label> \r\n                    <select #texted [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n                       [ngClass]=\"{'full':texted.value != ''}\" required>\r\n                            <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n                    </select>\r\n                       \r\n                </div>\r\n                <span>(<small>{{question.description}}</small>)</span>\r\n            </div>\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <select [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n             class=\"form-control\" required>\r\n                <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n            </select-->\r\n        </div>\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        \r\n        <div *ngSwitchCase=\"'radio'\" class=\"text-center\">\r\n              \r\n                  <h3 class=\"row text-center\">{{question.title}}</h3>\r\n                  <p class=\"row\">{{question.description}}</p>\r\n                  <div class=\"choice-cmp inline\"><!-- [class.inline]=\"question.options.length<3\"-->\r\n                    <div class=\"text-left\"  *ngFor=\"let it of question.options\">                        \r\n                        \r\n                            <input   [formControlName]=\"question.id\"                        \r\n                            type=\"radio\" \r\n                            [(ngModel)]=\"question.__value\"\r\n                            [value]=\"it.value\"\r\n                            \r\n                            class=\" check-container radio\"\r\n                            ><label> {{it.label}}</label>    \r\n                            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n                    </div>    \r\n                    \r\n                </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n         <div *ngSwitchCase=\"'checkbox'\" class=\"choice-cmp\">\r\n                                                    \r\n                      <label > \r\n                        <input  [formControlName]=\"question.id\"                        \r\n                         type=\"checkbox\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"question.selected\"\r\n                         \r\n                         class=\"check-container check\"\r\n                    >{{question.title}}</label>    \r\n                    <span><small>{{question.description}}</small></span>\r\n                 \r\n            \r\n        </div>\r\n\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'arbo-radio'\">\r\n                <df-arbo-question [question]=\"question\" [groupName]=\"'trigger'\" [options]=\"question\" [form]=\"form\" [ctrlActive]=\"true\"></df-arbo-question>            \r\n        </div>\r\n        <div *ngSwitchCase=\"'arbo2-radio'\">\r\n                <df-arbo2-question [question]=\"question\" [groupName]=\"'trigger'\" [options]=\"question\" [form]=\"form\" [ctrlActive]=\"true\"></df-arbo2-question>            \r\n        </div>\r\n\r\n\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'gps'\">\r\n            <dyna-gps [question]=\"question\" [form]=\"form\"></dyna-gps>\r\n        </div>\r\n\r\n\r\n\r\n        <div class=\"row options-group\" *ngSwitchCase=\"'category-radio'\">\r\n              \r\n            <div class=\"form-check\" *ngFor=\"let it of question.options\">\r\n                \r\n                  <h3 class=\"panel-heading\">{{it.label}}</h3>\r\n                      <label class=\"form-check-label\" *ngFor=\"let opt of it.options\">              \r\n                        <input [formControlName]=\"question.id\"                        \r\n                         type=\"radio\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"opt.value\"\r\n                         required\r\n                            class=\"form-check-input\">\r\n                        {{opt.label}}</label>    \r\n                                     \r\n            </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n      </div>\r\n      <div *ngIf=\"isValid\"  class=\"alert\">\r\n        <ul>\r\n            <li *ngIf=\"error.required\">\r\n            Ce champs doit obligatoirement etre renseigné!\r\n            </li>\r\n            <li *ngIf=\"error.minlength\">\r\n            Ce champs doit faire plus de <span>{{error.minlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.maxlength\">\r\n            Ce champs doit faire moins de <span>{{error.maxlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.pattern\">\r\n            Le contenu de ce champs n'est pas valide!\r\n            </li>\r\n\r\n            <li *ngIf=\"error.email\">\r\n            Merci d'indiquer une adresse mail valide.\r\n            </li>\r\n\r\n            <li *ngIf=\"error.min\">\r\n            Vous devez renseigner un nombre superieur à <span>{{error.min.requiredValue}}</span>.\r\n            </li>\r\n             <li *ngIf=\"error.max\">\r\n            Vous devez renseigner un nombre inferieur à <span>{{error.max.requiredValue}}</span>.\r\n            </li>\r\n        </ul>\r\n      </div>\r\n    \r\n        \r\n    </div>"
+module.exports = ".black {\n  color: #3E3E3E; }\n\n.input-container {\n  text-align: left;\n  flex-grow: 1; }\n  .input-container input {\n    border: 1px solid #3E3E3E; }\n  @media screen and (max-width: 700px) {\n    .input-container {\n      width: 100%; } }\n\n.tabs {\n  position: relative;\n  min-height: 200px;\n  /* This part sucks */\n  clear: both;\n  margin: 25px 0; }\n  @media screen and (max-width: 700px) {\n    .tabs {\n      min-height: 250px; } }\n\n.tab {\n  float: left; }\n\n.tab label {\n  position: relative;\n  cursor: pointer;\n  font-size: 1em;\n  text-transform: uppercase;\n  text-align: center; }\n  .tab label span {\n    display: block;\n    padding: 10px;\n    color: #527ea4; }\n\n.tab [type=radio] {\n  display: none; }\n\n.content {\n  background-color: rgba(255, 255, 255, 0.07);\n  position: absolute;\n  top: 44px;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  padding: 20px; }\n\n[type=radio]:checked ~ span {\n  background: rgba(255, 255, 255, 0.07);\n  color: white !important;\n  width: 100%;\n  display: block;\n  padding-bottom: 10px;\n  border-radius: 5px 5px 0 0;\n  border-bottom: none; }\n\n[type=radio]:checked ~ label ~ .content {\n  z-index: 1; }\n\n.sebm-google-map-container {\n  height: 600px; }\n\nsebm-google-map-info-window > div {\n  display: flex; }\n\n.inline {\n  display: flex;\n  align-items: flex-end; }\n  .inline a {\n    flex-grow: 0;\n    margin-left: 5px; }\n    @media screen and (max-width: 700px) {\n      .inline a {\n        flex-grow: 1;\n        width: 100%; } }\n  @media screen and (max-width: 700px) {\n    .inline {\n      flex-direction: column; } }\n\n.centered {\n  position: relative;\n  top: 30%;\n  cursor: pointer; }\n  .centered:hover {\n    color: red; }\n\n.inline-form {\n  display: flex;\n  align-items: flex-end;\n  flex-wrap: wrap; }\n  .inline-form div {\n    flex-grow: 1; }\n  .inline-form button {\n    flex-grow: 0;\n    max-width: 150px;\n    line-height: 1.9em;\n    margin-left: 5px; }\n    @media screen and (max-width: 700px) {\n      .inline-form button {\n        flex-grow: 1;\n        margin: 0;\n        max-width: none; } }\n\n.infos {\n  color: #3E3E3E; }\n  .infos fieldset {\n    display: flex;\n    flex-direction: column; }\n    .infos fieldset div:first-child {\n      position: relative; }\n      .infos fieldset div:first-child:after {\n        content: url(\"/dev/wp-content/plugins/quote-generator/assets/img/meilleur-prix.svg\");\n        position: absolute;\n        width: 45px;\n        height: 45px;\n        z-index: 9999;\n        right: -32px;\n        top: -20px; }\n    .infos fieldset div:last-child:after {\n      content: \"\"; }\n    .infos fieldset label {\n      flex-grow: 1;\n      width: 100%; }\n      .infos fieldset label input {\n        display: none; }\n        .infos fieldset label input:checked + span {\n          background-color: #f19300;\n          border: none !important; }\n        .infos fieldset label input:checked + .btn-primary:hover {\n          background-color: #f19300 !important;\n          box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n      .infos fieldset label span {\n        display: block;\n        width: 100%; }\n        @media screen and (max-width: 700px) {\n          .infos fieldset label span {\n            white-space: normal !important; } }\n"
 
 /***/ },
 /* 682 */
 /***/ function(module, exports) {
 
-module.exports = " <fieldset  class=\"text-center \" [formGroup]=\"form\" ><!--[class.left]='groupName'-->\r\n    <div class=\"choice-cmp  hideIfInactive\" [class.revealIfActive]=\"ctrlActive\">\r\n    <div  class=\"text-left elems\" *ngFor=\"let it of options.options\">  \r\n    <!-- si une simple checkbox -->   \r\n                     \r\n                        \r\n                      \r\n                    \r\n    <div *ngIf=\"it.value\" >                      \r\n        <label > \r\n        \r\n            <input   [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            required\r\n            class=\" check-container radio\"\r\n            >\r\n            <span>{{it.label}}</span></label>\r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span> \r\n        <!--input  [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            class=\"form-check-input\"\r\n            required\r\n            >\r\n        {{it.label}}</label-->    \r\n    </div>\r\n    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????-->\r\n    <fieldset *ngIf=\"it.options\" class=\"form-group\" >\r\n    \r\n        <label class=\"sous-options\">\r\n            <input   [formControlName]=\"groupName\" \r\n            type=\"radio\" \r\n            [attr.name]=\"groupName\"\r\n            [(ngModel)]=\"groupValue\"\r\n            (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n            #triggerer\r\n            class=\" check-container radio group\"\r\n            ><span>{{it.label}}</span></label> \r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n        <!--input type=\"radio\" [formControlName]=\"groupName\" \r\n        [attr.name]=\"groupName\"\r\n        [(ngModel)]=\"groupValue\"\r\n        (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n        #trigger\r\n        >{{it.label}}</label>\r\n        <span>{{trigger.checked}}</span-->\r\n        <df-arbo-question [question]=\"question\" [groupName]=\"it.label\" [options]=\"it\" [form]=\"form\" \r\n            [ctrlActive]=\"triggerer.checked\"></df-arbo-question>\r\n        \r\n    </fieldset>         \r\n\r\n\r\n    </div>\r\n    </div>\r\n</fieldset>"
+module.exports = ".hidden {\n  display: none;\n  opacity: 0 !important; }\n\n.simplecheck {\n  width: 100%; }\n  .simplecheck input {\n    display: none; }\n  .simplecheck input:checked ~ span {\n    background-color: #f19300; }\n\nh5 strong {\n  color: #f19300; }\n\n.logo {\n  background-image: url(\"/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png\");\n  background-position: center;\n  background-repeat: no-repeat;\n  height: 80px;\n  background-position-y: -18px;\n  position: relative;\n  top: -16px; }\n\n.app_title {\n  text-align: center; }\n\n.text-center {\n  text-align: center; }\n\n.recap-text {\n  font-size: 1.2em;\n  text-align: center; }\n\n.result_title {\n  display: table-row; }\n\ntbody {\n  width: 80%;\n  margin: auto;\n  display: table; }\n\n#results {\n  margin-top: 20px; }\n\n.recap {\n  width: 100%;\n  opacity: 1;\n  transition: opacity 1s ease; }\n  .recap .form_infos .form_title {\n    font-size: 1.5em;\n    font-weight: 700;\n    padding-top: 10px; }\n  .recap .form_infos .form_fields {\n    width: 100%; }\n    .recap .form_infos .form_fields .field_label {\n      padding-left: 10px;\n      vertical-align: top; }\n    .recap .form_infos .form_fields .field_value {\n      font-size: 1.1em;\n      font-weight: 700;\n      text-transform: uppercase;\n      width: 30%;\n      vertical-align: top; }\n\n.card {\n  background-color: rgba(255, 255, 255, 0.07);\n  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);\n  margin-bottom: 20px; }\n  .card.result {\n    background-color: #f19300; }\n  .card.action {\n    flex-grow: 1;\n    display: flex;\n    flex-direction: column;\n    width: 128px;\n    align-items: center;\n    margin: 5px; }\n    .card.action a {\n      width: 98px;\n      height: 98px;\n      border-radius: 50%;\n      color: white;\n      background: #f19300;\n      font-size: 3.4em;\n      margin: 5px; }\n      .card.action a.wide {\n        width: 128px;\n        height: 128px;\n        font-size: 4.5em; }\n    .card.action p {\n      text-align: center; }\n\n.form_title {\n  font-size: 18px;\n  font-weight: 700;\n  padding-top: 10px;\n  text-transform: uppercase; }\n\n.form_fields {\n  width: 100%; }\n  .form_fields.result {\n    background-color: #f19300; }\n  .form_fields .field_label {\n    padding-left: 10px;\n    vertical-align: top; }\n    .form_fields .field_label.result {\n      font-size: 1.2em;\n      font-weight: 700;\n      vertical-align: middle; }\n  .form_fields .field_value {\n    font-size: 1.1em;\n    font-weight: 700;\n    text-transform: uppercase;\n    width: 30%;\n    vertical-align: top; }\n    .form_fields .field_value.result {\n      font-size: 2em; }\n\n#actions {\n  display: flex;\n  margin-bottom: 30px; }\n  @media screen and (max-width: 700px) {\n    #actions {\n      flex-direction: column; } }\n  #actions .btn-primary {\n    width: 50% !important;\n    padding: 20px 0px;\n    margin: 10px; }\n    @media screen and (max-width: 700px) {\n      #actions .btn-primary {\n        width: 100% !important;\n        margin-left: 0;\n        margin-right: 0; } }\n    #actions .btn-primary:hover {\n      color: white !important; }\n  #actions .btn-action {\n    background-color: #f19300;\n    white-space: nowrap;\n    overflow: hidden;\n    text-overflow: ellipsis; }\n  #actions .btn-action:hover {\n    background-color: #bd7501 !important;\n    box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5); }\n  #actions .btn-action:focus,\n  #actions .btn-action:active {\n    background-color: #bd7501 !important;\n    box-shadow: none; }\n"
 
 /***/ },
 /* 683 */
 /***/ function(module, exports) {
 
-module.exports = " <fieldset  class=\"text-center \" [formGroup]=\"form\" ><!--[class.left]='groupName'-->\r\n\r\n <div  *ngFor=\"let level of groups_level\">\r\n     <div [class.hideIfInactive]=\"level.parent!=null && form.controls[level.parent].value != level.groupName \">\r\n        <div *ngIf=\"level.title\" [id]=\"level.title\">\r\n            <small>merci de préciser:</small><h3>{{level.title}}</h3>\r\n        </div>\r\n        \r\n        <div class=\"choice-cmp inline\">\r\n            <div  *ngFor=\"let it of level.options\" >\r\n                <div *ngIf=\"!it.isGroup\">\r\n                    <label > \r\n                        <input   [formControlName]=\"question.id\"                        \r\n                        type=\"radio\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        (change)=\"clear_groups(level)\"\r\n                        [value]=\"it.value\"\r\n                        [attr.name]=\"question.id\"\r\n                        \r\n                        class=\" check-container radio\"\r\n                        >\r\n                        <span>{{it.label}}</span></label>\r\n                        <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n                </div>\r\n                <div *ngIf=\"it.isGroup\">\r\n                    <label > \r\n                        <input   [formControlName]=\"it.groupName\"                        \r\n                        type=\"radio\" \r\n                        \r\n                        (change)=\"annul(it.label)\"\r\n                        [value]=\"it.value\"\r\n                        [attr.name]=\"it.groupName\"\r\n                        \r\n                        class=\" check-container radio group\"\r\n                        >\r\n                        <span>{{it.label}}</span></label>\r\n                        <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n    <!--div class=\"choice-cmp inline hideIfInactive\" [class.revealIfActive]=\"ctrlActive\">\r\n    <div  class=\"text-left elems\" *ngFor=\"let it of options.options\">  \r\n    <!-- si une simple checkbox \r\n                     \r\n                        \r\n                      \r\n                    \r\n    <div *ngIf=\"it.value\" >                      \r\n        <label > \r\n        \r\n            <input   [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            required\r\n            class=\" check-container radio\"\r\n            >\r\n            <span>{{it.label}}</span></label>\r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span> \r\n        <!--input  [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            class=\"form-check-input\"\r\n            required\r\n            >\r\n        {{it.label}}</label\r\n    </div>\r\n    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????\r\n    <fieldset *ngIf=\"it.options\" class=\"form-group\" >\r\n    \r\n        <label class=\"sous-options\">\r\n            <input   [formControlName]=\"groupName\" \r\n            type=\"radio\" \r\n            [attr.name]=\"groupName\"\r\n            [(ngModel)]=\"groupValue\"\r\n            (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n            #triggerer\r\n            class=\" check-container radio group\"\r\n            ><span>{{it.label}}</span></label> \r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n        <!--input type=\"radio\" [formControlName]=\"groupName\" \r\n        [attr.name]=\"groupName\"\r\n        [(ngModel)]=\"groupValue\"\r\n        (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n        #trigger\r\n        >{{it.label}}</label>\r\n        <span>{{trigger.checked}}</span\r\n        <df-arbo-question [question]=\"question\" [groupName]=\"it.label\" [options]=\"it\" [form]=\"form\" \r\n            [ctrlActive]=\"triggerer.checked\"></df-arbo-question>\r\n        \r\n    </fieldset>         \r\n\r\n\r\n    </div>\r\n    </div-->\r\n</fieldset>"
+module.exports = ".overlay {\n  padding: 10px;\n  margin: auto; }\n"
 
 /***/ },
 /* 684 */
 /***/ function(module, exports) {
 
-module.exports = "<div [formGroup]=\"form\" class=\"border\">\r\n\r\n\r\n            <!-- affichage des tabs pour les choix -->\r\n           \r\n        <div class=\"tabs\">\r\n            <div class=\"tab\" *ngFor=\"let qfilter of question.options\">\r\n\r\n               \r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    [value]=\"qfilter.label\"                \r\n                    #trigger>\r\n                <span>{{qfilter.label}}</span></label>\r\n               \r\n                \r\n                \r\n\r\n                <div class=\"content\" *ngIf=\"qfilter.locations && trigger.checked\">\r\n                     <p>{{qfilter.description}}</p>\r\n                      <div class=\"schrink  inline\" *ngIf=\"question['use-text-filter'] == '1' \">\r\n                        <div class=\"input-container\">\r\n                            <input \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"\r\n                                >\r\n                            <label>{{question.title}}</label>   \r\n                           \r\n                        </div>\r\n                        <a (click)=\"search = null\"><i class=\"fa fa-times centered\" aria-hidden=\"true\"></i></a>     \r\n                    </div>\r\n\r\n\r\n                    <!--input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"-->\r\n                    <datalist id=\"choices\">\r\n                        <option *ngFor=\"let l of filtered_datalist\" [value]=\"l\">\r\n                    </datalist>\r\n                </div>\r\n            </div>\r\n            <!-- dernier choix, le domicile -->\r\n\r\n            <div *ngIf=\"noGeo == true\" class=\"tab\">\r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    value=\"domicile\"                \r\n                    #trigger><span>Domicile</span></label>\r\n                \r\n\r\n\r\n                <div class=\"content\" *ngIf=\"trigger.checked\">\r\n                    \r\n                        <div class=\"inline-form\">\r\n                           \r\n                                <div class=\"input-container\">\r\n                                    <!--input type=\"text\" value=\"Un autre departement\" #zipcode [(NgValue)]=\"srch_zipcode\" [value]=\"srch_zipcode || '' \"\r\n                                    [class.full]=\"zipcode.value!=''\"-->\r\n                                     <input type=\"text\" value=\"Un autre departement\" #zipcode [value]=\"srch_zipcode || ''\" \r\n                                    [class.ng-valid]=\"zipcode.value!=''\" >\r\n                                    <label>Entrez votre adresse.</label>        \r\n                                </div>\r\n                                <button type=\"button\" class='btn btn-primary' (click)=\"localise_from_zipcode(zipcode.value)\">Localisation</button>\r\n                        \r\n                                \r\n                        </div>\r\n                        <div>\r\n                            <div *ngIf=\"!position\">\r\n                                <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>\r\n                            </div>\r\n                            <div *ngIf=\"position\">\r\n                                \r\n                                        <span *ngIf=\"!position.zipcode && !position.city\">\r\n                                            <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>\r\n                                        </span>\r\n                                        <span *ngIf=\"position.zipcode\">Vous avez été géolocalisé: <strong>{{position.name+\"(\"+position.zipcode+\")\"}}</strong></span>\r\n                                        \r\n                                    \r\n                                \r\n                            </div>      \r\n                        </div>\r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n       \r\n\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        <sebm-google-map [latitude]=\"question?.default_location.lat\" [longitude]=\"question?.default_location.lng\"\r\n            [zoom]=\"question?.default_location.zoom || 6\"\r\n            (mapClick)=\"positionne_marker($event)\"\r\n            >\r\n            <div *ngFor=\"let opt of filtered_options\">\r\n\r\n                   \r\n\r\n\r\n            \r\n                <!-- les ports et les depots -->\r\n                <div *ngIf=\"filter!='domicile'\">\r\n                    <sebm-google-map-marker  *ngFor=\"let m of opt.locations\"\r\n                        [latitude]=\"m?.lat\" [longitude]=\"m?.lng\" \r\n                        [iconUrl]=\"opt.label | toIconUrl\"\r\n                        >\r\n\r\n                        <!-- si une seule reponse, affiche directement l'infos window???  -->\r\n                        <sebm-google-map-info-window [isOpen]=\"opt.locations.length == 1\">\r\n                            <div class=\"infos\">\r\n                                <strong>{{m?.label}}</strong>\r\n                                <p>{{m?.description}}</p>\r\n                                <fieldset>\r\n                                    <div  *ngFor=\"let price of m?.options\">\r\n                                        <label ><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        ><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                                </fieldset>\r\n                            </div>\r\n                        </sebm-google-map-info-window>   \r\n\r\n                    </sebm-google-map-marker>\r\n                </div>\r\n\r\n                \r\n                </div>\r\n             <div  *ngIf=\"noGeo==true && filter=='domicile' && position\">\r\n                        \r\n                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->\r\n                        <sebm-google-map-marker  [latitude]=\"position?.lat\" [longitude]=\"position?.lng\"\r\n                        [iconUrl]=\"'domicile' | toIconUrl\">\r\n                            <sebm-google-map-info-window   [isOpen]=\"position\" >\r\n                            <div class=\"infos\">\r\n                                <strong>Retrait/livraison à domicile</strong>\r\n                                <p>Une description?</p>\r\n\r\n                                <fieldset *ngIf=\"position.options\">\r\n                                    <div  *ngFor=\"let price of position?.options\">\r\n                                        <label><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        ><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                            \r\n                                </fieldset>\r\n                                <div *ngIf=\"!position.options\">\r\n                                    <span *ngIf=\"!position.error\" class=\"fa fa-spin fa-gear\"></span>\r\n                                    <span *ngIf=\"position.error\">{{position.error}}</span>\r\n                                </div>\r\n                            </div>\r\n\r\n                                \r\n                            </sebm-google-map-info-window> \r\n                        </sebm-google-map-marker>\r\n                </div>\r\n\r\n            \r\n        \r\n        </sebm-google-map>\r\n    </div>"
+module.exports = "\n<div class=\"container-fluid app-root\">\n    <router-outlet></router-outlet>   \n\n    <h5 class=\"version\">Expedom gen v. BETA 1.0</h5>\n</div>"
 
 /***/ },
 /* 685 */
 /***/ function(module, exports) {
 
-module.exports = "<div>\r\n    <h2 class=\"row text-center app_title\">Devis/Cotation</h2>\r\n    <!--div class=\"logo\">&nbsp;</div-->\r\n    <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <div *ngIf='!loading'>\r\n            <h3>Récapitulatif de votre commande</h3>\r\n            <table id=\"recap\">\r\n                <div class=\"form_infos\" *ngFor=\"let form of workflow\">\r\n                    <!-- le nom du formulaire -->\r\n                    <tr><td  colspan=\"2\" class=\"form_title\">{{form.title}}</td></tr>\r\n                    <tr class=\"form_fields\" *ngFor=\"let field of form.fields\">\r\n                        <td class=\"field_label\">{{field.title}}</td><td class=\"field_value\">{{field.value_label}}</td>\r\n                        \r\n                    </tr>\r\n                    \r\n                </div>\r\n            </table>\r\n\r\n            \r\n\r\n            <div id=\"results\" *ngIf=\"devis_details\">\r\n            <h3>Votre estimation: </h3>\r\n            \r\n            <ul>\r\n                <li class=\"header\">Depuis Lieu de prise en charge jusqu'a rendu bord navire/port d'arrivée</li>\r\n                <li><span class=\"label\">Port de depart:</span><strong class=\"result_value\">{{devis_details.PORT_DE_DEPART}}</strong></li>\r\n                \r\n                 <li><span class=\"label\">Prise en charge </span><strong class=\"result_value\">{{devis_details.PC | number:'2.2-2' || 'non applicable'}}€</strong></li>\r\n                 <li><span class=\"label\">Prix du transport (port à port)</span><strong class=\"result_value\">{{devis_details.P | number:'2.2-2'}}€</strong></li>\r\n                 <li><span class=\"label\">Assurance:</span><strong class=\"result_value\">{{devis_details.A | number:'2.2-2'}}€</strong></li>\r\n                \r\n\r\n                <li class=\"header\">Recapitulatif des taxes à titre indicatif</li>\r\n                <li><span class=\"label\">Valeur de la marchandise:</span><strong class=\"result_value\">{{devis_details.V | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">valeur taxable sur marchandise:</span><strong class=\"result_value\">{{devis_details.CAF | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Taxe sur marchandise:</span><strong class=\"result_value\">{{devis_details.TSM | number:'2.2-2'}}€</strong></li>\r\n                \r\n                <li><span class=\"label\">taux de TVA:</span><strong class=\"result_value\">{{devis_details.TVA | number:'2.2-2' || 'non applicable'}}</strong>%</li>\r\n                <li><span class=\"label\">valeur TVA:</span><strong class=\"result_value\">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">taux Octroi de mer:</span><strong class=\"result_value\">{{devis_details.OM?.om | number:'2.2-2'}}%</strong></li>\r\n                <li><span class=\"label\">valeur Octroi de mer:</span><strong class=\"result_value\">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}%</strong></li>\r\n                <li><span class=\"label\">taux Octroi de mer regionnal:</span><strong class=\"result_value\">{{devis_details.OM?.omr | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">valeur Octroi de mer regionnal:</span><strong class=\"result_value\">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</strong></li>\r\n                \r\n                <li class=\"header\">Depuis bord navire/port d'arrivée jusqu'a lieu de livraison</li>\r\n                <li><span class=\"label\">taux TVA sur prestation:</span><strong class=\"result_value\">{{devis_details.TVA_RU | number:'2.2-2'}}</strong>%</li>\r\n                <li><span class=\"label\">valeur TVA sur prestation:</span><strong class=\"result_value\">{{devis_details.TVA_RU_VALUE | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Taxes avant dedoienement:</span><strong class=\"result_value\">{{devis_details.TAXES | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Dedouanement:</span><strong class=\"result_value\">{{devis_details.FR | number:'2.2-2'}}€</strong></li>\r\n                \r\n                <li><span class=\"label\">Livraison à domicile</span> <strong class=\"result_value\">{{devis_details.PT | number:'2.2-2'}}€</strong></li>\r\n                <li><span class=\"label\">Total taxes locales:</span><strong class=\"result_value\">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</strong></li>\r\n                \r\n\r\n                <li class=\"result\"><span class=\"label\">Total à payer:</span><strong class=\"result_value\">{{devis_details.TOTAL_A_PAYER | number:'2.2-2'}}€</strong></li>\r\n                \r\n            </ul>\r\n            \r\n            </div>\r\n            <div id=\"actions\">\r\n                <!--button *ngIf=\"has_IDB && devis_infos?.date==null\" class=\"btn btn-primary wide\" (click)=\"save_devis()\">Sauvegarder le devis</button-->\r\n                <a class=\"btn btn-primary btn-action\" [href]='pdf_file' target=\"_blank\">Telecharger le devis en pdf</a>\r\n                <a  class=\"btn btn-primary btn-action\" [href]=\"'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID\" >reservez maintenant!</a>\r\n                <button class=\"btn btn-primary wide\" (click)=\"create_devis()\">Nouveau devis</button>\r\n            </div>\r\n        </div>\r\n</div>"
+module.exports = "<div *ngIf=\"display\" class=\"fullsize\">\r\n    <div class=\"confirm\">\r\n        <!--form (submit)=\"return false;\" #confirmForm=\"ngForm\"-->\r\n            <h4>{{confirm.title}}</h4>\r\n            <p [innerHTML]=\"confirm.description | safeHTML\"></p>\r\n            <div class=\"choice-cmp centered\">\r\n            <label *ngIf=\"confirm.check\">\r\n                <input type=\"checkbox\" [(ngModel)]=\"is_Checked\" name=\"checker\">\r\n                <div class=\" check-container check\"></div><span><strong>{{confirm.check}}</strong></span></label>\r\n            </div>\r\n            <div class='actions'>\r\n                <button class=\"btn btn-primary\" type=\"button\" (click)=\"onSubmit(true)\" [disabled]=\"is_Checked !== true\" value=\"1\">OK</button>\r\n                <button class=\"btn btn-primary\" type=\"button\" (click)=\"onSubmit(false)\"  value=\"0\">Cancel</button>\r\n            </div>\r\n    </div>\r\n        <!--/form-->\r\n</div>"
 
 /***/ },
 /* 686 */
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"form-container\">\r\n  <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <!--h2 class=\"row text-center app_title\">Calculateur de devis</h2>\r\n    <div class=\"logo\">&nbsp;</div-->\r\n    <div *ngIf=\"error\" class=\"error\">\r\n      <span>Oups, nous avons eu un probleme de chargement des informations....</span>\r\n      <span>{{error}}</span>\r\n      \r\n      <a routerLink=\"/\">Retour a l'acceuil</a>\r\n    </div>\r\n\r\n    <div *ngIf=\"infos\" class=\"container-fluid\">\r\n            <!-- test only, cree un formulaire a partir des infos passées par le js \r\n            voir a mettre en forme les données.... -->\r\n            <dynamic-form [formulaire]=\"infos\" (submit)=\"next()\"></dynamic-form>\r\n            \r\n           \r\n    </div>\r\n    \r\n</div>"
+module.exports = "<div>\r\n    <div *ngIf=\"error\">\r\n        {{error}}\r\n    </div>\r\n    <form #devisForm=\"ngForm\" (ngSubmit)=\"onSubmit()\" [formGroup]=\"form\">\r\n        <div class=\"row panel-heading\">\r\n            <h3>{{formulaire.title}}</h3>\r\n            <div [innerHTML]=\"formulaire.description | safeHTML\"></div>\r\n        </div>\r\n        <div class=\"center-block\">\r\n            <div *ngFor='let field of formulaire.fields' class='form-row' class=\"row options-group\">\r\n            <df-question [question]=\"field\" [form]=\"form\"></df-question>\r\n            </div>\r\n        </div>\r\n        <div class=\"row next_step\">\r\n            <button class=\"btn-lg btn-primary btn-block\" type=\"submit\" [disabled]=\"devisForm.form?.valid == false\">Suivant</button>\r\n        </div>\r\n    </form>\r\n\r\n    <confirm-dlg [display]=\"show_confirm\" *ngIf=\"formulaire.confirm\" [confirm]=\"formulaire.confirm\" (onAnswered)=\"doSubmit($event)\"></confirm-dlg>\r\n</div>"
 
 /***/ },
 /* 687 */
 /***/ function(module, exports) {
 
-module.exports = "<div>\r\n    <div *ngIf=\"loading\" class=\"loading\">Loading&#8230;</div>\r\n    <h3 class=\"text-center\">Bienvenue dans l'application de generation de devis EXPEDOM.com</h3>\r\n    <p class=\"text-center\">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>\r\n\r\n    <div *ngIf='reload' class=\"overlay\" [class.open]=\"reload\">\r\n        <div >\r\n            <p>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</p>\r\n            <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span></p>\r\n            <button class=\"btn btn-primary\" (click)=\"reload_devis()\">Reprendre mon ancien devis</button>\r\n            \r\n            <button class=\"btn btn-primary\" (click)=\"annul_reload()\">Non merci!</button>\r\n           \r\n        </div>\r\n    </div>\r\n    <button class=\"btn btn-primary\" (click)=\"create_devis()\">Commencer un nouveau devis.</button>\r\n\r\n    <!--div class=\"old\" *ngIf=\"saved_devis.length > 0\">\r\n        <h3>Vos anciens devis sauvegardés:</h3>\r\n        <ul>\r\n            <li *ngFor=\"let saved of saved_devis\" >\r\n                <a  (click)=\"to_generated( saved )\"><span>{{saved.date | date:mediumDate}}</span> Export de <span>{{saved | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{saved | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span>\r\n                </a>\r\n            </li>\r\n\r\n        </ul>\r\n    </div-->\r\n\r\n    <!--button (click)=\"delete_LS\">Efface tout ce qu'il y a en memoire....</button-->\r\n</div>"
+module.exports = "<div [formGroup]=\"form\" class=\"field\">\r\n      <div [ngSwitch]=\"question.type\">\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'text'\" class=\"form-group\">\r\n        \r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <input  [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                     -->\r\n        <div class=\"schrink\">\r\n            <div class=\"input-container\">\r\n                <label>{{question.title}}</label>  \r\n                <input #texted type=\"text\"  \r\n                [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" type=\"text\" \r\n                    [(ngModel)]=\"question.__value\"\r\n                    [placeholder]=\"question.description\"\r\n                    >\r\n                      \r\n            </div>\r\n            <!--span>(<small>{{question.description}}</small>)</span-->\r\n        </div>\r\n                    \r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'number'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                    <label>{{question.title}}</label>\r\n                    <input #texted type=\"text\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"number\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        [placeholder]=\"question.description\"\r\n                        >\r\n                            \r\n                </div>\r\n                <!--span>(<small>{{question.description}}</small>)</span-->\r\n            </div>\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'email'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class=\"input-container\">\r\n                     <label>{{question.title}}</label>   \r\n                    <input #texted type=\"text\" \r\n                    [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" type=\"email\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        [placeholder]=\"question.description\"\r\n                        >\r\n                        \r\n                </div>\r\n                <!--span>(<small>{{question.description}}</small>)</span-->\r\n            </div>\r\n\r\n            \r\n        </div>\r\n\r\n\r\n        <div *ngSwitchCase=\"'textarea'\" class=\"form-group\">\r\n            <div  class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <label>{{question.title}}</label> \r\n                    <textarea #texted [formControlName]=\"question.id\"\r\n                        [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                         \r\n                         height=\"3em\"\r\n                         [placeholder]=\"question.description\"\r\n                        ></textarea>\r\n                       \r\n                </div>\r\n                <!--span>(<small>{{question.description}}</small>)</span-->\r\n            </div>\r\n\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <textarea [formControlName]=\"question.id\"\r\n                    [id]=\"question.id\" [(ngModel)]=\"question.__value\"\r\n                    class='form-control form-control-lg' required\r\n                    ></textarea-->\r\n        </div>\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'select'\" class=\"form-group\">\r\n            <div class=\"schrink\">\r\n                <div class='input-container'>\r\n                    <label>{{question.title}}</label> \r\n                    <p>{{question.description}}</p>\r\n                    <select #texted [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n                      >\r\n                            <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n                    </select>\r\n                       \r\n                </div>\r\n                <!--span>(<small>{{question.description}}</small>)</span-->\r\n            </div>\r\n            <!--label [attr.for]=\"question.id\">{{question.title}}</label>\r\n            <span>(<small>{{question.description}}</small>)</span>\r\n            <select [id]=\"question.id\"  [formControlName]=\"question.id\" [(ngModel)]=\"question.__value\" \r\n             class=\"form-control\" required>\r\n                <option *ngFor=\"let opt of question.options\" [value]=\"opt.value\">{{opt.label}}</option>\r\n            </select-->\r\n        </div>\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        \r\n        <div *ngSwitchCase=\"'radio'\" class=\"text-center\">\r\n              \r\n                  <h3 class=\"row text-center\">{{question.title}}</h3>\r\n                  <p class=\"row\">{{question.description}}</p>\r\n                  <div class=\"choice-cmp inline\"><!-- [class.inline]=\"question.options.length<3\"-->\r\n                    <div class=\"text-left\"  *ngFor=\"let it of question.options\">                        \r\n                        \r\n                            <label> <input   [formControlName]=\"question.id\"                        \r\n                            type=\"radio\" \r\n                            [(ngModel)]=\"question.__value\"\r\n                            [value]=\"it.value\"><!--\r\n                            \r\n                            class=\" check-container radio\"\r\n                            --><div class=\" check-container radio\"></div><span>{{it.label}}</span></label>    \r\n                            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n                    </div>    \r\n                    \r\n                </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n         <div *ngSwitchCase=\"'checkbox'\" class=\"choice-cmp\">\r\n                                                    \r\n                      <label > \r\n                        <input  [formControlName]=\"question.id\"                        \r\n                         type=\"checkbox\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"question.selected\"\r\n                         \r\n                        \r\n                    ><div class=\" check-container check\"></div><span>{{question.title}}</span></label>    \r\n                    <span class=\"check_clear\"><small>{{question.description}}</small></span>\r\n                 \r\n            \r\n        </div>\r\n\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'arbo-radio'\">\r\n                <df-arbo-question [question]=\"question\" [groupName]=\"'trigger'\" [options]=\"question\" [form]=\"form\" [ctrlActive]=\"true\"></df-arbo-question>            \r\n        </div>\r\n        <div *ngSwitchCase=\"'arbo2-radio'\">\r\n                <df-arbo2-question [question]=\"question\" [groupName]=\"'trigger'\" [options]=\"question\" [form]=\"form\" [ctrlActive]=\"true\"></df-arbo2-question>            \r\n        </div>\r\n\r\n\r\n\r\n\r\n\r\n        <div *ngSwitchCase=\"'gps'\">\r\n            <dyna-gps [question]=\"question\" [form]=\"form\"></dyna-gps>\r\n        </div>\r\n\r\n\r\n\r\n        <div class=\"row options-group\" *ngSwitchCase=\"'category-radio'\">\r\n              \r\n            <div class=\"form-check\" *ngFor=\"let it of question.options\">\r\n                \r\n                  <h3 class=\"panel-heading\">{{it.label}}</h3>\r\n                      <label class=\"form-check-label\" *ngFor=\"let opt of it.options\">              \r\n                        <input [formControlName]=\"question.id\"                        \r\n                         type=\"radio\" \r\n                         [(ngModel)]=\"question.__value\"\r\n                         [value]=\"opt.value\"\r\n                         required\r\n                            class=\"form-check-input\">\r\n                        {{opt.label}}</label>    \r\n                                     \r\n            </div>\r\n              \r\n           \r\n            \r\n        </div>\r\n      </div>\r\n      <div *ngIf=\"isValid\"  class=\"alert\">\r\n        <ul>\r\n            <li *ngIf=\"error.required\">\r\n            Ce champs doit obligatoirement etre renseigné!\r\n            </li>\r\n            <li *ngIf=\"error.minlength\">\r\n            Ce champs doit faire plus de <span>{{error.minlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.maxlength\">\r\n            Ce champs doit faire moins de <span>{{error.maxlength.requiredLength}}</span> caractères.\r\n            </li>\r\n            <li *ngIf=\"error.pattern\">\r\n            Le contenu de ce champs n'est pas valide!\r\n            </li>\r\n\r\n            <li *ngIf=\"error.email\">\r\n            Merci d'indiquer une adresse mail valide.\r\n            </li>\r\n\r\n            <li *ngIf=\"error.min\">\r\n            Vous devez renseigner un nombre superieur à <span>{{error.min.requiredValue}}</span>.\r\n            </li>\r\n             <li *ngIf=\"error.max\">\r\n            Vous devez renseigner un nombre inferieur à <span>{{error.max.requiredValue}}</span>.\r\n            </li>\r\n        </ul>\r\n      </div>\r\n    \r\n        \r\n    </div>"
 
 /***/ },
 /* 688 */
+/***/ function(module, exports) {
+
+module.exports = " <fieldset  class=\"text-center \" [formGroup]=\"form\" ><!--[class.left]='groupName'-->\r\n    <div class=\"choice-cmp  hideIfInactive\" [class.revealIfActive]=\"ctrlActive\">\r\n    <div  class=\"text-left elems\" *ngFor=\"let it of options.options\">  \r\n    <!-- si une simple checkbox -->   \r\n                     \r\n                        \r\n                      \r\n                    \r\n    <div *ngIf=\"it.value\" >                      \r\n        <label > \r\n        \r\n            <input   [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            required\r\n            class=\" check-container radio\"\r\n            >\r\n            <span>{{it.label}}</span></label>\r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span> \r\n        <!--input  [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            class=\"form-check-input\"\r\n            required\r\n            >\r\n        {{it.label}}</label-->    \r\n    </div>\r\n    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????-->\r\n    <fieldset *ngIf=\"it.options\" class=\"form-group\" >\r\n    \r\n        <label class=\"sous-options\">\r\n            <input   [formControlName]=\"groupName\" \r\n            type=\"radio\" \r\n            [attr.name]=\"groupName\"\r\n            [(ngModel)]=\"groupValue\"\r\n            (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n            #triggerer\r\n            class=\" check-container radio group\"\r\n            ><span>{{it.label}}</span></label> \r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n        <!--input type=\"radio\" [formControlName]=\"groupName\" \r\n        [attr.name]=\"groupName\"\r\n        [(ngModel)]=\"groupValue\"\r\n        (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n        #trigger\r\n        >{{it.label}}</label>\r\n        <span>{{trigger.checked}}</span-->\r\n        <df-arbo-question [question]=\"question\" [groupName]=\"it.label\" [options]=\"it\" [form]=\"form\" \r\n            [ctrlActive]=\"triggerer.checked\"></df-arbo-question>\r\n        \r\n    </fieldset>         \r\n\r\n\r\n    </div>\r\n    </div>\r\n</fieldset>"
+
+/***/ },
+/* 689 */
+/***/ function(module, exports) {
+
+module.exports = " <fieldset  class=\"text-center \" [formGroup]=\"form\" ><!--[class.left]='groupName'-->\r\n\r\n <div  *ngFor=\"let level of groups_level\">\r\n     <div [class.hideIfInactive]=\"level.parent!=null && form.controls[level.parent].value != level.groupName \">\r\n        <div *ngIf=\"level.title\" [id]=\"level.title\">\r\n            <small>merci de préciser:</small><h3>{{level.title}}</h3>\r\n        </div>\r\n        \r\n        <div class=\"choice-cmp inline\">\r\n            <div  *ngFor=\"let it of level.options\" >\r\n                <div *ngIf=\"!it.isGroup\">\r\n                    <label > \r\n                        <input   [formControlName]=\"question.id\"                        \r\n                        type=\"radio\" \r\n                        [(ngModel)]=\"question.__value\"\r\n                        (change)=\"clear_groups(level)\"\r\n                        [value]=\"it.value\"\r\n                        [attr.name]=\"question.id\">\r\n                        \r\n                        <!--\r\n                            \r\n                            class=\" check-container radio\"\r\n                            --><div class=\" check-container radio\"></div><span>{{it.label}}</span></label>\r\n                        <span><small>{{it.description}}</small></span>\r\n                        \r\n                </div>\r\n                <div *ngIf=\"it.isGroup\">\r\n                    <label > \r\n                        <input   [formControlName]=\"it.groupName\"                        \r\n                        type=\"radio\" \r\n                        \r\n                        (change)=\"annul(it.label)\"\r\n                        [value]=\"it.value\"\r\n                        [attr.name]=\"it.groupName\">\r\n                        \r\n                        <!--\r\n                            \r\n                            class=\" check-container radio\"\r\n                            --><div class=\" check-container radio group\"></div><span>{{it.label}}</span></label>\r\n                        <span><small>{{it.description }}</small></span>\r\n                </div>\r\n            </div>\r\n        </div>\r\n    </div>\r\n</div>\r\n    <!--div class=\"choice-cmp inline hideIfInactive\" [class.revealIfActive]=\"ctrlActive\">\r\n    <div  class=\"text-left elems\" *ngFor=\"let it of options.options\">  \r\n    <!-- si une simple checkbox \r\n                     \r\n                        \r\n                      \r\n                    \r\n    <div *ngIf=\"it.value\" >                      \r\n        <label > \r\n        \r\n            <input   [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            required\r\n            class=\" check-container radio\"\r\n            >\r\n            <span>{{it.label}}</span></label>\r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span> \r\n        <!--input  [formControlName]=\"question.id\"                        \r\n            type=\"radio\" \r\n            [(ngModel)]=\"question.__value\"\r\n            (change)=\"clear_groups()\"\r\n            [value]=\"it.value\"\r\n            [attr.name]=\"question.id\"\r\n            class=\"form-check-input\"\r\n            required\r\n            >\r\n        {{it.label}}</label\r\n    </div>\r\n    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????\r\n    <fieldset *ngIf=\"it.options\" class=\"form-group\" >\r\n    \r\n        <label class=\"sous-options\">\r\n            <input   [formControlName]=\"groupName\" \r\n            type=\"radio\" \r\n            [attr.name]=\"groupName\"\r\n            [(ngModel)]=\"groupValue\"\r\n            (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n            #triggerer\r\n            class=\" check-container radio group\"\r\n            ><span>{{it.label}}</span></label> \r\n            <span><small>{{it.description || \"Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'\"}}</small></span>\r\n        <!--input type=\"radio\" [formControlName]=\"groupName\" \r\n        [attr.name]=\"groupName\"\r\n        [(ngModel)]=\"groupValue\"\r\n        (change)=\"annul()\" \r\n            [value]=\"it.label\"\r\n        #trigger\r\n        >{{it.label}}</label>\r\n        <span>{{trigger.checked}}</span\r\n        <df-arbo-question [question]=\"question\" [groupName]=\"it.label\" [options]=\"it\" [form]=\"form\" \r\n            [ctrlActive]=\"triggerer.checked\"></df-arbo-question>\r\n        \r\n    </fieldset>         \r\n\r\n\r\n    </div>\r\n    </div-->\r\n</fieldset>"
+
+/***/ },
+/* 690 */
+/***/ function(module, exports) {
+
+module.exports = "<div [formGroup]=\"form\" class=\"border\">\r\n\r\n\r\n            <!-- affichage des tabs pour les choix -->\r\n           \r\n        <div class=\"tabs\">\r\n            <div class=\"tab\" *ngFor=\"let qfilter of question.options\">\r\n\r\n               \r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    [value]=\"qfilter.label\"                \r\n                    #trigger>\r\n                <span>{{qfilter.label}}</span></label>\r\n               \r\n                \r\n                \r\n\r\n                <div class=\"content\" *ngIf=\"qfilter.locations && trigger.checked\">\r\n                     <p>{{qfilter.description}}</p>\r\n                      <div class=\"schrink  inline\" *ngIf=\"question['use-text-filter'] == '1' \">\r\n                        \r\n                        <div class=\"input-container\">\r\n                            <label>{{question.title}}</label>\r\n                            <input \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"\r\n                                >\r\n                               \r\n                           \r\n                        </div>\r\n                        <a class=\"btn btn-primary\" style=\"padding-bottom:11px\" (click)=\"search = null\">Reset</a>  \r\n                          \r\n                    </div>\r\n\r\n\r\n                    <!--input *ngIf=\"question['use-text-filter']\" \r\n\r\n                            type=\"text\" \r\n                            list=\"choices\"\r\n                            [(ngModel)]=\"search\" \r\n                            [formControlName]=\"search_form_ctrl\"\r\n                            placeholder=\"Entrez les premieres lettres\"-->\r\n                    <datalist id=\"choices\">\r\n                        <option *ngFor=\"let l of filtered_datalist\" [value]=\"l\">\r\n                    </datalist>\r\n                </div>\r\n            </div>\r\n            <!-- dernier choix, le domicile -->\r\n\r\n            <div *ngIf=\"noGeo == true\" class=\"tab\">\r\n                <label>\r\n                <input type=\"radio\" [(ngModel)]=\"filter\" \r\n                    [formControlName]=\"filter_form_ctrl\"\r\n                    [attr.name]=\"filter_form_ctrl\"\r\n                    value=\"domicile\"                \r\n                    #trigger><span>Domicile</span></label>\r\n                \r\n\r\n\r\n                <div class=\"content\" *ngIf=\"trigger.checked\">\r\n                        <div>\r\n                            <div *ngIf=\"!position\">\r\n                                <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>\r\n                            </div>\r\n                            <div *ngIf=\"position\">\r\n                                \r\n                                        <span *ngIf=\"!position.zipcode && !position.city\">\r\n                                            <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>\r\n                                        </span>\r\n                                        <span *ngIf=\"position.zipcode\">Vous avez été géolocalisé: <strong>{{position.name+\"(\"+position.zipcode+\")\"}}</strong></span>\r\n                                        \r\n                                    \r\n                                \r\n                            </div>      \r\n                        </div>\r\n                        <div class=\"inline-form\">\r\n                           \r\n                                <div class=\"input-container\">\r\n                                    <!--input type=\"text\" value=\"Un autre departement\" #zipcode [(NgValue)]=\"srch_zipcode\" [value]=\"srch_zipcode || '' \"\r\n                                    [class.full]=\"zipcode.value!=''\"-->\r\n                                     <label>Entrez votre adresse.</label>  \r\n                                     <input type=\"text\" value=\"Un autre departement\" #zipcode [value]=\"srch_zipcode || ''\" \r\n                                    [class.ng-valid]=\"zipcode.value!=''\" >\r\n                                         \r\n                                </div>\r\n                                <button type=\"button\" class='btn btn-primary' (click)=\"localise_from_zipcode(zipcode.value)\">Localisation</button>\r\n                        \r\n                                \r\n                        </div>\r\n                        \r\n                </div>\r\n            </div>\r\n        </div>\r\n\r\n       \r\n\r\n\r\n\r\n\r\n\r\n        \r\n\r\n        <sebm-google-map [latitude]=\"question?.default_location.lat\" [longitude]=\"question?.default_location.lng\"\r\n            [zoom]=\"question?.default_location.zoom || 6\"\r\n            (mapClick)=\"positionne_marker($event)\"\r\n            >\r\n            <div *ngFor=\"let opt of filtered_options\">\r\n\r\n                   \r\n\r\n\r\n            \r\n                <!-- les ports et les depots -->\r\n                <div *ngIf=\"filter!='domicile'\">\r\n                    <sebm-google-map-marker  *ngFor=\"let m of opt.locations\"\r\n                        [latitude]=\"m?.lat\" [longitude]=\"m?.lng\" \r\n                        [iconUrl]=\"opt.label | toIconUrl\"\r\n                        (markerClick)=\"check_options(m)\">\r\n\r\n                        <!-- si une seule reponse, affiche directement l'infos window???  -->\r\n                        <sebm-google-map-info-window [isOpen]=\"opt.locations.length == 1 || m.open_window\">\r\n                            <div class=\"infos\">\r\n                                <strong>{{m?.label}}</strong>\r\n                                <p>{{m?.description}}</p>\r\n                                <fieldset>\r\n                                    <div  *ngFor=\"let price of m?.options\">\r\n                                        <label ><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        ><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                                </fieldset>\r\n                            </div>\r\n                        </sebm-google-map-info-window>   \r\n\r\n                    </sebm-google-map-marker>\r\n                </div>\r\n\r\n                \r\n                </div>\r\n             <div  *ngIf=\"noGeo==true && filter=='domicile' && position\">\r\n                        \r\n                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->\r\n                        <sebm-google-map-marker  [latitude]=\"position?.lat\" [longitude]=\"position?.lng\"\r\n                        [iconUrl]=\"'domicile' | toIconUrl\">\r\n                            <sebm-google-map-info-window   [isOpen]=\"position\" >\r\n                            <div class=\"infos\">\r\n                                <strong>{{question.default_location?.label}}</strong>\r\n                                <p>{{question.default_location?.description}}</p>\r\n\r\n                                <fieldset *ngIf=\"position.options\">\r\n                                    <div  *ngFor=\"let price of position?.options\">\r\n                                        <label><input [formControlName]=\"question.id\"                        \r\n                                        type=\"radio\" \r\n                                        [(ngModel)]=\"question.__value\"\r\n                                        [value]=\"price.value\"\r\n                                        class=\"form-check-input\"\r\n                                        ><span class=\"btn btn-primary\">{{price.description}}</span></label>\r\n                                    </div>\r\n                            \r\n                                </fieldset>\r\n                                <div *ngIf=\"!position.options\">\r\n                                    <span *ngIf=\"!position.error\" class=\"fa fa-spin fa-gear\"></span>\r\n                                    <span *ngIf=\"position.error\">{{position.error}}</span>\r\n                                </div>\r\n                            </div>\r\n\r\n                                \r\n                            </sebm-google-map-info-window> \r\n                        </sebm-google-map-marker>\r\n                </div>\r\n\r\n            \r\n        \r\n        </sebm-google-map>\r\n    </div>"
+
+/***/ },
+/* 691 */
+/***/ function(module, exports) {
+
+module.exports = "<div>\r\n    <h2 class=\"row text-center app_title\">Devis/Cotation</h2>\r\n    <!--div class=\"logo\">&nbsp;</div-->\r\n    <div *ngIf=\"loading\" class=\"simpleLoader inflow\">\r\n    <div class=\"btPreloader\">\r\n    \r\n      <div class=\"btLoader\"></div> \r\n      <p>Chargement de votre devis, merci de patienter quelques instants....</p>\r\n    </div>\r\n\r\n\r\n  </div>\r\n    <div *ngIf='!loading'>\r\n            \r\n            <h5>Pour un transport de <strong>{{workflow | GetDevisDetailsPipe:'form_marchandise':'marchandise'}}</strong> au départ de <strong>{{workflow | GetDevisDetailsPipe:'form_from':'from'}}</strong> et à destination de \r\n            <strong>{{workflow | GetDevisDetailsPipe:'form_to':'to'}}</strong></h5>\r\n            \r\n            <label class=\"simplecheck\"><input type=\"checkbox\" name=\"details\" [(ngModel)]=\"show_details\"><span class=\"btn btn-primary \">Voir les details de ma commande.</span></label>\r\n            <table class=\"recap\" [class.hidden]=\"!show_details\">\r\n                <div class=\"form_infos card\" *ngFor=\"let form of workflow\">\r\n                    <!-- le nom du formulaire -->\r\n                    <tr><td  colspan=\"2\" class=\"form_title\">{{form.title}}</td></tr>\r\n                    <tr class=\"form_fields\" *ngFor=\"let field of form.fields\">\r\n                        <td class=\"field_label\">{{field.title}}</td><td class=\"field_value\">{{field.value_label}}</td>\r\n                        \r\n                    </tr>\r\n                    \r\n                </div>\r\n            </table>\r\n            \r\n            \r\n\r\n            <div id=\"results\" *ngIf=\"devis_details\">\r\n            <h3>Votre estimation: </h3>\r\n            <!--div id=\"actions\">\r\n                <!--button *ngIf=\"has_IDB && devis_infos?.date==null\" class=\"btn btn-primary wide\" (click)=\"save_devis()\">Sauvegarder le devis</button--\r\n                <a class=\"btn btn-primary btn-action btn-lg \" [href]='pdf_file' target=\"_blank\">Telecharger le devis en pdf</a>\r\n                <a  class=\"btn btn-primary btn-action btn-lg \" [href]=\"'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID\" >reservez maintenant!</a>\r\n                <button class=\"btn btn-primary\" (click)=\"create_devis()\">Nouveau devis</button>\r\n            </div-->\r\n            <table class=\"recap\">\r\n                <div class=\"card\">\r\n                <tr><td  colspan=\"2\" class=\"form_title\">Depuis Lieu de prise en charge jusqu'a rendu bord navire/port d'arrivée</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Port de depart:</td><td class=\"field_value\">{{devis_details.PORT_DE_DEPART}}</td></tr>\r\n                \r\n                 <tr class=\"form_fields\"><td class=\"field_label\">Prise en charge </td><td class=\"field_value\">{{devis_details.PEC | number:'2.2-2' || 'non applicable'}}€</td></tr>\r\n                 <tr class=\"form_fields\"><td class=\"field_label\">Prix du transport (port à port)</td><td class=\"field_value\">{{devis_details.P | number:'2.2-2'}}€</td></tr>\r\n                 <tr class=\"form_fields\"><td class=\"field_label\">Assurance:</td><td class=\"field_value\">{{devis_details.A | number:'2.2-2'}}€</td></tr>\r\n                </div>\r\n\r\n                 <div class=\"card\">\r\n                <tr><td  colspan=\"2\" class=\"form_title\">Recapitulatif des taxes à titre indicatif</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Valeur de la marchandise:</td><td class=\"field_value\">{{devis_details.V | number:'2.2-2'}}€</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">valeur taxable sur marchandise:</td><td class=\"field_value\">{{devis_details.CAF | number:'2.2-2'}}€</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Taxe sur marchandise (<strong>TSM%</strong>):</td><td class=\"field_value\">{{devis_details.TSM | number:'2.2-2'}}€</td></tr>\r\n                \r\n                <tr class=\"form_fields\"><td class=\"field_label\">Montant TVA:(<strong>{{devis_details.TVA | number:'1.2-2' || 'non applicable'}}%</strong>)</td><td class=\"field_value\">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Montant Octroi de mer (<strong>{{devis_details.OM?.om | number:'1.2-2'}}%</strong>):</td><td class=\"field_value\">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}%</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Montant Octroi de mer regionnal (<strong>{{devis_details.OM?.omr | number:'1.2-2'}}%</strong>):</td><td class=\"field_value\">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Total des Droits et taxe de douane:</td><td class=\"field_value\">{{devis_details.TAXES | number:'2.2-2'}}€</td></tr>\r\n                \r\n                </div>\r\n\r\n                 <div class=\"card\">\r\n                <tr><td  colspan=\"2\" class=\"form_title\">Depuis bord navire/port d'arrivée jusqu'a lieu de livraison</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Frais de dégroupage & Dédouanement:</td><td class=\"field_value\">{{devis_details.FR | number:'2.2-2'}}€</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Montant TVA sur prestation (<strong>{{devis_details.TVA_RU | number:'1.2-2'}}%</strong>):</td><td class=\"field_value\">{{devis_details.TVA_RU_VALUE | number:'2.2-2'}}€</td></tr>\r\n                \r\n                <tr class=\"form_fields\"><td class=\"field_label\">Livraison à domicile</td><td class=\"field_value\">{{devis_details.PT | number:'2.2-2'}}€</td></tr>\r\n                <tr class=\"form_fields\"><td class=\"field_label\">Total taxes locales:</td><td class=\"field_value\">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</td></tr>\r\n                </div>\r\n            \r\n                 <div class=\"card result\">\r\n                <tr class=\"form_fields\"><td class=\"field_label result\">Total à payer:</td><td class=\"field_value result\">{{devis_details.TOTAL_A_PAYER | number:'2.2-2'}}€</td></tr>\r\n                </div>\r\n            </table>\r\n            \r\n            </div>\r\n            <div id=\"actions\" class=\"card\">\r\n                <!--button *ngIf=\"has_IDB && devis_infos?.date==null\" class=\"btn btn-primary wide\" (click)=\"save_devis()\">Sauvegarder le devis</button-->\r\n                <a class=\"btn btn-primary\" [href]='pdf_file' target=\"_blank\"><i class=\"fa fa-file-pdf-o\"></i> Telecharger le devis en pdf</a>\r\n                <a  class=\"btn btn-primary btn-action btn-lg \" [href]=\"'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID\" ><i class=\"fa fa-calendar\"></i> reservez maintenant!</a>\r\n                <button class=\"btn btn-primary\" (click)=\"create_devis()\">Nouveau devis</button>\r\n            </div>\r\n            <!--div id=\"actions\">\r\n                <div class=\"card action\">\r\n                    <a  [href]='pdf_file' target=\"_blank\"><i class=\"fa fa-file-pdf-o\"></i></a>\r\n                    <p>Télécharger le devis en version PDF</p>\r\n                </div>\r\n                <div class=\"card action\">\r\n                    <a class=\"wide\" [href]=\"'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID\" ><i class=\"fa fa-calendar\"></i></a>\r\n                    <p>Reservez maintenant votre transport</p>\r\n                </div>\r\n                <div class=\"card action discreet\">\r\n                    <a (click)=\"create_devis()\"><i class=\"fa fa-file-o\"></i></a>\r\n                    <p>Recréer un nouveau devis</p>\r\n                </div>\r\n               \r\n            </div-->\r\n        </div>\r\n</div>"
+
+/***/ },
+/* 692 */
+/***/ function(module, exports) {
+
+module.exports = "<div class=\"form-container\">\r\n  <div *ngIf=\"loading\" class=\"simpleLoader\">\r\n    <div class=\"btPreloader\">\r\n    \r\n      <div class=\"btLoader\"></div> \r\n    </div>\r\n  </div>\r\n    <!--h2 class=\"row text-center app_title\">Calculateur de devis</h2>\r\n    <div class=\"logo\">&nbsp;</div-->\r\n    <div *ngIf=\"error\" class=\"error\">\r\n      <span>Oups, nous avons eu un probleme de chargement des informations....</span>\r\n      <span>{{error}}</span>\r\n      \r\n      <a routerLink=\"/\">Retour a l'acceuil</a>\r\n    </div>\r\n\r\n    <div *ngIf=\"infos\" class=\"container-fluid\">\r\n       <div *ngIf=\"prec_form_name\" style=\"width: 100%; text-align:left;\"> <button type=\"button\" (click)=\"back()\" class=\"btn btn-primary\"><i class=\"fa fa-arrow-left\"></i> Retour à: {{prec_form_name}} </button></div>\r\n            <!-- test only, cree un formulaire a partir des infos passées par le js \r\n            voir a mettre en forme les données.... -->\r\n            <dynamic-form [formulaire]=\"infos\" (submitted)=\"next()\"></dynamic-form>\r\n            \r\n           \r\n    </div>\r\n    \r\n</div>"
+
+/***/ },
+/* 693 */
+/***/ function(module, exports) {
+
+module.exports = "<div>\r\n    <div *ngIf=\"loading\" class=\"simpleLoader\">\r\n    <div class=\"btPreloader\">\r\n    \r\n      <div class=\"btLoader\"></div> \r\n    </div>\r\n  </div>\r\n    <h3 class=\"text-center\">Bienvenue dans l'application de generation de devis EXPEDOM.com</h3>\r\n    <p class=\"text-center\">lore ipsum dolore sit amet, lore ipsum dolore sit amet, lore ipsum dolore sit amet</p>\r\n\r\n    <div *ngIf='reload' class=\"overlay\" [class.open]=\"reload\">\r\n        <div >\r\n            <h4>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</h4>\r\n            <p>Export de <span>{{__reloaded | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{__reloaded | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{__reloaded | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span></p>\r\n            <button class=\"btn btn-primary\" (click)=\"reload_devis()\">Reprendre mon ancien devis</button>\r\n            <p>ou</p>\r\n            \r\n           \r\n        </div>\r\n    </div>\r\n    <button class=\"btn btn-primary\" (click)=\"create_devis()\">Commencer un nouveau devis.</button>\r\n\r\n    <!--div class=\"old\" *ngIf=\"saved_devis.length > 0\">\r\n        <h3>Vos anciens devis sauvegardés:</h3>\r\n        <ul>\r\n            <li *ngFor=\"let saved of saved_devis\" >\r\n                <a  (click)=\"to_generated( saved )\"><span>{{saved.date | date:mediumDate}}</span> Export de <span>{{saved | GetDevisDetailsPipe:\"form_marchandise\":\"marchandise\"}}\r\n                    </span> depuis: <span>{{saved | GetDevisDetailsPipe:\"form_from\":\"from\"}}</span> vers: <span>{{saved | GetDevisDetailsPipe:\"form_to\":\"to\"}}</span>\r\n                </a>\r\n            </li>\r\n\r\n        </ul>\r\n    </div-->\r\n\r\n    <!--button (click)=\"delete_LS\">Efface tout ce qu'il y a en memoire....</button-->\r\n</div>"
+
+/***/ },
+/* 694 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65632,7 +65790,7 @@ exports.InnerSubscriber = InnerSubscriber;
 //# sourceMappingURL=InnerSubscriber.js.map
 
 /***/ },
-/* 689 */
+/* 695 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65765,7 +65923,7 @@ exports.Notification = Notification;
 //# sourceMappingURL=Notification.js.map
 
 /***/ },
-/* 690 */
+/* 696 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -65779,7 +65937,7 @@ exports.empty = {
 //# sourceMappingURL=Observer.js.map
 
 /***/ },
-/* 691 */
+/* 697 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -65834,7 +65992,7 @@ exports.Scheduler = Scheduler;
 //# sourceMappingURL=Scheduler.js.map
 
 /***/ },
-/* 692 */
+/* 698 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65880,18 +66038,18 @@ exports.SubjectSubscription = SubjectSubscription;
 //# sourceMappingURL=SubjectSubscription.js.map
 
 /***/ },
-/* 693 */
+/* 699 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var throw_1 = __webpack_require__(704);
+var throw_1 = __webpack_require__(710);
 Observable_1.Observable.throw = throw_1._throw;
 //# sourceMappingURL=throw.js.map
 
 /***/ },
-/* 694 */
+/* 700 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65903,29 +66061,29 @@ Observable_1.Observable.prototype._catch = catch_1._catch;
 //# sourceMappingURL=catch.js.map
 
 /***/ },
-/* 695 */
+/* 701 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var debounceTime_1 = __webpack_require__(705);
+var debounceTime_1 = __webpack_require__(711);
 Observable_1.Observable.prototype.debounceTime = debounceTime_1.debounceTime;
 //# sourceMappingURL=debounceTime.js.map
 
 /***/ },
-/* 696 */
+/* 702 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var distinctUntilChanged_1 = __webpack_require__(706);
+var distinctUntilChanged_1 = __webpack_require__(712);
 Observable_1.Observable.prototype.distinctUntilChanged = distinctUntilChanged_1.distinctUntilChanged;
 //# sourceMappingURL=distinctUntilChanged.js.map
 
 /***/ },
-/* 697 */
+/* 703 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65936,18 +66094,18 @@ Observable_1.Observable.prototype.map = map_1.map;
 //# sourceMappingURL=map.js.map
 
 /***/ },
-/* 698 */
+/* 704 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
 var Observable_1 = __webpack_require__(5);
-var switchMap_1 = __webpack_require__(712);
+var switchMap_1 = __webpack_require__(718);
 Observable_1.Observable.prototype.switchMap = switchMap_1.switchMap;
 //# sourceMappingURL=switchMap.js.map
 
 /***/ },
-/* 699 */
+/* 705 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -65958,7 +66116,7 @@ Observable_1.Observable.prototype.toPromise = toPromise_1.toPromise;
 //# sourceMappingURL=toPromise.js.map
 
 /***/ },
-/* 700 */
+/* 706 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66034,7 +66192,7 @@ exports.ArrayLikeObservable = ArrayLikeObservable;
 //# sourceMappingURL=ArrayLikeObservable.js.map
 
 /***/ },
-/* 701 */
+/* 707 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66122,7 +66280,7 @@ exports.ErrorObservable = ErrorObservable;
 //# sourceMappingURL=ErrorObservable.js.map
 
 /***/ },
-/* 702 */
+/* 708 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66135,12 +66293,12 @@ var __extends = (this && this.__extends) || function (d, b) {
 var isArray_1 = __webpack_require__(243);
 var isPromise_1 = __webpack_require__(390);
 var PromiseObservable_1 = __webpack_require__(382);
-var IteratorObservable_1 = __webpack_require__(703);
+var IteratorObservable_1 = __webpack_require__(709);
 var ArrayObservable_1 = __webpack_require__(380);
-var ArrayLikeObservable_1 = __webpack_require__(700);
+var ArrayLikeObservable_1 = __webpack_require__(706);
 var iterator_1 = __webpack_require__(238);
 var Observable_1 = __webpack_require__(5);
-var observeOn_1 = __webpack_require__(710);
+var observeOn_1 = __webpack_require__(716);
 var observable_1 = __webpack_require__(239);
 var isArrayLike = (function (x) { return x && typeof x.length === 'number'; });
 /**
@@ -66244,7 +66402,7 @@ exports.FromObservable = FromObservable;
 //# sourceMappingURL=FromObservable.js.map
 
 /***/ },
-/* 703 */
+/* 709 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66407,17 +66565,17 @@ function sign(value) {
 //# sourceMappingURL=IteratorObservable.js.map
 
 /***/ },
-/* 704 */
+/* 710 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var ErrorObservable_1 = __webpack_require__(701);
+var ErrorObservable_1 = __webpack_require__(707);
 exports._throw = ErrorObservable_1.ErrorObservable.create;
 //# sourceMappingURL=throw.js.map
 
 /***/ },
-/* 705 */
+/* 711 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66428,7 +66586,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subscriber_1 = __webpack_require__(22);
-var async_1 = __webpack_require__(716);
+var async_1 = __webpack_require__(722);
 /**
  * Emits a value from the source Observable only after a particular time span
  * has passed without another source emission.
@@ -66539,7 +66697,7 @@ function dispatchNext(subscriber) {
 //# sourceMappingURL=debounceTime.js.map
 
 /***/ },
-/* 706 */
+/* 712 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66622,7 +66780,7 @@ var DistinctUntilChangedSubscriber = (function (_super) {
 //# sourceMappingURL=distinctUntilChanged.js.map
 
 /***/ },
-/* 707 */
+/* 713 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66721,7 +66879,7 @@ var FilterSubscriber = (function (_super) {
 //# sourceMappingURL=filter.js.map
 
 /***/ },
-/* 708 */
+/* 714 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66875,7 +67033,7 @@ var FirstSubscriber = (function (_super) {
 //# sourceMappingURL=first.js.map
 
 /***/ },
-/* 709 */
+/* 715 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -66999,7 +67157,7 @@ var LastSubscriber = (function (_super) {
 //# sourceMappingURL=last.js.map
 
 /***/ },
-/* 710 */
+/* 716 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67010,7 +67168,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Subscriber_1 = __webpack_require__(22);
-var Notification_1 = __webpack_require__(689);
+var Notification_1 = __webpack_require__(695);
 /**
  * @see {@link Notification}
  *
@@ -67080,7 +67238,7 @@ exports.ObserveOnMessage = ObserveOnMessage;
 //# sourceMappingURL=observeOn.js.map
 
 /***/ },
-/* 711 */
+/* 717 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67198,7 +67356,7 @@ exports.ReduceSubscriber = ReduceSubscriber;
 //# sourceMappingURL=reduce.js.map
 
 /***/ },
-/* 712 */
+/* 718 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67343,7 +67501,7 @@ var SwitchMapSubscriber = (function (_super) {
 //# sourceMappingURL=switchMap.js.map
 
 /***/ },
-/* 713 */
+/* 719 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67393,7 +67551,7 @@ exports.Action = Action;
 //# sourceMappingURL=Action.js.map
 
 /***/ },
-/* 714 */
+/* 720 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67404,7 +67562,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var root_1 = __webpack_require__(49);
-var Action_1 = __webpack_require__(713);
+var Action_1 = __webpack_require__(719);
 /**
  * We need this JSDoc comment for affecting ESDoc.
  * @ignore
@@ -67541,7 +67699,7 @@ exports.AsyncAction = AsyncAction;
 //# sourceMappingURL=AsyncAction.js.map
 
 /***/ },
-/* 715 */
+/* 721 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67551,7 +67709,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Scheduler_1 = __webpack_require__(691);
+var Scheduler_1 = __webpack_require__(697);
 var AsyncScheduler = (function (_super) {
     __extends(AsyncScheduler, _super);
     function AsyncScheduler() {
@@ -67598,18 +67756,18 @@ exports.AsyncScheduler = AsyncScheduler;
 //# sourceMappingURL=AsyncScheduler.js.map
 
 /***/ },
-/* 716 */
+/* 722 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 "use strict";
-var AsyncAction_1 = __webpack_require__(714);
-var AsyncScheduler_1 = __webpack_require__(715);
+var AsyncAction_1 = __webpack_require__(720);
+var AsyncScheduler_1 = __webpack_require__(721);
 exports.async = new AsyncScheduler_1.AsyncScheduler(AsyncAction_1.AsyncAction);
 //# sourceMappingURL=async.js.map
 
 /***/ },
-/* 717 */
+/* 723 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -67640,7 +67798,7 @@ exports.UnsubscriptionError = UnsubscriptionError;
 //# sourceMappingURL=UnsubscriptionError.js.map
 
 /***/ },
-/* 718 */
+/* 724 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -67652,7 +67810,7 @@ exports.isObject = isObject;
 //# sourceMappingURL=isObject.js.map
 
 /***/ },
-/* 719 */
+/* 725 */
 /***/ function(module, exports) {
 
 "use strict";
@@ -67664,7 +67822,7 @@ exports.isScheduler = isScheduler;
 //# sourceMappingURL=isScheduler.js.map
 
 /***/ },
-/* 720 */
+/* 726 */
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -67689,8 +67847,8 @@ exports.toSubscriber = toSubscriber;
 //# sourceMappingURL=toSubscriber.js.map
 
 /***/ },
-/* 721 */,
-/* 722 */
+/* 727 */,
+/* 728 */
 /***/ function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {/**
@@ -69120,15 +69278,15 @@ if (_global['navigator'] && _global['navigator'].geolocation) {
 
 })));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50), __webpack_require__(674)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(50), __webpack_require__(675)))
 
 /***/ },
-/* 723 */
+/* 729 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(393);
 
 
 /***/ }
-],[723]);
+],[729]);
 //# sourceMappingURL=main.map

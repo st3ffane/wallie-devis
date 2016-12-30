@@ -157,12 +157,12 @@ position: relative;
     div:first-child{
       position: relative;
       &:after{
-        content:url('/wp-content/plugins/quote-generator/assets/img/meilleur-prix.svg');
+        content:url('/dev/wp-content/plugins/quote-generator/assets/img/meilleur-prix.svg');
         position: absolute;
         width: 45px;
         height: 45px;
         z-index:9999;
-        right:-10px;
+        right:-32px;
         top: -20px;
       }
     }

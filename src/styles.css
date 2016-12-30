@@ -24,6 +24,9 @@ select{
         
     
 }
+.gm-style-iw{
+  overflow:visible!important;
+}
 .gm-style-iw > div{
   overflow: visible!important;
 }
