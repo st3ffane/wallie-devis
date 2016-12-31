@@ -48,6 +48,8 @@ import {GMAP_KEY} from "./gmap.key";
 import {GetDevisResultPipe} from "./pipes/get.devis.result.pipe";
 import {ToIconUrlPipes} from "./dyna-forms/pipes/to.icon.url.pipe";
 import {SafeHtmlPipe} from "./pipes/safe.html.pipe";
+import {GpsOptionsPipe} from "./dyna-forms/pipes/gps.options.pipe";
+import {BooleanPipe} from "./pipes/boolean.pipe";
 
 
 //bootstrap 
@@ -108,6 +110,8 @@ let routes = RouterModule.forRoot([
     GetDevisResultPipe,
     ToIconUrlPipes,
     SafeHtmlPipe,
+    GpsOptionsPipe,
+    BooleanPipe,
     
     //AutoScrollComponent
     ConfirmDialog

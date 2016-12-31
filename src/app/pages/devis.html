@@ -27,6 +27,7 @@
                            
                                 <div [ngSwitch]="field['data-type']">
                                         <span *ngSwitchCase="'currency'"  >{{field.value_label | number:'2.2-2'}}€</span>
+                                        <span *ngSwitchCase="'boolean'"  >{{field.value_label | ouinon}}</span>
                                         <span *ngSwitchDefault >{{field.value_label}}</span>
                                 </div>
                             

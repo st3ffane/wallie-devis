@@ -126,13 +126,18 @@ export class GPSExpedomComponent{
         }
         //mappe les locations a afficher sur la map
         this.remap_options();
-    }
+    // }
 
-    ngAfterViewInit(){
+    // ngAfterViewInit(){
         //recupere les coordonnées GPS si dispo et les informations sur les prix d'enlevement/livraison 
         //a domicile
         //si a des valeurs en cache, met en place 
         let has_location = false;
+
+
+        console.log("cache datas: ");
+        console.log(this.question.__value);
+
 
         //DOIT PAS SE FAIRE ICI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if(this.question.__value){
@@ -141,7 +146,7 @@ export class GPSExpedomComponent{
             if(this.question.__value.startsWith("domicile")){
                 //recup de la geolocation
                 //2 cas, ou arrive par un prec, ou arrive par un reload???
-                
+                console.log("cache a domicile")
                 this.position = this.question.position;
 
                 
@@ -154,7 +159,7 @@ export class GPSExpedomComponent{
                             has_location = true; //annule le chargment
                         }
                     }
-                }
+            }/*
                 else if(this.position && this.position.latitude){
                     
                     has_location = true;//evite de relancer la geolocalisation
@@ -179,10 +184,12 @@ export class GPSExpedomComponent{
                     });
                 }
                 //recupere les valeurs 
-               
+               */
 
             } else {
                 //une reponse en cache, doit selectionner le filtre correspondant
+
+                
                 for (let filtre of this.question.options){
                     for(let opt of filtre.locations){
                         for(let v of opt.options){
@@ -212,6 +219,7 @@ export class GPSExpedomComponent{
             //VERIFIE SI LE PAYS EST BON.....
             if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
+                
             }
 
             console.log("valid!!!");
@@ -225,13 +233,14 @@ export class GPSExpedomComponent{
         })
         .then( (dt)=>{
                 //valide la position et enregistre
+               
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
             console.log("Error geolocalisation");
             console.log(err);
-            this.position=null;//objet vide???
-            // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+            //this.position=null;//objet vide???
+             this.position = {'error':err};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
 
@@ -425,17 +434,20 @@ export class GPSExpedomComponent{
             }*/
             this.position = rep;
             this.question["position"] = this.position;
-            console.log(rep);
             this.is_localising = false;
             return this._devis.load_domicile_prices(this.position);
             
         })
         .then( (dt)=>{
+            console.log("recentrage de la carte???");
                     this.position['options'] = dt;
+                    //recentre la carte
+                    // this.question.default_location.lat = this.position.lat;
+                    // this.question.default_location.lng = this.position.lng;
 
         }).catch( (err)=>{
             
-             this.position = {'error':"Nous n'avons pas pu recuperer les informations de tarifs à partir de votre localisation..."};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
+             this.position['price_error']="Nous n'avons pas pu recuperer les informations de tarifs à partir de votre localisation...";// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
        

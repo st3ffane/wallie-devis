@@ -867,6 +867,8 @@ export class DevisProvider {
                         "data-type":field["data-type"]
                     };
 
+                    //un cas particulier, les checkboxs
+                    
                     //probleme value_label: si options, doit recuperer le label de l'option 
                     if(field.options && field["value"]!=null){
                         
@@ -879,8 +881,11 @@ export class DevisProvider {
                     if(field["position"]) {
                         let pos = field["position"];
                         if (field["value"] && field["value"].startsWith("domicile")){
-                            //recherche dans les options de domicile                            
-                            obj["value_label"] = "Prise en charge à domicile ("+(pos['city']||pos['zipcode'])+")";
+                            //recherche dans les options de domicile  
+                            let infos =   pos['zipcode'];
+                            if(!infos) infos = pos['city'];
+                            else infos = infos.substr(0,2);                        
+                            obj["value_label"] = "Prise en charge à domicile ("+infos+")";
                         }
                         //un GPS!
                         
