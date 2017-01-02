@@ -278,10 +278,12 @@ export class GPSExpedomComponent{
         })
         .then( (dt)=>{
                     this.position['options'] = dt;
+                    this.domicileMarker.open();
 
         }).catch( (err)=>{
             
-            
+            console.log(err);
+            this.position.price_error = "Erreur lors de la recherche des tarifs...";
              //this.position = {};//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
@@ -454,7 +456,8 @@ export class GPSExpedomComponent{
                     // this.question.default_location.lng = this.position.lng;
 
         }).catch( (err)=>{
-            
+            console.log("erreur");
+            console.log(err);
              this.position['price_error']="Nous n'avons pas pu recuperer les informations de tarifs à partir de votre localisation...";// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });

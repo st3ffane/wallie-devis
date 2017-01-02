@@ -25,7 +25,6 @@ export class GmapGeocodeProvider {
     public geolocalise(){
 
         if(this.cached_position) {
-            console.log("get from cache")
             return Promise.resolve(this.cached_position);//renvoie la position en cache pour eviter de refaire
         }
 
@@ -69,8 +68,7 @@ export class GmapGeocodeProvider {
      */
     get_departement_from_coords_async(latitude:number, longitude: number , force?:boolean){
 
-console.log("get dept by coors");
-console.log(this.cached_position);
+
 
        // if(force !== true && this.cached_position) return Promise.resolve(this.cached_position);
 
@@ -145,20 +143,32 @@ console.log(this.cached_position);
         return this._http.get(url)
         .toPromise()
         .then ( (rep:any)=>{
+            //console.log(rep)
+            //si uniquement le nom d'une ville, me renvoie juste locality
              rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
                 // console.log("des reponses");
                 let address = rep.results[0].address_components;//la plus precise
                 let geo = rep.results[0].geometry.location;
-console.log(rep.results);
+
+                //si pas de zipcode ET france, relance
+                let zip  = this.get_type("postal_code", address);
+                
                  let cached_position = {
                      "city": this.get_type("locality", address),
                      "lat":geo.lat,
                      "lng": geo.lng,
                     "name":this.get_type("administrative_area_level_2", address),
-                    "zipcode":this.get_type("postal_code", address),
+                    "zipcode":zip,
                     "country":this.get_type("country", address)
                  }
+
+                 if(cctd=="FR" && zip==undefined){
+                    //console.log("une couille, doit relancer la requete avec les parametres");
+                    return this.get_departement_from_coords_async(cached_position.lat, cached_position.lng);
+                }
+
+
                 return cached_position;//la plus precise
                 
             } else throw ("Erreur recherche du departement");
