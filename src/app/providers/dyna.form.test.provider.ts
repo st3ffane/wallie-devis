@@ -33,22 +33,9 @@ const TEST_FORM={
 	"fields":[
 		{
 			"id":"anid",
-			"type":"radio",
+			"type":"fnaa",
 			"title":"un text",
-			"options":[
-				{
-					"label":"un label",
-					"value":0
-				},
-				{
-					"label":"un label 2",
-					"value":1
-				}
-				,{
-					"label":"un label3",
-					"value":2
-				}
-			]
+			"description":"champs FNAA test"
 		}
 	]
 };

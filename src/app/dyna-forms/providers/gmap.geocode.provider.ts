@@ -21,6 +21,42 @@ export class GmapGeocodeProvider {
 
     constructor (private _http:Http){}
 
+    //tente une geolocalisation, si a le cache, renvoie le cache
+    public geolocalise(){
+
+        if(this.cached_position) {
+            console.log("get from cache")
+            return Promise.resolve(this.cached_position);//renvoie la position en cache pour eviter de refaire
+        }
+
+        return new Promise ( (resolve, reject)=>{
+            
+             if(navigator.geolocation){
+                 
+                navigator.geolocation.getCurrentPosition((pos)=>{
+                    
+                    if(pos.coords){
+                       
+                        this.cached_position = pos.coords;//enregistre 
+                        resolve(pos.coords);
+                        
+                    }  
+                    else {
+                       
+                        reject("no coords");
+                    }
+                },
+                (err)=>{
+                   
+                    reject(err);
+                });
+            } else {
+               
+                reject("geolocalisation OFF");
+            }
+        });
+    }
+
     /**
      * Recupere, a partir des informations de latitude et longitude, les informations
      * sur la position du client (ie: nom du departement, zipcode,....)
@@ -33,7 +69,10 @@ export class GmapGeocodeProvider {
      */
     get_departement_from_coords_async(latitude:number, longitude: number , force?:boolean){
 
-        if(force !== true && this.cached_position) return Promise.resolve(this.cached_position);
+console.log("get dept by coors");
+console.log(this.cached_position);
+
+       // if(force !== true && this.cached_position) return Promise.resolve(this.cached_position);
 
 
         let url = ENDPOINT + "latlng="+latitude+","+longitude+"&key="+GMAP_KEY;
@@ -47,7 +86,7 @@ export class GmapGeocodeProvider {
                 let address = rep.results[0].address_components;//la plus precise
 
                 let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address);
-                this.cached_position = {
+                let cached_position = {
                     "city":city,
                     "lat":latitude,
                     "lng": longitude,
@@ -57,7 +96,7 @@ export class GmapGeocodeProvider {
                 }
                
 
-                return this.cached_position;
+                return cached_position;
 
             } else throw ("Erreur recherche du departement");
         });
@@ -112,7 +151,7 @@ export class GmapGeocodeProvider {
                 let address = rep.results[0].address_components;//la plus precise
                 let geo = rep.results[0].geometry.location;
 console.log(rep.results);
-                 this.cached_position = {
+                 let cached_position = {
                      "city": this.get_type("locality", address),
                      "lat":geo.lat,
                      "lng": geo.lng,
@@ -120,7 +159,7 @@ console.log(rep.results);
                     "zipcode":this.get_type("postal_code", address),
                     "country":this.get_type("country", address)
                  }
-                return this.cached_position;//la plus precise
+                return cached_position;//la plus precise
                 
             } else throw ("Erreur recherche du departement");
         });

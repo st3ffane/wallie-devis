@@ -26,7 +26,7 @@
                   <div *ngSwitchCase="'port'">
 
                       <div >
-
+                            <p *ngIf="question['use-text-filter'] != '1' ">{{question | gpsoption:'port':'description'}}</p>
                             <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
                                 
                                 <div class="input-container">
@@ -51,10 +51,10 @@
                                 
                   </div>
                   <div *ngSwitchCase="'depot'">
+                       <p *ngIf="question['use-text-filter'] != '1' ">{{question | gpsoption:'depot':'description'}}</p>
                     <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
-                        
+                        <label>{{question | gpsoption:'depot':'description'}}</label>
                         <div class="input-container">
-                            <label>{{question | gpsoption:'depot':'description'}}</label>
                             <input 
 
                             type="text" 
@@ -233,7 +233,7 @@
                         (markerClick)="check_options(m)">
 
                         <!-- si une seule reponse, affiche directement l'infos window???  -->
-                        <sebm-google-map-info-window [isOpen]="opt.locations.length == 1 || m.open_window">
+                        <sebm-google-map-info-window [isOpen]="opt.locations?.length == 1 || m.open_window">
                             <div class="infos">
                                 <strong>{{m?.label}}</strong>
                                 <p>{{m?.description}}</p>
@@ -248,19 +248,19 @@
                                     </div>
                                 </fieldset>
                             </div>
-                        </sebm-google-map-info-window>   
+                        </sebm-google-map-info-window >   
 
                     </sebm-google-map-marker>
                 </div>
 
                 
                 </div>
-             <div  *ngIf="noGeo==true && filter=='domicile' && !position.error">
+             <div  *ngIf="noGeo==true && filter=='domicile' && position && !position.error">
                         
                             <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->
                         <sebm-google-map-marker  [latitude]="position?.lat" [longitude]="position?.lng"
-                        [iconUrl]="'domicile' | toIconUrl">
-                            <sebm-google-map-info-window   [isOpen]="position?.lat" >
+                        [iconUrl]="'domicile' | toIconUrl"  >
+                            <sebm-google-map-info-window   [isOpen]="position?.lat" #domicileMarker >
                             <div class="infos">
                                 <strong>{{question.default_location?.label}}</strong>
                                 <p>{{question.default_location?.description}}</p>

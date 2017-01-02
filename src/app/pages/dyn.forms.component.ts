@@ -164,14 +164,19 @@ console.log("Calling NEXT");
     this._devis.next(this.group,this.form).then( (fi)=>{
             //on est parti!!!
             this.loading = false;
+
+            //si une erreur????
+
+
+
            if(fi) return  this._router.navigate(["/devis",fi.group,fi.form]);
 
            return this._router.navigate(["/generated"]); //resultat a afficher
 
         }).catch( (err)=>{
           this.loading = false;
-         this.error = err;
-      this.infos = null;
+          this.error = err;
+          this.infos = null;
         })
 
 

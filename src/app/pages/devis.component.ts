@@ -55,6 +55,9 @@ export class DevisComponent implements OnInit{
     workflow = [];
 
     show_details:boolean = false;
+    error:string = null; //en cas de probleme....
+
+
 
     constructor( private _devis:DevisProvider,
                 private _router:Router){}
@@ -123,6 +126,7 @@ export class DevisComponent implements OnInit{
         }).catch( (err) => {
             console.log(err);
             this.loading = false;
+            this.error = err;
         });
     }
 

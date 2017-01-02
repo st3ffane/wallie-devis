@@ -29,8 +29,8 @@ export class DevisProvider {
         //mais ne garde pas les données precedement enregistrées (etrangement, c'est peut etre juste un oubli ou un bug??)
         //pour pouvoir les recuperer, je la demande avant que le router n'ai le temps de faire quelquechose.... 
         this._history_state = window.history.state;
-        // console.log("last visit:");
-        // console.log(this._history_state);
+        // //("last visit:");
+        // //(this._history_state);
     }
 
     
@@ -115,6 +115,8 @@ export class DevisProvider {
         //en arriere...
         //except: le dernier???
         //return: group et form pour la navigatioin
+
+        
         let total = this._form_historic.length;
         for (let i=0;i<total-1;i++){
             let h = this._form_historic[i];
@@ -125,8 +127,8 @@ export class DevisProvider {
         if(this._form_current_historic){
             //probleme, le dernier a ete pop!!!!
             h = this._form_current_historic;
-            // console.log("dernier formulaire chargé:");
-            // console.log(h);
+            // //("dernier formulaire chargé:");
+            // //(h);
 
             //pour le reload
             this.last_visited_url_LS = h["url"];
@@ -195,8 +197,8 @@ export class DevisProvider {
         this.devis_infos = devis;//NOTE/ unqiuement les données en cache
         //doit repopulate le dernier form a partir du cache...
         if(form_datas){
-            // console.log("repopulate from historical form");
-            // console.log(form_datas);
+            // //("repopulate from historical form");
+            // //(form_datas);
             let d = this.devis_infos[form_datas.form];
             let h = form_datas.datas;
             if(d){
@@ -211,7 +213,7 @@ export class DevisProvider {
     private setFormValue(form, field){
         if(form[field.id]){            
              form[field.id]=field.value;
-             console.log("check for position in field");
+             //("check for position in field");
              if(field.position) form[field.id].position = field.position;
         }
     }
@@ -282,24 +284,24 @@ export class DevisProvider {
 
             let key =form; //clé du formulaire, unqieument le nom du focrmulaire
 
-            // console.log(" get form descriptor");
+            // //(" get form descriptor");
             let fi = null;
             //recherche dans les formulaires deja chargés...
             if(this.devis_infos[key] && this.devis_infos[key]["key"]){
                     
                     fi = this.devis_infos[key];
                     //if(fi["key"]){
-                    // console.log("veridie si datas valides")
+                    // //("veridie si datas valides")
                     if(group == 'global'){
 
-                        // console.log("form valide, repopulate")
+                        // //("form valide, repopulate")
                          //sauvegarde l'URL dans l'history 
                         window.history.replaceState(fi['url'],'a title');//ajoute juste l'url demandé au state....
                         this.last_visited_url_LS = fi["url"];//...et dans le LS
-                        // console.log(fi);
+                        // //(fi);
                         //verifie si datas valide: normalement, rien a faire????
                         
-                            // console.log("form global ou connue, repopulate")
+                            // //("form global ou connue, repopulate")
 
                             // //meme url et parametres, accepte le cache
                             // let cache = fi.fields;
@@ -308,18 +310,18 @@ export class DevisProvider {
                             //     fi.fields[i]['value'] = cache[i]['value'] || '';//enregistre le cache
 
                             //     let debug = fi.fields[i];
-                            //     // console.log(debug.id+":"+debug.value);
+                            //     // //(debug.id+":"+debug.value);
                             // }
                         
-                        // console.log(fi);
+                        // //(fi);
                         //for (let field of fi.fields) field.value = undefined;//remet a null au cas ou les données ne soient pas coherentes
                         
 
                      }// else {
-                    //     console.log("euh, la, je sais pas....")
+                    //     //("euh, la, je sais pas....")
                     // }
                     this.current_key = fi.key; //la clé du formulaire courant
-                    // console.log(fi)
+                    // //(fi)
                     return Promise.resolve(fi);//renvoie le formulaire 
                     
             }
@@ -403,48 +405,57 @@ export class DevisProvider {
             
             
             let fi = res.json();//les données recuperer du serveur
-            // console.log(fi);
+            // //(fi);
             if(fi["key"] === undefined){
-                // console.log("Affichage des resultats");
-                //redirige appli vers resultats
                 this.current_key = null;//au cas ou...
-                return null;
+                //si une erreur 
+                if(fi["error"]){
+                    throw fi['error'];//bug 
+
+
+                }else {
+                    // //("Affichage des resultats");
+                    //redirige appli vers resultats
+                    
+                    return null;
+                }
+                
             }
 
             //la clé complete du formulaire
             this.current_key = fi.key;
-            // console.log(this.current_key);
+            // //(this.current_key);
             let form_name:string  = this.current_key.split("/")[1];//just le nom
             let group = this.current_key.split("/")[0];
 
 
-            // console.log(form_name)
+            // //(form_name)
             fi["url"]  =  url; //sauvegarde l'url du formulaire demandé en cas de retour via l'historique de navigation du
             //navigateur
-            // console.log("verifie validité formulaire");
+            // //("verifie validité formulaire");
             //populate datas a partir du cache de données...
             if(this.devis_infos[form_name]){
 
                 if (group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    // console.log("form global ou connue, repopulate")
+                    // //("form global ou connue, repopulate")
                     
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
-                    //  console.log(cache);
+                    //  //(cache);
                      if(cache){
                          let total = fi.fields.length; 
                         for (let i=0;i<total;i++){
-                            // console.log(fi.fields[i]);
+                            // //(fi.fields[i]);
 
                             fi.fields[i]['value'] = cache[i] ? cache[i]['value'] : '';//enregistre le cache
-                            // console.log("verifie cache dedie au GPS");
+                            // //("verifie cache dedie au GPS");
                             if(cache[i].position){ 
-                                // console.log("une position:!:::");
-                                // console.log(cache[i].position)
+                                // //("une position:!:::");
+                                // //(cache[i].position)
                                  fi.fields[i]["position"] = cache[i].position;
                             }
                             //let debug = fi.fields[i];
-                            // console.log(debug.id+":"+debug.value);
+                            // //(debug.id+":"+debug.value);
                         }
                      }
                      //le cas GPS
@@ -453,14 +464,14 @@ export class DevisProvider {
                 }
                 
             }
-            // console.log(form_name);
+            // //(form_name);
             this.devis_infos[form_name] = fi;//enregistre avec la clé/nom du formulaire 
-            // console.log(fi);
+            // //(fi);
             //NOTE: pas besoin de mettre les infos dans l'history ou le LS:
             //soit elles y sont deja (vient avec BACK/PREC ou chargement du LS)
             //soit la methode est appellée avant le changement d'URL (dyn.forms.component.next()) 
             //et les données seront enregistrées apres...
-            // console.log(fi);
+            // //(fi);
             
             return fi;//retourne juste le formulaire
 
@@ -474,19 +485,19 @@ export class DevisProvider {
      */
     load_next_page_url_async(group:string="",form:string="", endpoint?:string){
         return this.load_form_datas_async(group,form).then( (fi)=>{
-            // console.log(fi);
+            // //(fi);
             if(!fi) return null;//pas de données
 
 
             //si locastorage, populate le formulaire 
-            // console.log("Localstorage????");
+            // //("Localstorage????");
             // if (this._cache){
             //     let form_name:string  = fi["key"].split("/")[1];//just ele nom
             //     let form = this._cache[form_name];
                 
-            //     // console.log(form);
+            //     // //(form);
             //     if (form){
-            //         // console.log("formulaire deja rempli!!! repopulate");
+            //         // //("formulaire deja rempli!!! repopulate");
             //         for (let field of fi.fields){
                         
             //             let v = form[field["id"]];
@@ -615,7 +626,10 @@ export class DevisProvider {
         })
         .toPromise()
         .then( (res:Response)=>{
-            return res.json();
+            let rep = res.json();
+            if(rep["error"]) throw rep["error"];
+
+            return rep;
         });
     }
 
@@ -625,7 +639,7 @@ export class DevisProvider {
     load_domicile_prices (zipcode:string){
         return this._http.get(this.create_geolocation_url(zipcode))
         .toPromise().then( (dt:any)=>{
-            // console.log(dt);
+            // //(dt);
             let options = JSON.parse(dt._body);
             if(options  && Array.isArray(options)){
                 let sorted = options.sort( (elem1:any, elem2:any)=>{
@@ -666,7 +680,7 @@ export class DevisProvider {
         request += this.get_param("form_from","from");
         request += this.get_param("form_to",'to');
         request += this.get_param("form_motif","motif");
-        // console.log(request);
+        // //(request);
         //construit l'url 
         return request;
 
@@ -688,8 +702,8 @@ export class DevisProvider {
     //genere l'URL pour la geolocation: recupere les valeurs pour les prises en charge a domicile
     create_geolocation_url(position:any){
         let zipcode = position.zipcode? position.zipcode.slice(0,2) : "";//juste le dep si dispo 
-        // console.log("create geo url");
-        // console.log(zipcode);
+        // //("create geo url");
+        // //(zipcode);
         //endpoint vers le webservice avec les infos de positions
         let request = TARGET+"/wp-admin/admin-ajax.php?action=webservice_geolocation_request&form_name="+this.current_key+"&departement_code="+zipcode
                 +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;
@@ -741,7 +755,7 @@ export class DevisProvider {
             let form_datas = null;
             if(this._form_historic.length > 0) {
                 //supprime le dernier element 
-                console.log("un historique");
+                //("un historique");
 
                 let hist = this._form_historic.pop();//[this._form_historic.length -1];//.pop();
                 this.last_visited_url_LS = hist.url;
@@ -795,7 +809,7 @@ export class DevisProvider {
                 window.localStorage.setItem('historic',JSON.stringify(this._form_historic));//l'historique de la navigation dans les formulaires 
             }
            else {
-            //    console.log("pas de current_key, ne sauvegarde pas les données");
+            //    //("pas de current_key, ne sauvegarde pas les données");
                window.localStorage.setItem('historic',JSON.stringify([]));//efface au cas ou
            }
 
@@ -849,7 +863,7 @@ export class DevisProvider {
                 if(fields == null ) return;
 
 
-                console.log("compacte form datas");
+                //("compacte form datas");
                
                 let url = form.url;//url pour recup les données
 
@@ -900,7 +914,7 @@ export class DevisProvider {
                     }
                     fds.push(obj);
                 }
-                console.log(form);
+                //(form);
                 return  {
                     "fields":fds,//pour les differents champs du formulaire 
                     "url":url, //pour le rechargement 
@@ -1028,12 +1042,12 @@ export class DevisProvider {
                     .add(save_data);
                     
                     request.onsuccess = function(event) {
-                        // console.log("success de l'enregistrement");
+                        // //("success de l'enregistrement");
                         resolve(true);
                     };
                     
                     request.onerror = function(event) {
-                        // console.log("une couille");
+                        // //("une couille");
                         reject("Erreur enregistrement");
                     }
             } else {
@@ -1059,7 +1073,7 @@ export class DevisProvider {
                var cursor = event.target.result;
                
                if (cursor) {
-                //    console.log(cursor);
+                //    //(cursor);
                    let v = cursor.value.v;
 
                    //cree un titre pour l'entrée 
@@ -1125,7 +1139,7 @@ export class DevisProvider {
      
     parse_form_infos (key:string, datas:any){
 
-        console.log(datas);
+        //(datas);
         this.HACK_PREC(key,datas);
 
 
@@ -1139,7 +1153,7 @@ export class DevisProvider {
         if (inner[key] === undefined){
             //Peut etre directement l'objet recherché
             //OU se trouver dans un suboptions!!!
-            console.log(inner);
+            //(inner);
             if(inner["subOptions"]){
                 //tente une recherche
                 let subOpts = inner["subOptions"];
@@ -1191,7 +1205,7 @@ export class DevisProvider {
                         break;
                     }
                 }
-                console.log("recherche category:"+value);
+                //("recherche category:"+value);
                 //assume!!! recherche de marchandise 
                 for (let inner_form of inner_forms){
                     if (inner_form.category.toUpperCase() == value.toUpperCase()){
@@ -1214,8 +1228,8 @@ export class DevisProvider {
 
    private _parse_infos(dirty, form_infos, key, subOptions){
 
-            console.log("working on...");
-            console.log(dirty);
+            //("working on...");
+            //(dirty);
 
 
             form_infos.title = dirty.title;
@@ -1224,7 +1238,7 @@ export class DevisProvider {
 
 
             if (dirty.isSingular == 1){
-                console.log("Singular field");
+                //("Singular field");
                 //ce formulaire ne dispose que d'une seule question, generalement a choix multiple
                 let field  = new MultigroupRadioField();//voir si besoin de faire plus general que ca...
                 field.key = key;
@@ -1239,7 +1253,7 @@ export class DevisProvider {
 
                         if(parent){
 
-                            console.log("Workaround transport");
+                            //("Workaround transport");
 
                             let value = undefined;
                             let cible = gr.category;
@@ -1287,7 +1301,7 @@ export class DevisProvider {
 
             } else {
                 //plusieurs champs dans le formulaire
-                console.log("plusieurs champs");
+                //("plusieurs champs");
 
                 let fields = dirty.group || dirty.fields || dirty.items;
                 if(fields){
@@ -1309,7 +1323,7 @@ export class DevisProvider {
                                 
                                 case 'select':{
                                     field = new SelectField();
-                                    console.log(gr);
+                                    //(gr);
                                     field.items = gr.selection;
                                     break;
                                 }
@@ -1345,16 +1359,16 @@ export class DevisProvider {
             }
    }
    private searchSubOptions(field, subOptions){
-    //    console.log("looking for suboptions....");
+    //    //("looking for suboptions....");
     //    if(subOptions === undefined || subOptions.length == 0) return;
-    //    console.log("on a des suboptions!!!");
+    //    //("on a des suboptions!!!");
 
     //    for (let so of subOptions){
     //        if(so.parent_group.toUpperCase() == field.key.toUpperCase()){
-    //            console.log("Un suboption pour ce field!!!");
+    //            //("Un suboption pour ce field!!!");
     //            for(let group of so.group){
     //                let symbol = group.itemId; //la valeur qui declenche l'apparation des sub-options
-    //                console.log("recherche valeur: "+symbol);
+    //                //("recherche valeur: "+symbol);
                    
     //                //cree un field pour celui ci et ajoute aux questions du field...
     //                this._parse_infos(group, field, symbol,subOptions );
@@ -1371,7 +1385,7 @@ export class DevisProvider {
        //reecrit les quelques datas qui posent problemes quand elles se presentent
         //en vrac 
         if(key =="precisions" ){
-            console.log("HACK!!!!");
+            //("HACK!!!!");
             
             dt.acf.precisions[3].category = "En Vrac";
             dt.acf.precisions[4].category = "sur palette";

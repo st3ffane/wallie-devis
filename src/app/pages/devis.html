@@ -11,7 +11,14 @@
 
   </div>
     <div *ngIf='!loading'>
-            
+            <div *ngIf="error" class="error">
+                <p>Oups, nous avons eu un probleme lors de la generation du devis....</p>
+                <p>{{error}}</p>
+                
+                <a class="btn btn-primary" routerLink="/">Retour a l'acceuil</a>
+            </div>
+
+            <div *ngIf="!error">
             <h5>Pour un transport de <strong>{{workflow | GetDevisDetailsPipe:'form_marchandise':'marchandise'}}</strong> au départ de <strong>{{workflow | GetDevisDetailsPipe:'form_from':'from'}}</strong> et à destination de 
             <strong>{{workflow | GetDevisDetailsPipe:'form_to':'to'}}</strong></h5>
             
@@ -107,5 +114,6 @@
                 </div>
                
             </div-->
+        </div>
         </div>
 </div>

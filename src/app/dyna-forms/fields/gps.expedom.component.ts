@@ -1,4 +1,4 @@
-import {Component, OnInit, Input} from "@angular/core";
+import {Component, OnInit, Input, ViewChild} from "@angular/core";
 import {FormGroup, FormControl, Validators} from "@angular/forms";
 import {GmapGeocodeProvider} from "../providers/gmap.geocode.provider";
 
@@ -43,7 +43,7 @@ export class GPSExpedomComponent{
     @Input()question:any; // le champs du formulaire
     @Input() form:FormGroup; // le formulaire (angular)
     noGeo: boolean = false; //@deprecated
-
+    @ViewChild("domicileMarker") domicileMarker; //le marker domicile....
 
     srch_zipcode: string; //le zip  a rechercher
     is_localising:boolean = true;//par defaut, tente de se localiser...si false: localisation achevée (success ou error)
@@ -208,15 +208,16 @@ export class GPSExpedomComponent{
 
         if(!this.noGeo || has_location) return; //si a deja une location (geo ou une adresse...), ne fait rien...
     
-        this.geolocalise().then( (pos:any)=> {
+        this._gmap.geolocalise().then( (pos:any)=> {
             
             console.log(pos);
             //demande le nom du patelin 
-            return this._gmap.get_departement_from_coords_async(pos.latitude,pos.longitude);
+            return this._gmap.get_departement_from_coords_async(pos.latitude,pos.longitude,true);
 
         }).then( (rep)=>{
             
             //VERIFIE SI LE PAYS EST BON.....
+            console.log(rep);
             if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
                 
@@ -292,6 +293,9 @@ export class GPSExpedomComponent{
      * lance la geolocalisation 
      * utilise le navigator, mais on pourra en modifiant cette methode 
      * utiliser un autre service au besoin (si pas de https par exemple)
+     * 
+     * @DEPRECATED
+     * CHANGE: utilise le service de geoloc de google
      */
     private geolocalise(){
         return new Promise ( (resolve, reject)=>{
@@ -439,8 +443,12 @@ export class GPSExpedomComponent{
             
         })
         .then( (dt)=>{
+            if(!dt || !Array.isArray(dt) || dt.length == 0) throw "Aucune reponse/erreur";
+            
             console.log("recentrage de la carte???");
                     this.position['options'] = dt;
+                    console.log(this.domicileMarker)
+                    this.domicileMarker.open();
                     //recentre la carte
                     // this.question.default_location.lat = this.position.lat;
                     // this.question.default_location.lng = this.position.lng;

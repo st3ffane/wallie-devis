@@ -8,10 +8,10 @@
     <!--h2 class="row text-center app_title">Calculateur de devis</h2>
     <div class="logo">&nbsp;</div-->
     <div *ngIf="error" class="error">
-      <span>Oups, nous avons eu un probleme de chargement des informations....</span>
-      <span>{{error}}</span>
+      <p>Oups, nous avons eu un probleme de chargement des informations....</p>
+      <p>{{error}}</p>
       
-      <a routerLink="/">Retour a l'acceuil</a>
+      <a class="btn btn-primary" routerLink="/">Retour a l'acceuil</a>
     </div>
 
     <div *ngIf="infos" class="container-fluid">
