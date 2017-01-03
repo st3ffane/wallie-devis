@@ -135,8 +135,8 @@ export class GPSExpedomComponent{
         let has_location = false;
 
 
-        console.log("cache datas: ");
-        console.log(this.question.__value);
+        // console.log("cache datas: ");
+        // console.log(this.question.__value);
 
 
         //DOIT PAS SE FAIRE ICI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -146,7 +146,7 @@ export class GPSExpedomComponent{
             if(this.question.__value.startsWith("domicile")){
                 //recup de la geolocation
                 //2 cas, ou arrive par un prec, ou arrive par un reload???
-                console.log("cache a domicile")
+                // console.log("cache a domicile")
                 this.position = this.question.position;
 
                 
@@ -217,13 +217,13 @@ export class GPSExpedomComponent{
         }).then( (rep)=>{
             
             //VERIFIE SI LE PAYS EST BON.....
-            console.log(rep);
+            // console.log(rep);
             if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
                 
             }
 
-            console.log("valid!!!");
+            // console.log("valid!!!");
             this.position = rep;
             this.question["position"] = this.position;
             
@@ -260,12 +260,17 @@ export class GPSExpedomComponent{
         //determine le code CCDT du pays -optimise
         let cnt = CCTD[this.question.default_location.country] || "FR";
 
-        console.log("recherche pour nom: "+zipcode);
+        // console.log("recherche pour nom: "+zipcode);
         //this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
         this._gmap.get_coords_from_departement_name_async(zipcode,cnt).then( (rep)=>{
             console.log(rep);
             //VERIFIE SI LE PAYS EST BON.....
-            if(rep["country"] && rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+            //Réunion
+            
+            let country = rep["country"] || "none";
+            country = country.replace("é","e");
+            //probleme, parfois me renvoie france 
+            if(country.toUpperCase() != this.question.default_location.country.toUpperCase() && country!="France"){
                 throw "not in place!";
             }
             
@@ -416,7 +421,7 @@ export class GPSExpedomComponent{
      */
     positionne_marker(evt){
 
-        console.log("ici, "+this.filter);
+        // console.log("ici, "+this.filter);
 
         if(this.filter!='domicile') return;
 
@@ -428,7 +433,7 @@ export class GPSExpedomComponent{
         //enregistre la position: permet d'afficher imediatement le marqueur
        this.position = evt.coords;
        
-       console.log(evt.coords);
+    //    console.log(evt.coords);
 
        this._gmap.get_departement_from_coords_async(this.position.lat,this.position.lng,true).then( (rep)=>{
             
@@ -447,9 +452,9 @@ export class GPSExpedomComponent{
         .then( (dt)=>{
             if(!dt || !Array.isArray(dt) || dt.length == 0) throw "Aucune reponse/erreur";
             
-            console.log("recentrage de la carte???");
+            // console.log("recentrage de la carte???");
                     this.position['options'] = dt;
-                    console.log(this.domicileMarker)
+                    // console.log(this.domicileMarker)
                     this.domicileMarker.open();
                     //recentre la carte
                     // this.question.default_location.lat = this.position.lat;
@@ -471,7 +476,7 @@ export class GPSExpedomComponent{
      * si une seule, selectionne
      */
     check_options(location:any){
-        console.log("click");
+        // console.log("click");
         if(location.options && location.options.length == 1){
             //selectionne 
             this.question.__value = location.options[0].value;

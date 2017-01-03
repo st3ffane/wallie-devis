@@ -265,7 +265,7 @@ export class DynaArborescence2Component{
         
         setTimeout( (v)=>{
              scrollIt(id, 300, 'easeInQuad');
-             console.log("hello")
+            //  console.log("hello")
         }, 100)
        
     }

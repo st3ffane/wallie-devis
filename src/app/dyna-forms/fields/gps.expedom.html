@@ -53,8 +53,9 @@
                   <div *ngSwitchCase="'depot'">
                        <p *ngIf="question['use-text-filter'] != '1' ">{{question | gpsoption:'depot':'description'}}</p>
                     <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
-                        <label>{{question | gpsoption:'depot':'description'}}</label>
+                        
                         <div class="input-container">
+                            <label>{{question | gpsoption:'depot':'description'}}</label>
                             <input 
 
                             type="text" 
@@ -68,7 +69,7 @@
                             </datalist>
                            
                         </div>
-                        <a class="btn btn-primary" style="padding-bottom:11px" (click)="search = null">Reset</a>  
+                        <a class="btn btn-primary" style="padding-bottom:11px" (click)="search = null">Effacer</a>  
                           
                     </div>
                   </div>

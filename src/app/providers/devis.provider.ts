@@ -892,14 +892,26 @@ export class DevisProvider {
 
                     }
                     //certains fields utilise la geolocalisation et ont un field position a sauvegarder
-                    if(field["position"]) {
+                    
+                    if(field["position"] || field["type"]=="gps") {
+                        console.log(field)
+                        
                         let pos = field["position"];
                         if (field["value"] && field["value"].startsWith("domicile")){
                             //recherche dans les options de domicile  
                             let infos =   pos['zipcode'];
                             if(!infos) infos = pos['city'];
                             else infos = infos.substr(0,2);                        
-                            obj["value_label"] = "Prise en charge à domicile ("+infos+")";
+                            obj["value_label"] = "à domicile ("+infos+")";
+
+                        } else if(field["value"] && field["value"].startsWith("depot") && field.options){
+                            //doit en plus recuperer le nom du depot...
+                            
+                            obj["value_label"] = this.get_label_and_depot(field["value"],field.options[1]);
+                        } else if(field["value"] && field["value"].startsWith("port") && field.options) {
+                            console.log("Un port!!!");
+                            console.log(field["value"]);
+                            obj["value_label"] = "Dépot EXPEDOM "+obj["value_label"];
                         }
                         //un GPS!
                         
@@ -940,6 +952,13 @@ export class DevisProvider {
             else if (opt["value"] && opt["value"] == value) return opt["label"] || opt['title'];
         }
         return false;//on a pas trouvé
+    }
+    private get_label_and_depot(value, depots){
+        for(let loc of depots.locations){
+            for (let opt of loc.options){
+                if(opt['value'] == value) return loc.label+" "+opt["title"];
+            }
+        }
     }
     //le formulaire en cours
     private compact_form_datas(form){

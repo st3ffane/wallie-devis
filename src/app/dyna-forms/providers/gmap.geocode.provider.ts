@@ -139,7 +139,7 @@ export class GmapGeocodeProvider {
     }
 
     get_coords_from_departement_name_async(name:string, cctd:string){
-         let url = ENDPOINT + "address="+encodeURI(name)+"+"+cctd+"&key="+GMAP_KEY;
+         let url = ENDPOINT + "address="+name+"+&components=country:"+cctd+"&key="+GMAP_KEY;
         return this._http.get(url)
         .toPromise()
         .then ( (rep:any)=>{
@@ -147,15 +147,18 @@ export class GmapGeocodeProvider {
             //si uniquement le nom d'une ville, me renvoie juste locality
              rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                // console.log("des reponses");
+                console.log("des reponses");
+                console.log(rep.results);
+
+
                 let address = rep.results[0].address_components;//la plus precise
                 let geo = rep.results[0].geometry.location;
 
                 //si pas de zipcode ET france, relance
                 let zip  = this.get_type("postal_code", address);
-                
+                let city = this.get_type("locality", address);
                  let cached_position = {
-                     "city": this.get_type("locality", address),
+                     "city": city,
                      "lat":geo.lat,
                      "lng": geo.lng,
                     "name":this.get_type("administrative_area_level_2", address),
@@ -163,7 +166,7 @@ export class GmapGeocodeProvider {
                     "country":this.get_type("country", address)
                  }
 
-                 if(cctd=="FR" && zip==undefined){
+                 if( city == undefined || (cctd=="FR" && zip==undefined)){
                     //console.log("une couille, doit relancer la requete avec les parametres");
                     return this.get_departement_from_coords_async(cached_position.lat, cached_position.lng);
                 }

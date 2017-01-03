@@ -60,20 +60,24 @@
                 <tr><td  colspan="2" class="form_title">Depuis Lieu de prise en charge jusqu'a rendu bord navire/port d'arrivée</td></tr>
                 <tr class="form_fields"><td class="field_label">Port de depart:</td><td class="field_value">{{devis_details.PORT_DE_DEPART}}</td></tr>
                 
-                 <tr class="form_fields"><td class="field_label">Prise en charge </td><td class="field_value">{{devis_details.PEC | number:'2.2-2' || 'non applicable'}}€</td></tr>
+                <!-- ajouter ville de prise en charge ou nom du depot -->
+                 <tr class="form_fields"><td class="field_label">Prise en charge <strong>{{workflow | GetDevisDetailsPipe:'form_pec':'pec'}}</strong> </td><td class="field_value">{{devis_details.PEC | number:'2.2-2' || 'non applicable'}}€</td></tr>
+                 
+                 
                  <tr class="form_fields"><td class="field_label">Prix du transport (port à port)</td><td class="field_value">{{devis_details.P | number:'2.2-2'}}€</td></tr>
-                 <tr class="form_fields"><td class="field_label">Assurance:</td><td class="field_value">{{devis_details.A | number:'2.2-2'}}€</td></tr>
+                 <!-- indiquer le type d'assurance-->
+                 <tr class="form_fields"><td class="field_label">Assurance (<strong>{{workflow | GetDevisDetailsPipe:'form_assurance':'assurance'}}</strong>):</td><td class="field_value">{{devis_details.A | number:'2.2-2'}}€</td></tr>
                 </div>
 
                  <div class="card">
                 <tr><td  colspan="2" class="form_title">Recapitulatif des taxes à titre indicatif</td></tr>
                 <tr class="form_fields"><td class="field_label">Valeur de la marchandise:</td><td class="field_value">{{devis_details.V | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">valeur taxable sur marchandise:</td><td class="field_value">{{devis_details.CAF | number:'2.2-2'}}€</td></tr>
-                <tr class="form_fields"><td class="field_label">Taxe sur marchandise (<strong>TSM%</strong>):</td><td class="field_value">{{devis_details.TSM | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Taxe sur marchandise (<strong>TSM</strong>):</td><td class="field_value">{{devis_details.TSM | number:'2.2-2'}}€</td></tr>
                 
                 <tr class="form_fields"><td class="field_label">Montant TVA:(<strong>{{devis_details.TVA | number:'1.2-2' || 'non applicable'}}%</strong>)</td><td class="field_value">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">Montant Octroi de mer (<strong>{{devis_details.OM?.om | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}%</td></tr>
-                <tr class="form_fields"><td class="field_label">Montant Octroi de mer regionnal (<strong>{{devis_details.OM?.omr | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Montant Octroi de mer regionnal (<strong>{{devis_details.OM?.omr | number:'1.2-2'}}€</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">Total des Droits et taxe de douane:</td><td class="field_value">{{devis_details.TAXES | number:'2.2-2'}}€</td></tr>
                 
                 </div>
@@ -83,8 +87,8 @@
                 <tr class="form_fields"><td class="field_label">Frais de dégroupage & Dédouanement:</td><td class="field_value">{{devis_details.FR | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">Montant TVA sur prestation (<strong>{{devis_details.TVA_RU | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.TVA_RU_VALUE | number:'2.2-2'}}€</td></tr>
                 
-                <tr class="form_fields"><td class="field_label">Livraison à domicile</td><td class="field_value">{{devis_details.PT | number:'2.2-2'}}€</td></tr>
-                <tr class="form_fields"><td class="field_label">Total taxes locales:</td><td class="field_value">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Livraison <strong>{{workflow | GetDevisDetailsPipe:'form_livraison':'livraison'}}</strong></td><td class="field_value">{{devis_details.PT | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Total Frais Locaux:</td><td class="field_value">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</td></tr>
                 </div>
             
                  <div class="card result">
@@ -96,7 +100,7 @@
             <div id="actions" class="card">
                 <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button-->
                 <a class="btn btn-primary" [href]='pdf_file' target="_blank"><i class="fa fa-file-pdf-o"></i> Telecharger le devis en pdf</a>
-                <a  class="btn btn-primary btn-action btn-lg " [href]="'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i> reservez maintenant!</a>
+                <a  class="btn btn-primary btn-action btn-lg " [href]="'http://www.expedom.com/dev/produit/acompte-sur-devis/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i> reservez maintenant!</a>
                 <button class="btn btn-primary" (click)="create_devis()">Nouveau devis</button>
             </div>
             <!--div id="actions">
