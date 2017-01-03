@@ -3,7 +3,8 @@
             <div class="input-container">
                 <label>{{question.title}}</label>  
                 <input #texted type="text"  
-                
+                    [formControlName]="question.id"
+                    [(ngModel)]= "question.__value"
                     [id]="question.id" type="text" 
                     
                     [placeholder]="question.description"

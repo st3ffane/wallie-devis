@@ -124,8 +124,7 @@ export class GPSExpedomComponent{
                 }
             }
         }
-        //mappe les locations a afficher sur la map
-        this.remap_options();
+        
     // }
 
     // ngAfterViewInit(){
@@ -216,13 +215,13 @@ export class GPSExpedomComponent{
                 }
             }
             
-        }
+        } 
 
         if(!this.noGeo || has_location) return; //si a deja une location (geo ou une adresse...), ne fait rien...
         console.log("geolocation GO!")
         this._gmap.geolocalise().then( (pos:any)=> {
             
-            console.log(pos);
+            
             //demande le nom du patelin 
             return this._gmap.get_departement_from_coords_async(pos.latitude,pos.longitude,true);
 
@@ -230,12 +229,13 @@ export class GPSExpedomComponent{
             
             //VERIFIE SI LE PAYS EST BON.....
             // console.log(rep);
-            if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+        let pays = rep["country"].replace("é","e").toUpperCase();
+            if(pays != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
                 
             }
 
-            // console.log("valid!!!");
+            console.log("valid!!!");
             this.position = rep;
             this.question["position"] = this.position;
             
@@ -246,7 +246,7 @@ export class GPSExpedomComponent{
         })
         .then( (dt)=>{
                 //valide la position et enregistre
-               
+               console.log("ajoute les options a la position")
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
@@ -257,6 +257,12 @@ export class GPSExpedomComponent{
              this.is_localising = false;
         });
 
+    }
+
+    ngAfterViewInit(){
+
+        //mappe les locations a afficher sur la map
+        this.remap_options();
         
    
     }
@@ -388,6 +394,7 @@ export class GPSExpedomComponent{
         let options = [];
         let list = [];
 
+        let count = 0;
         for (let opt of this.question.options){
             if(opt.label == this.filter){
                 //options.push(opt);
@@ -396,10 +403,11 @@ export class GPSExpedomComponent{
                     "description":opt.description,
                     "useGeo":opt.useGeo,
                     "value":opt.value,
-                    "locations":[]
+                    "locations":[],
+                    
                 };
 
-
+                
                 if(opt.locations){
                      //les locations selectionnées
                     for(let loc of opt.locations){
@@ -407,6 +415,8 @@ export class GPSExpedomComponent{
                         //ajoute les differents points
                         let lbl = loc.label.toUpperCase();
                         if (this.search==null || lbl.indexOf(this.search.toUpperCase())!= -1) {
+                            loc["open_window"] = count == 0;
+                            count++;
                             truc["locations"].push(loc);//bon pour affichage
                             list.push(loc.label);
                         }

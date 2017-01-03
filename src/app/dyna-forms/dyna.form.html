@@ -9,7 +9,7 @@
         </div>
         <div class="center-block">
             <div *ngFor='let field of formulaire.fields' class='form-row' class="row options-group">
-            <df-question [question]="field" [form]="form"></df-question>
+            <df-question [formulaire]="formulaire" [question]="field" [form]="form"></df-question>
             </div>
         </div>
         <div class="row next_step">

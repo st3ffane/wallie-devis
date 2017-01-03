@@ -19,6 +19,7 @@ import {FormGroup} from "@angular/forms";
 })
 export class DynaFormItemComponent{
     @Input()question:any;
+    @Input()formulaire:any;//le formulaire en question, au cas ou
     @Input() form:FormGroup;
     error: any;
     

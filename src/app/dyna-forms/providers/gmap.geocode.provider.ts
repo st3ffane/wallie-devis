@@ -84,6 +84,7 @@ export class GmapGeocodeProvider {
                 let address = rep.results[0].address_components;//la plus precise
 
                 let city = this.get_type("administrative_area_level_3", address) 
+                    || this.get_type("administrative_area_level_2", address) 
                     || this.get_type("locality", address) 
                     || this.get_type("administrative_area_level_1", address);
                 let cached_position = {
@@ -158,9 +159,15 @@ export class GmapGeocodeProvider {
 
                 //si pas de zipcode ET france, relance
                 let zip  = this.get_type("postal_code", address);
-                let city = this.get_type("administrative_area_level_3", address) 
-                    || this.get_type("locality", address) 
-                    || this.get_type("administrative_area_level_1", address);
+
+                //city, depend si France ou ailleurs 
+                let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address);
+                if(cctd != "FR"){
+                    //tente de recup autrechose 
+                    city = this.get_type("administrative_area_level_3", address)  || this.get_type("administrative_area_level_3", address) 
+                            || city;
+                }
+                
                  let cached_position = {
                      "city": city,
                      "lat":geo.lat,

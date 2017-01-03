@@ -170,7 +170,10 @@
 
 
         <div *ngSwitchCase="'fnaa'">
-            <fnaa-input [question]="question" [form]="form"></fnaa-input>
+            <p>WARNING: ce champs est actuellement en cours de developpement. N'ayant pas encore le compte pour
+                lancer des requetes FNAA, la population se fait via un fichier XML donné en documentation.</p>
+            
+            <fnaa-input [formulaire]="formulaire" [question]="question" [form]="form"></fnaa-input>
         </div>
 
 
