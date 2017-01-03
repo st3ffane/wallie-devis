@@ -903,6 +903,15 @@ export class DevisProvider {
                             if(!infos) infos = pos['city'];
                             else infos = infos.substr(0,2);                        
                             obj["value_label"] = "à domicile ("+infos+")";
+                            if(field["position"]){
+                                obj['position'] = {
+                                'city':pos.city,
+                                'lat':pos.lat,
+                                'lng':pos.lng,
+                                'zipcode':pos.zipcode,
+                                'country':pos.country
+                            }
+                        }
 
                         } else if(field["value"] && field["value"].startsWith("depot") && field.options){
                             //doit en plus recuperer le nom du depot...
@@ -915,14 +924,8 @@ export class DevisProvider {
                         }
                         //un GPS!
                         
-
-                        obj['position'] = {
-                            'city':pos.city,
-                            'lat':pos.lat,
-                            'lng':pos.lng,
-                            'zipcode':pos.zipcode,
-                            'country':pos.country
-                        }
+                        
+                        
                     }
                     fds.push(obj);
                 }

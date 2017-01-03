@@ -83,7 +83,9 @@ export class GmapGeocodeProvider {
                 // console.log("des reponses");
                 let address = rep.results[0].address_components;//la plus precise
 
-                let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address);
+                let city = this.get_type("administrative_area_level_3", address) 
+                    || this.get_type("locality", address) 
+                    || this.get_type("administrative_area_level_1", address);
                 let cached_position = {
                     "city":city,
                     "lat":latitude,
@@ -93,7 +95,7 @@ export class GmapGeocodeProvider {
                     "country":this.get_type("country", address)
                 }
                
-
+                console.log(cached_position);
                 return cached_position;
 
             } else throw ("Erreur recherche du departement");
@@ -156,7 +158,9 @@ export class GmapGeocodeProvider {
 
                 //si pas de zipcode ET france, relance
                 let zip  = this.get_type("postal_code", address);
-                let city = this.get_type("locality", address);
+                let city = this.get_type("administrative_area_level_3", address) 
+                    || this.get_type("locality", address) 
+                    || this.get_type("administrative_area_level_1", address);
                  let cached_position = {
                      "city": city,
                      "lat":geo.lat,
@@ -166,8 +170,8 @@ export class GmapGeocodeProvider {
                     "country":this.get_type("country", address)
                  }
 
-                 if( city == undefined || (cctd=="FR" && zip==undefined)){
-                    //console.log("une couille, doit relancer la requete avec les parametres");
+                 if((cctd!="FR" && city == undefined) || (cctd=="FR" && zip==undefined)){
+                    console.log("doit relancer la requete avec les parametres");
                     return this.get_departement_from_coords_async(cached_position.lat, cached_position.lng);
                 }
 

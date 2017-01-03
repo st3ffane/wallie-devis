@@ -101,8 +101,8 @@
                                     [class.ng-valid]="zipcode.value!=''" >
                                          
                                 </div>
-                                <button type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
-                        
+                                <button *ngIf="!is_localising" type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+                                <i *ngIf="is_localising" class="fa fa-spin fa-gear"></i>
                                 
                         </div>
                   </div>

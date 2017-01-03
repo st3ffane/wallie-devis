@@ -140,26 +140,37 @@ export class GPSExpedomComponent{
 
 
         //DOIT PAS SE FAIRE ICI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        console.log("verification du cache")
         if(this.question.__value){
             //si domicile, a part 
-            
+            console.log("un cache present: "+this.question.__value);
+
             if(this.question.__value.startsWith("domicile")){
                 //recup de la geolocation
                 //2 cas, ou arrive par un prec, ou arrive par un reload???
                 // console.log("cache a domicile")
                 this.position = this.question.position;
 
-                
+                console.log("cache domicile, position sauvegardée")
+                console.log(this.position);
+
                 //a deja les options???
                 if(this.position && this.position.options){
+                    console.log("des options sauvegardées!!! recherche")
                     for (let opt of this.position.options){
                         if(opt.value == this.question.__value){
                             //trouvé, affichera de toute facon la popup
+                            console.log("cache valide, affiche!")
                             this.filter = "domicile";
                             has_location = true; //annule le chargment
                         }
                     }
-            }/*
+            }
+            else {
+                console.log("pas d'options pour ce cache, annule")
+                this.question.__value = null;
+            }
+            /*
                 else if(this.position && this.position.latitude){
                     
                     has_location = true;//evite de relancer la geolocalisation
@@ -188,15 +199,16 @@ export class GPSExpedomComponent{
 
             } else {
                 //une reponse en cache, doit selectionner le filtre correspondant
-
+                console.log("cache depot/port");
                 
                 for (let filtre of this.question.options){
                     for(let opt of filtre.locations){
                         for(let v of opt.options){
                             if(v.value == this.question.__value){
-                                
+                                console.log("reponse OK, affiche")
                                 opt["open_window"] = true;
                                 this.filter = filtre.label;//affiche avec le filtre defini...
+                                break;
                             }
                         }
                         
@@ -207,7 +219,7 @@ export class GPSExpedomComponent{
         }
 
         if(!this.noGeo || has_location) return; //si a deja une location (geo ou une adresse...), ne fait rien...
-    
+        console.log("geolocation GO!")
         this._gmap.geolocalise().then( (pos:any)=> {
             
             console.log(pos);
