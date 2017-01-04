@@ -87,6 +87,14 @@ export class FNAAComponent{
        this.form.controls[field.id].setValue(v);
     }
 
+    private set_ptac(dts, field){
+        let length = +dts["ptac"] || 0;//A voir
+        this.set_value_for_select(length, field);
+    }
+    private set_roues_motrices(dts,field){
+        let length = +dts["rm"] || 2;
+         this.form.controls[field.id].setValue(length);
+    }
 
 
 

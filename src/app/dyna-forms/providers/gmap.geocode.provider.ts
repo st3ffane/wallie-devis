@@ -80,20 +80,45 @@ export class GmapGeocodeProvider {
             // console.log(rep);
             rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                // console.log("des reponses");
-                let address = rep.results[0].address_components;//la plus precise
+                console.log("des reponses");
+                console.log(rep);
 
-                let city = this.get_type("administrative_area_level_3", address) 
-                    || this.get_type("administrative_area_level_2", address) 
-                    || this.get_type("locality", address) 
-                    || this.get_type("administrative_area_level_1", address);
+                //recupere les infos administrative_area_level_3
+                // let address = rep.results[0].address_components;
+                //si france
+                // let address = this.getAddressComponent( rep.results,["administrative_area_level_3","administrative_area_level_2","locality","postal_code"]);//rep.results[0].address_components;//la plus precise
+                // if(!address) throw ("Localisation ECHEC!");
+                let address = rep.results;
+
+
+                let country = this.getAddressComponent( address, "country") || "France";
+                let zip = "";
+                let city = "";
+                //city, depend si France ou ailleurs 
+                // let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address)  ;
+                
+                console.log("Recherche pays: "+country);
+                console.log(address);
+                 if(country=="France"){
+                    zip  = this.getAddressComponent( address, "postal_code");
+                    city = this.getAddressComponent( address, "locality");
+                    console.log("city: "+city+", zip:"+zip);
+                } else {
+                    //tente de recuperer les infos possibles
+                    //me moque du zip 
+                    city = this.getAddressComponent( address, "locality")//le plus petit possible
+                        || this.getAddressComponent( address, "administrative_area_level_3")
+                        || this.getAddressComponent( address, "administrative_area_level_2")
+                        || this.getAddressComponent( address, "administrative_area_level_1")
+                }
+                
                 let cached_position = {
                     "city":city,
                     "lat":latitude,
                     "lng": longitude,
-                    "name":this.get_type("administrative_area_level_2", address),
-                    "zipcode":this.get_type("postal_code", address),
-                    "country":this.get_type("country", address)
+                    "name":city,
+                    "zipcode":zip,
+                    "country":country
                 }
                
                 console.log(cached_position);
@@ -101,6 +126,25 @@ export class GmapGeocodeProvider {
 
             } else throw ("Erreur recherche du departement");
         });
+    }
+
+
+    private getAddressComponent( results:Array<any>, type:string){
+
+        console.log("getaddresscomponents");
+        let addr = null;
+        for (let res of results){
+            let types = res.types;
+            console.log("type: ");
+            console.log(types);
+            for (let t of types){
+                if(type.indexOf(t)!=-1){ 
+                    console.log("find: "+t);
+                    return this.get_type(type,res.address_components);
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -150,23 +194,32 @@ export class GmapGeocodeProvider {
             //si uniquement le nom d'une ville, me renvoie juste locality
              rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                console.log("des reponses");
-                console.log(rep.results);
+               
+                 //recupere les infos administrative_area_level_3
+                let address = rep.results[0].address_components;
+                
+
+                //si france
+                // address = this.getAddressComponent( rep.results,["locality","street_address",'postal_code']);//rep.results[0].address_components;//la plus precise
+                // if(!address) throw ("Localisation ECHEC!");
 
 
-                let address = rep.results[0].address_components;//la plus precise
                 let geo = rep.results[0].geometry.location;
+                let country = this.get_type("country", address);
 
-                //si pas de zipcode ET france, relance
-                let zip  = this.get_type("postal_code", address);
-
-                //city, depend si France ou ailleurs 
-                let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address);
-                if(cctd != "FR"){
-                    //tente de recup autrechose 
-                    city = this.get_type("administrative_area_level_3", address)  || this.get_type("administrative_area_level_3", address) 
-                            || city;
+                let city = "";
+                let zip = "";
+                if(country=="France"){
+                    zip  = this.get_type("postal_code", address);
+                    city = this.get_type("locality", address)
+                } else {
+                    //tente de recuperer les infos possibles
+                    //me moque du zip 
+                    city = this.get_type("administrative_area_level_4", address)  || this.get_type("administrative_area_level_3", address) ;
                 }
+
+
+                
                 
                  let cached_position = {
                      "city": city,
@@ -174,7 +227,7 @@ export class GmapGeocodeProvider {
                      "lng": geo.lng,
                     "name":this.get_type("administrative_area_level_2", address),
                     "zipcode":zip,
-                    "country":this.get_type("country", address)
+                    "country": country
                  }
 
                  if((cctd!="FR" && city == undefined) || (cctd=="FR" && zip==undefined)){
@@ -192,8 +245,11 @@ export class GmapGeocodeProvider {
     //juste pour pouvoir recuperer les informations de types dans les donnéés
     //fournies par le webservice
     private get_type(stype:string, contener:Array<any>){
+        
         for (let elem of contener){
+            
             for (let type of elem.types){
+                
                 if(type == stype) return elem.long_name;
             }
         }

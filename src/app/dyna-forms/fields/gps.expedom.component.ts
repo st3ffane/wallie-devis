@@ -394,7 +394,7 @@ export class GPSExpedomComponent{
         let options = [];
         let list = [];
 
-        let count = 0;
+        // let count = 0;
         for (let opt of this.question.options){
             if(opt.label == this.filter){
                 //options.push(opt);
@@ -415,8 +415,8 @@ export class GPSExpedomComponent{
                         //ajoute les differents points
                         let lbl = loc.label.toUpperCase();
                         if (this.search==null || lbl.indexOf(this.search.toUpperCase())!= -1) {
-                            loc["open_window"] = count == 0;
-                            count++;
+                            // loc["open_window"] = count == 0;
+                            // count++;
                             truc["locations"].push(loc);//bon pour affichage
                             list.push(loc.label);
                         }
@@ -428,6 +428,11 @@ export class GPSExpedomComponent{
                 
                 
             }
+        }
+
+        if(options && options.length == 1 && options[0].locations && options[0].locations.length == 1){
+            options[0].locations[0]["open_window"] = true;//ouvre le solitaire par defaut
+            
         }
         
         //les filtres 
