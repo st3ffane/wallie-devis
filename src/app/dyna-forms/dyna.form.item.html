@@ -66,6 +66,25 @@
             
         </div>
 
+        <div *ngSwitchCase="'date'" class="form-group">
+            <div  class="schrink">
+                <div class="input-container">
+                    <!-- verifier avec Firefox -->
+                     <label>{{question.title}}</label>   
+                    <input #texted type="date" 
+                    [formControlName]="question.id"
+                        [id]="question.id" type="email" 
+                        [(ngModel)]="question.__value"
+                        [placeholder]="question.description"
+                        >
+                        
+                </div>
+                <!--span>(<small>{{question.description}}</small>)</span-->
+            </div>
+
+            
+        </div>
+
 
         <div *ngSwitchCase="'textarea'" class="form-group">
             <div  class="schrink">
@@ -174,6 +193,11 @@
                 lancer des requetes FNAA, la population se fait via un fichier XML donné en documentation.</p>
             
             <fnaa-input [formulaire]="formulaire" [question]="question" [form]="form"></fnaa-input>
+        </div>
+        <div *ngSwitchCase="'fnaa-group'">
+            <p>WARNING: Test only pour l'ajout de vehicules dans les conteneurs.</p>
+            
+            <fnaa-group [formulaire]="formulaire" [question]="question" [form]="form"></fnaa-group>
         </div>
 
 

@@ -103,7 +103,11 @@ export class FNAAProvider{
                     for (let i=0; i<count;i++){
 
                         let elem = reponse.item(i);
-                        datas[elem.localName] = elem.innerHTML;
+                        if(elem.localName.startsWith("date")){
+                            //parse les differentes dates
+                            datas[elem.localName] = this.parseDate(elem);
+
+                        }else  datas[elem.localName] = elem.innerHTML;//recup simplement
                     }
                 }
 
@@ -118,7 +122,16 @@ export class FNAAProvider{
         
 
     }
+    private parseDate(elem:Element){
+        let dt = {};
+        //en theorie, 3 elements dans la date
+        for (let i=0;i<3;i++){
+            let el=elem.children.item(i);
+            dt[el.localName]=el.innerHTML;
+        }
 
+        return dt;
+    }
 
     private parseDoc(){
 

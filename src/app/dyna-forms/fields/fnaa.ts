@@ -15,6 +15,8 @@ export class FNAAComponent{
     @Input() form:FormGroup;
     @Input() formulaire;//pour pouvoir faire les modifications
 
+    vehicule_infos:any = null;//si validé, sera la reponse a la question!
+    
 
     error: any;
 
@@ -25,9 +27,13 @@ export class FNAAComponent{
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 console.log("reponse du webservice....");
                 console.log(dts);
+                this.vehicule_infos = dts;
                 //a partir de ces infos, populate la question 
                 return new Promise( (resolve, reject)=>{
-                    console.log(this.formulaire)
+                   
+                    //new enregistre les données et affiche un recap 
+                    
+                    //old: populate le formulaire
                     for (let field of this.formulaire.fields) {
                         //recherche la données correspondante
                     //    let ctrl = this.form.controls[field];

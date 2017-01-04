@@ -37,7 +37,7 @@ import {DynaFormItemComponent} from "./dyna-forms/dyna.form.item.component";
 import {DynaArborescenceComponent} from "./dyna-forms/fields/dyna.arborescence.component";
 import {DynaArborescence2Component} from "./dyna-forms/fields/dyna.arborescence2.component";
 import {FNAAComponent} from "./dyna-forms/fields/fnaa";
-
+import {FNAAGroupComponent} from "./dyna-forms/fields/fnaa.group";
 
 //import {AutoScrollComponent} from "./directives/autoscroll.component";
 import {ConfirmDialog} from "./dyna-forms/dialogs/confirm.dialog";
@@ -111,7 +111,8 @@ let routes = RouterModule.forRoot([
     DynaArborescence2Component,
     GPSExpedomComponent,
     FNAAComponent,
-
+    FNAAGroupComponent,
+    
     GetDevisResultPipe,
     ToIconUrlPipes,
     SafeHtmlPipe,

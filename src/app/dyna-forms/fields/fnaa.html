@@ -1,5 +1,5 @@
 <fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
-        <div class="schrink">
+        <div class="schrink inline">
             <div class="input-container">
                 <label>{{question.title}}</label>  
                 <input #texted type="text"  
@@ -12,7 +12,23 @@
                       
             </div>
             <!--span>(<small>{{question.description}}</small>)</span-->
+            <button class="btn btn-primary" type="button" (click)="load_vehicule_details(texted.value)">Details</button>
         </div>
-        <button type="button" (click)="load_vehicule_details(texted.value)">Details</button>
+        
+
+        <div *ngIf="vehicule_infos">
+            <table>
+                <tr>
+                    <td >{{vehicule_infos.marque+" "+vehicule_infos.modele+" "+vehicule_infos.version+" "+vehicule_infos.date1erCir.annee}}</td>
+                </tr>
+                <tr>
+                    <td>qqs infos en plus si tu veux, comme:</td>
+                </tr>
+                <tr>
+                    <td>{{vehicule_infos.energie}}</td>
+                </tr>
+            </table>
+            <small>Ces informations proviennent de ....</small>
+        </div>
 
 </fieldset>

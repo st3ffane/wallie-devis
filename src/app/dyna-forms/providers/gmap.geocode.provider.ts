@@ -80,8 +80,8 @@ export class GmapGeocodeProvider {
             // console.log(rep);
             rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                console.log("des reponses");
-                console.log(rep);
+                // console.log("des reponses");
+                // console.log(rep);
 
                 //recupere les infos administrative_area_level_3
                 // let address = rep.results[0].address_components;
@@ -97,12 +97,12 @@ export class GmapGeocodeProvider {
                 //city, depend si France ou ailleurs 
                 // let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address)  ;
                 
-                console.log("Recherche pays: "+country);
-                console.log(address);
+                // console.log("Recherche pays: "+country);
+                // console.log(address);
                  if(country=="France"){
                     zip  = this.getAddressComponent( address, "postal_code");
                     city = this.getAddressComponent( address, "locality");
-                    console.log("city: "+city+", zip:"+zip);
+                    // console.log("city: "+city+", zip:"+zip);
                 } else {
                     //tente de recuperer les infos possibles
                     //me moque du zip 
@@ -131,15 +131,15 @@ export class GmapGeocodeProvider {
 
     private getAddressComponent( results:Array<any>, type:string){
 
-        console.log("getaddresscomponents");
+        // console.log("getaddresscomponents");
         let addr = null;
         for (let res of results){
             let types = res.types;
-            console.log("type: ");
-            console.log(types);
+            // console.log("type: ");
+            // console.log(types);
             for (let t of types){
                 if(type.indexOf(t)!=-1){ 
-                    console.log("find: "+t);
+                    // console.log("find: "+t);
                     return this.get_type(type,res.address_components);
                 }
             }

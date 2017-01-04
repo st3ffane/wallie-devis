@@ -34,8 +34,14 @@ const TEST_FORM={
 		{
 			"id":"anid",
 			"type":"fnaa",
-			"title":"un text",
+			"title":"Entrez vote numero de plaque d'immatriculation:",
 			"description":"champs FNAA test"
+		}
+		,{
+			"id":"anotherid",
+			"type":"fnaa-group",
+			"title":"Informations sur vos vehicules:",
+			"description":"champs FNAA Group test"
 		}
 	]
 };
