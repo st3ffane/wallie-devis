@@ -1,0 +1,24 @@
+<fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
+        <div class="schrink inline">
+            <div class="input-container">
+                <label>{{question.title}}</label>  
+                <input #texted type="text"  
+                    [formControlName]="question.id"
+                    [(ngModel)]= "question.__value"
+                    [id]="question.id" type="text" 
+                    
+                    [placeholder]="question.description"
+                    >
+                      
+            </div>
+            <!--span>(<small>{{question.description}}</small>)</span-->
+            <button class="btn btn-primary" type="button" (click)="load_vehicule_details(texted.value)">Details</button>
+        </div>
+        <div *ngIf="error">
+            <p>{{error}}</p>
+               
+        </div>
+
+        <hr/>
+
+</fieldset>

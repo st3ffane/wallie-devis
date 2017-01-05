@@ -10,6 +10,7 @@ import {DynaForm} from "../dyna-forms/forms/dyna.form";
 
 
 const ENDPOINT = TARGET+"/wp-admin/admin-ajax.php?action=init_webservice";
+const RELOAD = TARGET+"/wp-admin/admin-ajax.php?action=edit_quote&qote_id=";
 //ex d'url: wp-admin/admin-ajax.php?action=init_webservice&marchandise=voiture&motif=achat_vente&current=modedetransport.voiture_frm
 @Injectable()
 export class DevisProvider {
@@ -29,6 +30,23 @@ export class DevisProvider {
         //mais ne garde pas les données precedement enregistrées (etrangement, c'est peut etre juste un oubli ou un bug??)
         //pour pouvoir les recuperer, je la demande avant que le router n'ai le temps de faire quelquechose.... 
         this._history_state = window.history.state;
+        //recupere dans l'url le parametre QUOTE_ID si existe 
+        let query_string = {};
+        let query = window.location.search.substring(1);
+        let vars = query.split("&");
+        
+        console.log("recuperation des infos de l'URL")
+
+        for (let i=0;i<vars.length;i++) {
+            let pair = vars[i].split("=");
+            console.log(pair)
+            if (pair[0].toUpperCase() == 'QUOTE_ID'){
+                this._quote_id = pair[1];
+            }
+        } 
+        //
+
+
         // //("last visit:");
         // //(this._history_state);
     }
@@ -39,7 +57,7 @@ export class DevisProvider {
     //a la rigueur, on peut eviter de le mettre en dur et le faire generer par le title du formulaire (ou
     //le name, ou id...)
     devis_infos = {};
-    
+    _quote_id = null;//si a un quote id dans l'url, recharge sur serveur le cache et file en 1ere page 
 
     current_key : string = null;//la clé du formulaire actuellement affiché
 
@@ -233,8 +251,22 @@ export class DevisProvider {
         this._form_historic=[];
     }
 
+    /**
+     * Recharge le cache depuis le serveur
+     */
+    loadCacheFromServer(){
+        let url = RELOAD + this._quote_id;
+        return this._http.get(url).toPromise().then ( (rep)=>{
+            let cache = rep.json();
+            if (!cache && !cache.app_datas) throw "Pas de reponse du serveur.";
+            //enregistre le nouveau cache 
+            this.devis_infos = cache.app_datas;
 
+            return true;
 
+        })
+
+    }
 
     /**
      * passe a la prochaine partie du workflow,
@@ -486,8 +518,8 @@ export class DevisProvider {
     load_next_page_url_async(group:string="",form:string="", endpoint?:string){
         return this.load_form_datas_async(group,form).then( (fi)=>{
             // //(fi);
-            if(!fi) return null;//pas de données
-
+            if(!fi) return {"error":true,"error_msg":"Pas de reponse serveur"};//pas de données
+            if(fi['results'] || fi['message']) return fi;//fin de questionnaire
 
             //si locastorage, populate le formulaire 
             // //("Localstorage????");
@@ -506,7 +538,7 @@ export class DevisProvider {
             //     }
             // }
 
-
+            //sinon, renvoie les infos de navigation
             let k = this.current_key.split('/');
 
             //si tout bon, retourne les infos d'url 

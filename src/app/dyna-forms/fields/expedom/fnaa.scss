@@ -1,0 +1,18 @@
+
+.input-container{
+ 
+    text-align: left!important;
+  
+}
+.inline{
+    display: flex;
+    margin-bottom: 20px;
+    .input-container{
+        flex-grow: 1;
+    }
+    button{
+        flex-grow:0;
+            height: 40px;
+    align-self: flex-end;
+    }
+}

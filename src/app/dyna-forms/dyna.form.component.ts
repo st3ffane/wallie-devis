@@ -23,7 +23,7 @@ import {DevisProvider} from "../providers/devis.provider";
     //styleUrls:["./dyna.form.scss"]
 })
 export class DynamicFormComponent implements OnInit{
-    @Input() formulaire:DynaForm; //les questions du formulaire a afficher
+    @Input() formulaire:any; //les questions du formulaire a afficher
     form: FormGroup; //le group d'inputs de ce formulaire
     error:string;//en cas de non validation des contraintes de formulaires
 

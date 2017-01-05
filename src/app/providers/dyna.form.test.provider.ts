@@ -20,29 +20,23 @@ const TEST_FORM={
 	"key":"voiture\/form_pec",
 	"title":"Prise en charge de votre v\u00e9hicule",
 	"description":"Vous pouvez amener votre v\u00e9hicule au port de d\u00e9part, ou dans un de nos d\u00e9p\u00f4ts Expedom partout en France, ou encore le faire enlever \u00e0 votre domicile.",
-	"confirm":{
-		"if":{ //si present, n'apparait que si la condition est realisée
-			"field":"anid",//ici, apparit si anid==0
-			"value":0
-		},
-		"title":"un titre pour la confirm",
-		"description":"le texte de description <strong>(html friendly)</strong>",
-		"check":"Je confirme avoir bien lu tout ca",//si present, ajoute une checkbox pour valider la lecture
-		"cancellable":true //si true, ajoute un bouton Annuler a la dialog
-	},
+	
 	"fields":[
 		{
 			"id":"anid",
 			"type":"fnaa",
-			"title":"Entrez vote numero de plaque d'immatriculation:",
-			"description":"champs FNAA test"
+			"title":"Entrez vote numero de plaque d'immatriculation (0 pour provoquer une erreur):",
+			"description":"champs FNAA test",
+			//données de fallback, serviront a creer le formulaire en cas d'erreur 
+			//ainsi qu'a mapper les datas pour les renvoyer au webservice
+			
 		}
-		,{
-			"id":"anotherid",
-			"type":"fnaa-group",
-			"title":"Informations sur vos vehicules:",
-			"description":"champs FNAA Group test"
-		}
+		// ,{
+		// 	"id":"anotherid",
+		// 	"type":"fnaa-group",
+		// 	"title":"Informations sur vos vehicules:",
+		// 	"description":"champs FNAA Group test"
+		// }
 	]
 };
 @Injectable()

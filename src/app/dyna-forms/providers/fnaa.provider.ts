@@ -67,11 +67,21 @@ const TEST = `<?xml version='1.0' encoding='UTF-8'?>
 </soapenv:Body>
 </soapenv:Envelope>`;
 
+//remappage des noms entre le webservice et l'interface
+const REMAP = {
+    'prixVehic':"valeur",
+    'immatSiv':'immatriculation'
+}
+
+
 @Injectable()
 export class FNAAProvider{
     constructor(private _http:Http){}
     //recupere les details de l'immatriculation pour le vehicule
     get_vehicule_details(immat:string):Promise<any>{
+
+       
+
         let req = `<?xml version="1.0" encoding="UTF-8" ?>
         <root>
         <login>${FNAA_LOGIN}</login>
@@ -90,11 +100,24 @@ export class FNAAProvider{
         //recup et parse le XML 
         return new Promise( (resolve, reject)=>{
             try{
+
+                 if(immat=="unknown") throw "UNKNOWN";
+                 if(immat=="error") throw "ERROR";
+
+
+
                 let parser = new DOMParser();
                 let xmlDoc = parser.parseFromString(TEST,"text/xml");
                 //les données recuperees du webservice
                 let datas = {};
                 //recupere les infos necessaires dedans
+                //verifie si pas d'erreur 
+                let error = xmlDoc.getElementsByTagName("erreur");
+                if(error.length>0){
+                    let error_number = xmlDoc.getElementsByTagName("numero").item(0).innerHTML;
+                    throw error.item(0).innerHTML+" ("+error_number+")";
+                }
+
 
                 let rep = xmlDoc.getElementsByTagName("return");
                 if (rep && rep.length > 0){
@@ -103,11 +126,12 @@ export class FNAAProvider{
                     for (let i=0; i<count;i++){
 
                         let elem = reponse.item(i);
+                        let key = REMAP[elem.localName] || elem.localName;//si inconnu, le nom correspond
                         if(elem.localName.startsWith("date")){
                             //parse les differentes dates
-                            datas[elem.localName] = this.parseDate(elem);
+                            datas[key] = this.parseDate(elem);
 
-                        }else  datas[elem.localName] = elem.innerHTML;//recup simplement
+                        }else  datas[key] = elem.innerHTML;//recup simplement
                     }
                 }
 

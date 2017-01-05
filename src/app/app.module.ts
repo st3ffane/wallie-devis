@@ -11,6 +11,7 @@ import { AppComponent } from './app.component';//bootstrap
 import {DevisComponent} from "./pages/devis.component";//resultat du devis
 import {MainPageComponent} from "./pages/main.page.component";//landing page 
 import {DynFormsComponent} from "./pages/dyn.forms.component";//ce qui genere les formulaires
+import {DemandeComponent} from "./pages/demande.component";//marchandise = autre
 
 //debug only
 import {DynaTestComponent} from './pages/dyna.test.component';
@@ -36,13 +37,13 @@ import {DynamicFormComponent} from "./dyna-forms/dyna.form.component";
 import {DynaFormItemComponent} from "./dyna-forms/dyna.form.item.component";
 import {DynaArborescenceComponent} from "./dyna-forms/fields/dyna.arborescence.component";
 import {DynaArborescence2Component} from "./dyna-forms/fields/dyna.arborescence2.component";
-import {FNAAComponent} from "./dyna-forms/fields/fnaa";
-import {FNAAGroupComponent} from "./dyna-forms/fields/fnaa.group";
+import {FNAAComponent} from "./dyna-forms/fields/expedom/fnaa";
+import {FNAAGroupComponent} from "./dyna-forms/fields/expedom/fnaa.group";
 
 //import {AutoScrollComponent} from "./directives/autoscroll.component";
 import {ConfirmDialog} from "./dyna-forms/dialogs/confirm.dialog";
 
-import {GPSExpedomComponent} from "./dyna-forms/fields/gps.expedom.component";
+import {GPSExpedomComponent} from "./dyna-forms/fields/expedom/gps.expedom.component";
 
 import {GmapGeocodeProvider} from "./dyna-forms/providers/gmap.geocode.provider";
 import {FNAAProvider} from "./dyna-forms/providers/fnaa.provider";
@@ -90,6 +91,10 @@ let routes = RouterModule.forRoot([
   {
     path:"generated",
     component: DevisComponent
+  },
+  {
+    path:"demande",
+    component: DemandeComponent
   }
   //, { path: '**', component: MainPageComponent }
 ]);
@@ -102,7 +107,7 @@ let routes = RouterModule.forRoot([
     AppComponent,
     DevisComponent,
     MainPageComponent,
-
+    DemandeComponent,
     
     DynaTestComponent,
     DynamicFormComponent,

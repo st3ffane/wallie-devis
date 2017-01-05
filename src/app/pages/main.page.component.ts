@@ -47,7 +47,7 @@ export class MainPageComponent{
     loading:boolean = false;
 
     saved_devis = [];//les informations de devis chargés en BdD
-
+    error: string = null;
 
     constructor( private _devis:DevisProvider,
                 private _router:Router){}
@@ -56,7 +56,24 @@ export class MainPageComponent{
         //au cas ou, desactive l'enregistrement de l'historique 
         this._devis.deactive_historic();
 
+        //verifie si doit charger le cache depuis le serveur 
+        if(this._devis._quote_id){
+            this.loading = true;
+            console.log("Chargment des infos depuis le serveur");
+            this._devis.loadCacheFromServer().then( ()=>{
+                //navigue vers la premiere page 
+                return this._devis.next("","");
 
+            }).then( (fi:any)=>{
+                this.loading = false;
+                this._router.navigate(["/devis",fi.group,fi.form]);
+            }).catch ( (err)=>{
+                //probleme de chargement des données....
+                //affiche un message d'erreur
+                this.loading = false;
+                this.error = err;
+            })
+        }
         //verifie si a un cache en memoire, si oui, propose de retourner en place 
         this.reload = Object.keys(this._devis._form_historic).length >0;
         this.__reloaded = this._devis.get_devis();//normalement a ete chargé depuis le localstorage....

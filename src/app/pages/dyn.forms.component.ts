@@ -164,14 +164,19 @@ console.log("Calling NEXT");
     this._devis.next(this.group,this.form).then( (fi)=>{
             //on est parti!!!
             this.loading = false;
-
+            
             //si une erreur????
+            //les differentes possibilités
+            if(fi.error){
+              throw fi.error_msg;//demande l'affichage de l'erreur et basta
+            }
+            if(fi.results) return this._router.navigate(["/generated"]); 
+            if(fi.message) return this._router.navigate(["/demande"]);
 
+            //sinon, navigue dans la prochaine page du formulaire
+           return  this._router.navigate(["/devis",fi.group,fi.form]);
 
-
-           if(fi) return  this._router.navigate(["/devis",fi.group,fi.form]);
-
-           return this._router.navigate(["/generated"]); //resultat a afficher
+           
 
         }).catch( (err)=>{
           this.loading = false;

@@ -1,0 +1,299 @@
+<div [formGroup]="form" class="border">
+
+
+            <!-- affichage des tabs pour les choix -->
+
+      <div class="tabs">
+          <div class="tab" *ngFor="let qfilter of question.options">
+              <label>
+                <input type="radio" [(ngModel)]="filter" 
+                    [formControlName]="filter_form_ctrl"
+                    [attr.name]="filter_form_ctrl"
+                    [value]="qfilter.label"                
+                    #trigger>
+                <span>{{qfilter.label}}</span></label>
+          </div>
+          <div *ngIf="noGeo == true" class="tab">
+                <label>
+                <input type="radio" [(ngModel)]="filter" 
+                    [formControlName]="filter_form_ctrl"
+                    [attr.name]="filter_form_ctrl"
+                    value="domicile"                
+                    #trigger><span>Domicile</span></label>
+          </div>
+          <div class="content">
+              <div [ngSwitch]="filter">
+                  <div *ngSwitchCase="'port'">
+
+                      <div >
+                            <p *ngIf="question['use-text-filter'] != '1' ">{{question | gpsoption:'port':'description'}}</p>
+                            <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
+                                
+                                <div class="input-container">
+                                    <label>{{question | gpsoption:'port':'description'}}</label>
+                                    <input 
+
+                                    type="text" 
+                                    list="choices"
+                                    [(ngModel)]="search" 
+                                    [formControlName]="search_form_ctrl"
+                                    placeholder="Entrez les premieres lettres du port recherché ou cliquez sur un marqueur de la carte"
+                                        >
+                                    <datalist id="choices">
+                                        <option *ngFor="let l of filtered_datalist" [value]="l">
+                                    </datalist>
+                                
+                                </div>
+                                <a class="btn btn-primary" style="padding-bottom:11px" (click)="search = null">Effacer</a>  
+                                
+                            </div>
+                        </div>
+                                
+                  </div>
+                  <div *ngSwitchCase="'depot'">
+                       <p *ngIf="question['use-text-filter'] != '1' ">{{question | gpsoption:'depot':'description'}}</p>
+                    <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
+                        
+                        <div class="input-container">
+                            <label>{{question | gpsoption:'depot':'description'}}</label>
+                            <input 
+
+                            type="text" 
+                            list="choices"
+                            [(ngModel)]="search" 
+                            [formControlName]="search_form_ctrl"
+                            placeholder="Entrez les premieres lettres du dépot recherché ou cliquez sur un marqueur de la carte"
+                                >
+                            <datalist id="choices">
+                                <option *ngFor="let l of filtered_datalist" [value]="l">
+                            </datalist>
+                           
+                        </div>
+                        <a class="btn btn-primary" style="padding-bottom:11px" (click)="search = null">Effacer</a>  
+                          
+                    </div>
+                  </div>
+                  <div *ngSwitchCase="'domicile'" >
+
+                      <div>
+                            <div *ngIf="!position">
+                                <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>
+                            </div>
+                            <div *ngIf="position">
+                                
+                                        <span *ngIf="position.error">
+                                            <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre adresse ou de cliquer sur la carte.</p>
+                                        </span>
+                                        <span *ngIf="position.zipcode">Vous avez été géolocalisé: <strong>{{position.name+"("+position.zipcode+")"}}</strong></span>
+                                        
+                                    
+                                
+                            </div>      
+                        </div>
+                        
+                        <div class="inline-form">
+                           
+                                <div class="input-container">
+                                    <!--input type="text" value="Un autre departement" #zipcode [(NgValue)]="srch_zipcode" [value]="srch_zipcode || '' "
+                                    [class.full]="zipcode.value!=''"-->
+                                     <label *ngIf="question.default_position.country=='france'">Entrez votre adresse ou cliquez sur la carte.</label>  
+                                     <label *ngIf="question.default_position.country!='france'">Entrez un nom de ville ou cliquez sur la carte.</label>  
+                                     <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || ''" 
+                                    [class.ng-valid]="zipcode.value!=''" >
+                                         
+                                </div>
+                                <button *ngIf="!is_localising" type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+                                <i *ngIf="is_localising" class="fa fa-spin fa-gear"></i>
+                                
+                        </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+           
+        <!--div class="tabs">
+            <div class="tab" *ngFor="let qfilter of question.options">
+
+               
+                <label>
+                <input type="radio" [(ngModel)]="filter" 
+                    [formControlName]="filter_form_ctrl"
+                    [attr.name]="filter_form_ctrl"
+                    [value]="qfilter.label"                
+                    #trigger>
+                <span>{{qfilter.label}}</span></label>
+               
+                
+                
+
+                <div class="content" *ngIf="qfilter.locations && trigger.checked">
+                     <p>{{qfilter.description}}</p>
+                      <div class="schrink  inline" *ngIf="question['use-text-filter'] == '1' ">
+                        
+                        <div class="input-container">
+                            <label>{{question.title}}</label>
+                            <input 
+
+                            type="text" 
+                            list="choices"
+                            [(ngModel)]="search" 
+                            [formControlName]="search_form_ctrl"
+                            placeholder="Entrez les premieres lettres"
+                                >
+                               
+                           
+                        </div>
+                        <a class="btn btn-primary" style="padding-bottom:11px" (click)="search = null">Reset</a>  
+                          
+                    </div>
+
+
+                    <!--input *ngIf="question['use-text-filter']" 
+
+                            type="text" 
+                            list="choices"
+                            [(ngModel)]="search" 
+                            [formControlName]="search_form_ctrl"
+                            placeholder="Entrez les premieres lettres"--
+                    <datalist id="choices">
+                        <option *ngFor="let l of filtered_datalist" [value]="l">
+                    </datalist>
+                </div>
+            </div>
+            <!-- dernier choix, le domicile --
+
+            <div *ngIf="noGeo == true" class="tab">
+                <label>
+                <input type="radio" [(ngModel)]="filter" 
+                    [formControlName]="filter_form_ctrl"
+                    [attr.name]="filter_form_ctrl"
+                    value="domicile"                
+                    #trigger><span>Domicile</span></label>
+                
+
+
+                <div class="content" *ngIf="trigger.checked">
+                        <div>
+                            <div *ngIf="!position">
+                                <p>Afin de permettre de calculer les tarifs, nous procedons a votre localisation GPS.</p>
+                            </div>
+                            <div *ngIf="position">
+                                
+                                        <span *ngIf="!position.zipcode && !position.city">
+                                            <p>Vous n'avez pas pu etre geolocalisé, merci de renseigner votre code postal</p>
+                                        </span>
+                                        <span *ngIf="position.zipcode">Vous avez été géolocalisé: <strong>{{position.name+"("+position.zipcode+")"}}</strong></span>
+                                        
+                                    
+                                
+                            </div>      
+                        </div>
+                        <div class="inline-form">
+                           
+                                <div class="input-container">
+                                    <!--input type="text" value="Un autre departement" #zipcode [(NgValue)]="srch_zipcode" [value]="srch_zipcode || '' "
+                                    [class.full]="zipcode.value!=''"--
+                                     <label>Entrez votre adresse.</label>  
+                                     <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || ''" 
+                                    [class.ng-valid]="zipcode.value!=''" >
+                                         
+                                </div>
+                                <button type="button" class='btn btn-primary' (click)="localise_from_zipcode(zipcode.value)">Localisation</button>
+                        
+                                
+                        </div>
+                        
+                </div>
+            </div>
+        </div-->
+
+       
+
+
+
+
+
+        
+
+        <sebm-google-map [latitude]="question?.default_location.lat" [longitude]="question?.default_location.lng"
+            [zoom]="question?.default_location.zoom || 6"
+            (mapClick)="positionne_marker($event)"
+            [scrollwheel]="false"
+            >
+            <div *ngFor="let opt of filtered_options">
+
+                   
+
+
+            
+                <!-- les ports et les depots -->
+                <div *ngIf="filter!='domicile'">
+                   
+                    
+                    <sebm-google-map-marker  *ngFor="let m of opt.locations"
+                        [latitude]="m?.lat" [longitude]="m?.lng" 
+                        [iconUrl]="opt.label | toIconUrl"
+                        (markerClick)="check_options(m)">
+
+                        <!-- si une seule reponse, affiche directement l'infos window???  -->
+                        <sebm-google-map-info-window [isOpen]="  m.open_window === true">
+                            <div class="infos">
+                                <strong>{{m?.label}}</strong>
+                                <p>{{m?.description}}</p>
+                                <fieldset>
+                                    <div  *ngFor="let price of m?.options">
+                                        <label ><input [formControlName]="question.id"                        
+                                        type="radio" 
+                                        [(ngModel)]="question.__value"
+                                        [value]="price.value"
+                                        class="form-check-input"
+                                        ><span class="btn btn-primary">{{price.description}}</span></label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </sebm-google-map-info-window >   
+
+                    </sebm-google-map-marker>
+                </div>
+
+                
+                </div>
+             <div  *ngIf="noGeo==true && filter=='domicile' && position && !position.error">
+                        
+                            <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->
+                        <sebm-google-map-marker  [latitude]="position?.lat" [longitude]="position?.lng"
+                        [iconUrl]="'domicile' | toIconUrl"  >
+                            <sebm-google-map-info-window   [isOpen]="position?.lat" #domicileMarker >
+                            <div class="infos">
+                                <strong>{{question.default_location?.label}}</strong>
+                                <p>{{question.default_location?.description}}</p>
+
+                                <fieldset *ngIf="position.options">
+                                    <div  *ngFor="let price of position?.options">
+                                        <label><input [formControlName]="question.id"                        
+                                        type="radio" 
+                                        [(ngModel)]="question.__value"
+                                        [value]="price.value"
+                                        class="form-check-input"
+                                        ><span class="btn btn-primary">{{price.description}}</span></label>
+                                    </div>
+                            
+                                </fieldset>
+                                <div *ngIf="!position.options">
+                                    <span *ngIf="!position.price_error" class="fa fa-spin fa-gear"></span>
+                                    <span *ngIf="position.price_error">{{position.price_error}}</span>
+                                </div>
+                            </div>
+
+                                
+                            </sebm-google-map-info-window> 
+                        </sebm-google-map-marker>
+                </div>
+
+            
+        
+        </sebm-google-map>
+
+        
+    </div>

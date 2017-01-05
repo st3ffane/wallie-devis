@@ -1,0 +1,27 @@
+<fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
+    <button class="btn btn-primary" type="button" (click)="addField()">Ajouter un vehicule au conteneur</button>
+
+    <table>
+        <tr *ngFor="let group of groups; let i = index">
+            <td *ngIf="!group.immatSiv">
+                 <div class="schrink inline">
+                    <div class="input-container">
+                        <label>Entrez la plaque d'immatriculation du véhicule:</label>  
+                        <input #texted type="text"  
+                             type="text"                             
+                            placeholder="ex: 2874AA40"
+                            >
+                            
+                    </div>
+                    <!--span>(<small>{{question.description}}</small>)</span-->
+                    <button class="btn btn-primary" type="button" (click)="load_vehicule_details(i,texted.value)">Details</button>
+                </div>
+        </td>
+             <td *ngIf="group.immatSiv">
+                 <span>{{i+": "+group.marque+" "+group.modele+" "+group.version+" "+group.date1erCir.annee}}</span>
+                 <button class="btn btn-secondary" type="button" (click)="delete(i)">Supprimer</button></td>
+        </tr>
+    </table>
+
+
+</fieldset>
