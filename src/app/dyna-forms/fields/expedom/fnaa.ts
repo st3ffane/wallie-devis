@@ -19,6 +19,7 @@ export class FNAAComponent{
     
     
     error: any;
+    loading: boolean = false;//semaphore de chargeement
 
     constructor(private _fnaa:FNAAProvider){}
 
@@ -26,7 +27,7 @@ export class FNAAComponent{
         if(immat){
             this.error = null;
             
-
+            this.loading = true;
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 console.log("reponse du webservice....");
@@ -49,8 +50,11 @@ export class FNAAComponent{
                             this["set_"+field.id](dts, field);
                         }
                     }
-
+                    resolve();
                 });
+
+            }).then( ()=>{
+                this.loading = false;
 
             }).catch( (err)=>{
                 
@@ -65,6 +69,7 @@ export class FNAAComponent{
                    //bug reseau ou autre
                    this.error = err;
                }
+               this.loading = false;
                 
             });
         }

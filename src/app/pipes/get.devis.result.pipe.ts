@@ -39,7 +39,7 @@ export class GetDevisResultPipe implements PipeTransform {
             
             
         }
-        else return "NON RESEIGNE";
+        else return "-- --";
    
   }
 }

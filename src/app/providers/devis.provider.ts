@@ -10,7 +10,7 @@ import {DynaForm} from "../dyna-forms/forms/dyna.form";
 
 
 const ENDPOINT = TARGET+"/wp-admin/admin-ajax.php?action=init_webservice";
-const RELOAD = TARGET+"/wp-admin/admin-ajax.php?action=edit_quote&qote_id=";
+const RELOAD = TARGET+"/wp-admin/admin-ajax.php?action=edit_quote&quote_id=";
 //ex d'url: wp-admin/admin-ajax.php?action=init_webservice&marchandise=voiture&motif=achat_vente&current=modedetransport.voiture_frm
 @Injectable()
 export class DevisProvider {
@@ -257,9 +257,15 @@ export class DevisProvider {
     loadCacheFromServer(){
         let url = RELOAD + this._quote_id;
         return this._http.get(url).toPromise().then ( (rep)=>{
+            
+            
+            
             let cache = rep.json();
-            if (!cache && !cache.app_datas) throw "Pas de reponse du serveur.";
+            if (!cache ) throw "Pas de reponse du serveur.";
             //enregistre le nouveau cache 
+            //decompacte les datas....
+
+
             this.devis_infos = cache.app_datas;
 
             return true;
@@ -440,6 +446,7 @@ export class DevisProvider {
             // //(fi);
             if(fi["key"] === undefined){
                 this.current_key = null;//au cas ou...
+                
                 //si une erreur 
                 if(fi["error"]){
                     throw fi['error'];//bug 
@@ -449,7 +456,7 @@ export class DevisProvider {
                     // //("Affichage des resultats");
                     //redirige appli vers resultats
                     
-                    return null;
+                    return fi;
                 }
                 
             }
@@ -578,10 +585,6 @@ export class DevisProvider {
      */
     load_devis_details_async(){//workflow){
 
-         
-
-
-
         let headers = new Headers();
         headers.append('Content-Type', 'application/x-www-form-urlencoded');
 
@@ -664,7 +667,29 @@ export class DevisProvider {
             return rep;
         });
     }
+    /**
+     * recupere depuis le server un cache compacté a utiliser en cache
+     * NOTE: version simplifiée du cache
+     */
+    private unpack_datas(datas){
+        let cache = {};
+        for (let key of Object.keys(datas)){
+            console.log(key);//nom du formulaire
+            cache[key]={
+                "fields":[]
+            };
+            let fields = cache["fields"];
+            let frm = datas[key];
 
+            if(typeof frm == "string"){
+                let prop = frm.split('_')[1];
+                console.log("nom de prop "+prop);
+                
+            }
+
+
+        }
+    }
 
     //GPS: charge les prix pour le domicile 
     //@param zipcode: l'objet position a utiliser (ie: coords gps, zipcode, nom de ville) pour les calculs

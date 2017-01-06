@@ -61,26 +61,30 @@ tbody{
             padding-top: 10px;
         }
         .form_fields{
-
-            // display: table-row;
-            width: 100%;
-            .field_label{
+            
+                .field_label{
                 // display: table-cell;
+               
                     padding-left: 10px;
                     vertical-align: top;
-
+                    
                    
-            }
-            .field_value{
-                // display: table-cell;
-                font-size: 1.1em;
-                font-weight: 700;
-                text-transform: uppercase;
-                width: 30%;
-                vertical-align: top;
-                
-                
-            }
+                }
+                .field_value{
+                    // display: table-cell;
+                    
+                    font-size: 1.1em;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    width: 30%;
+                    vertical-align: top;
+                    
+                    
+                }
+            
+            // display: table-row;
+            width: 100%;
+            
         }
         
     }

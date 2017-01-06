@@ -21,7 +21,7 @@
                             
                             class=" check-container radio"
                             --><div class=" check-container radio"></div><span>{{it.label}}</span></label>
-                        <span><small>{{it.description}}</small></span>
+                        <span><small [innerHTML]="it.description | safeHTML"></small></span>
                         
                 </div>
                 <div *ngIf="it.isGroup">
@@ -37,7 +37,7 @@
                             
                             class=" check-container radio"
                             --><div class=" check-container radio group"></div><span>{{it.label}}</span></label>
-                        <span><small>{{it.description }}</small></span>
+                        <span><small [innerHTML]="it.description | safeHTML"></small></span>
                 </div>
             </div>
         </div>

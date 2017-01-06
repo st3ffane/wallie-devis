@@ -438,6 +438,8 @@ export class GPSExpedomComponent{
         //les filtres 
         this.filtered_datalist = list;
         this.filtered_options = options;
+
+        
         return;
     }
 
@@ -486,6 +488,7 @@ export class GPSExpedomComponent{
                     //recentre la carte
                     // this.question.default_location.lat = this.position.lat;
                     // this.question.default_location.lng = this.position.lng;
+                    this.is_localising = false;
 
         }).catch( (err)=>{
             console.log("erreur");

@@ -11,11 +11,13 @@
       <p>Oups, nous avons eu un probleme de chargement des informations....</p>
       <p>{{error}}</p>
       
-      <a class="btn btn-primary" routerLink="/">Retour a l'acceuil</a>
+      <a class="btn btn-primary" routerLink="/">Retour a l'accueil</a>
     </div>
 
     <div *ngIf="infos" class="container-fluid">
-       <div *ngIf="prec_form_name" style="width: 100%; text-align:left;"> <button type="button" (click)="back()" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Retour à: {{prec_form_name}} </button></div>
+       <div *ngIf="prec_form_name" style="width: 100%; text-align:left;    margin-bottom: 30px;"> 
+         <button type="button" (click)="back()" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Retour à: {{prec_form_name}} </button>
+        </div>
             <!-- test only, cree un formulaire a partir des infos passées par le js 
             voir a mettre en forme les données.... -->
             <dynamic-form [formulaire]="infos" (submitted)="next()"></dynamic-form>

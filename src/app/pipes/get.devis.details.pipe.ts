@@ -19,7 +19,7 @@ export class GetDevisDetailsPipe implements PipeTransform {
             
             
         }
-        else return "NON RESEIGNE";
+        else return "-- --";
    
   }
 }

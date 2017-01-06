@@ -12,9 +12,10 @@
                       
             </div>
             <!--span>(<small>{{question.description}}</small>)</span-->
-            <button class="btn btn-primary" type="button" (click)="load_vehicule_details(texted.value)">Details</button>
+            <button *ngIf="!loading" class="btn btn-primary" type="button" (click)="load_vehicule_details(texted.value)">Details</button>
+            <button *ngIf="loading" class="btn btn-primary" type="button" ><i class="fa fa-spin fa-gear"></i></button>
         </div>
-        <div *ngIf="error">
+        <div *ngIf="error" class="error">
             <p>{{error}}</p>
                
         </div>
