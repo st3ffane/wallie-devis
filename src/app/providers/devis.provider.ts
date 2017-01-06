@@ -266,7 +266,7 @@ export class DevisProvider {
             //decompacte les datas....
 
 
-            this.devis_infos = cache.app_datas;
+            //this.devis_infos = cache.app_datas;
 
             return true;
 
@@ -684,7 +684,10 @@ export class DevisProvider {
             if(typeof frm == "string"){
                 let prop = frm.split('_')[1];
                 console.log("nom de prop "+prop);
-                
+                fields.push({
+                    "id":prop,
+                    "value":frm
+                });
             }
 
 

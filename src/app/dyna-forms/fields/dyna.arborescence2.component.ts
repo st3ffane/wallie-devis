@@ -350,7 +350,7 @@ export class DynaArborescence2Component{
         // je sais pas encore comment faire ca....
         let groupname = group.groupName;
 
-        if(groupname == "main") this.form.controls[groupname].setValue(1);//pour les childs????
+        if(groupname == "main" && this.form.controls[groupname]) this.form.controls[groupname].setValue(1);//pour les childs????
         else if(this.form.controls[groupname]) this.form.controls[groupname].setValue(null);//pour les childs????
         //le groupe en dessous
         
