@@ -15,6 +15,9 @@
             <button *ngIf="!loading" class="btn btn-primary" type="button" (click)="load_vehicule_details(texted.value)">Details</button>
             <button *ngIf="loading" class="btn btn-primary" type="button" ><i class="fa fa-spin fa-gear"></i></button>
         </div>
+        <div *ngIf="loading">
+            <p>Chargement des informations sur votre véhicule. Merci de patienter...<i class="fa fa-spin fa-gear"></i></p>
+        </div>
         <div *ngIf="error" class="error">
             <p>{{error}}</p>
                

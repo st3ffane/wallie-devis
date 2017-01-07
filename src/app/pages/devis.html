@@ -29,18 +29,18 @@
                     <tr><td  colspan="2" class="form_title">{{form.title}}</td></tr>
                     <tr class="form_fields" *ngFor="let field of form.fields">
                         
-                        <td class="field_label">{{field.title}} </td>
-                        <td class="field_value" >
-                           
-                                <div [ngSwitch]="field['data-type']">
-                                        <span *ngSwitchCase="'currency'"  >{{field.value_label | number:'2.2-2'}}€</span>
-                                        <span *ngSwitchCase="'boolean'"  >{{field.value_label | ouinon}}</span>
-                                        <span *ngSwitchDefault >{{field.value_label}}</span>
-                                </div>
+                            <td *ngIf="!field.hide" class="field_label">{{field.title}} </td>
+                            <td *ngIf="!field.hide" class="field_value" >
                             
-                            
-                        </td>
-                        
+                                    <div [ngSwitch]="field['data-type']">
+                                            <span *ngSwitchCase="'currency'"  >{{field.value_label | number:'2.2-2'}}€</span>
+                                            <span *ngSwitchCase="'boolean'"  >{{field.value_label | ouinon}}</span>
+                                            <span *ngSwitchDefault >{{field.value_label}}</span>
+                                    </div>
+                                
+                                
+                            </td>
+                       
                     </tr>
                     
                 </div>
@@ -77,7 +77,7 @@
                 <tr class="form_fields"><td class="field_label">Taxe sur marchandise (<strong>TSM</strong>):</td><td class="field_value">{{devis_details.TSM | number:'2.2-2'}}€</td></tr>
                 
                 <tr class="form_fields"><td class="field_label">Montant TVA:(<strong>{{devis_details.TVA | number:'1.2-2' || 'non applicable'}}%</strong>)</td><td class="field_value">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</td></tr>
-                <tr class="form_fields"><td class="field_label">Montant Octroi de mer (<strong>{{devis_details.OM?.om | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}%</td></tr>
+                <tr class="form_fields"><td class="field_label">Montant Octroi de mer (<strong>{{devis_details.OM?.om | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">Montant Octroi de mer regionnal (<strong>{{devis_details.OM?.omr | number:'1.2-2'}}€</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">Total des Droits et taxe de douane:</td><td class="field_value">{{devis_details.TAXES | number:'2.2-2'}}€</td></tr>
                 

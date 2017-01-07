@@ -14,8 +14,15 @@ export class FNAAGroupComponent{
     @Input() formulaire;//pour pouvoir faire les modifications
 
     groups=[];//les informations sur les vheicules
-    constructor(private _fnaa:FNAAProvider){}
+    loading = false;//indique si est en train de charger les infos depuis le webservice
 
+    constructor(private _fnaa:FNAAProvider){
+       
+    }
+    ngOnInit(){
+         
+    }
+    
     addField(){
         //ajoute un nouveau champs FNAA???
         this.groups.push({});
@@ -23,8 +30,7 @@ export class FNAAGroupComponent{
     load_vehicule_details(index:number,immat:string){
         if(immat){
 
-            //test only
-            if(immat == "0") throw "unknown immatriculation";
+            this.loading = true;
 
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
@@ -32,11 +38,12 @@ export class FNAAGroupComponent{
                 console.log(dts);
                 this.groups[index] = dts;
                 //a partir de ces infos, populate la question 
+                this.loading = false;
                 
             }).catch( (err)=>{
                 console.log(err);
                 //fallback, demande l'affichage du formulaire
-                
+                this.loading = false;
             });
         }
     }

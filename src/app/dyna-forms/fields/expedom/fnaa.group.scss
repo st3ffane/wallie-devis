@@ -1,4 +1,8 @@
+@import "../../material/check";
 
+.choice-cmp{
+    text-align: left;
+}
 .input-container{
  
     text-align: left!important;
@@ -6,13 +10,56 @@
 }
 .inline{
     display: flex;
-    margin-bottom: 20px;
+    border: none !important;
+    &>*{
+            flex-grow:1;
+            align-self: flex-start;
+            
+            border: none;
+            margin-bottom: 5px;
+            &:nth-child(odd){
+                 border: none;
+                 margin-right: 5px;
+            }
+    }
     .input-container{
         flex-grow: 1;
     }
     button{
         flex-grow:0;
             height: 40px;
+            width: 100px;
     align-self: flex-end;
+    @media screen and (max-width:700px){
+        flex-grow: 1;
+        width: 100%;
+    }
+    &.close{
+        border-radius: 50%;
+        width:40px;
+        color:red;
+        opacity:0.5;
+         @media screen and (max-width:700px){
+            flex-grow: 0;
+            width: 40px;
+        }
+    }
     }
 }
+.immatinfos{
+    font-size: 1.5em;
+    font-weight: 700;
+}
+.vehicules{
+    tbody{
+        tr{
+            border-bottom: 1px dashed rgba(255,255,255,0.3);
+
+            &.last-child{
+                border-bottom: none;
+            }
+        }
+        
+    }
+}
+.wide{width:100%;}

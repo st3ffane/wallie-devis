@@ -255,6 +255,11 @@ export class DevisProvider {
      * Recharge le cache depuis le serveur
      */
     loadCacheFromServer(){
+        //supprime l'historique en cours 
+        this.clearHistoric();
+        this._form_current_historic = null; 
+
+
         let url = RELOAD + this._quote_id;
         return this._http.get(url).toPromise().then ( (rep)=>{
             
@@ -265,7 +270,7 @@ export class DevisProvider {
             //enregistre le nouveau cache 
             //decompacte les datas....
 
-
+            this.devis_infos = this.unpack_datas(cache);
             //this.devis_infos = cache.app_datas;
 
             return true;
@@ -464,8 +469,25 @@ export class DevisProvider {
             //la clé complete du formulaire
             this.current_key = fi.key;
             // //(this.current_key);
-            let form_name:string  = this.current_key.split("/")[1];//just le nom
-            let group = this.current_key.split("/")[0];
+
+            //si provient du serveur, je n'ai pas ces infos...
+
+            let cache_key = this.current_key.split("/");
+            let form_name:string  = "";//just le nom
+            let group =  "";
+            if(cache_key.length == 1){
+                //provient du serveur / invalid?
+                form_name = fi.key;
+                group = "server";
+
+                //la clé complete du formulaire
+                this.current_key = "server/"+fi.key;
+            } else {
+                //cache normal 
+                form_name  = cache_key[1];//just le nom
+                group = cache_key[0];
+            }
+            
 
 
             // //(form_name)
@@ -474,25 +496,39 @@ export class DevisProvider {
             // //("verifie validité formulaire");
             //populate datas a partir du cache de données...
             if(this.devis_infos[form_name]){
+                console.log("Données en cache, verifie si valides")
+                console.log(group);
 
-                if (group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    // //("form global ou connue, repopulate")
+                //valeurs du group de cache 
+                let cache_group = this.devis_infos[form_name].key ? this.devis_infos[form_name].key.split("/")[0] : "";
+
+                //test repopulate
+                if (cache_group=="server" || group=="global" || url.startsWith(this.devis_infos[form_name].url)){
+                    console.log("form global ou connue, repopulate")
                     
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
-                    //  //(cache);
+                    console.log(cache);
                      if(cache){
+
+                         //prendre en compte les noms des vars 
                          let total = fi.fields.length; 
                         for (let i=0;i<total;i++){
                             // //(fi.fields[i]);
+                            let key = fi.fields[i].id;
+                            //recuper la valeur dans le cache 
+                            let cached_field = this.getCachedValue(key, cache);
 
-                            fi.fields[i]['value'] = cache[i] ? cache[i]['value'] : '';//enregistre le cache
-                            // //("verifie cache dedie au GPS");
-                            if(cache[i].position){ 
-                                // //("une position:!:::");
-                                // //(cache[i].position)
-                                 fi.fields[i]["position"] = cache[i].position;
+                            if(cached_field){
+                                fi.fields[i]['value'] = cached_field.value || '';//enregistre le cache
+                                // //("verifie cache dedie au GPS");
+                                if(cached_field.position){ 
+                                    // //("une position:!:::");
+                                    // //(cache[i].position)
+                                    fi.fields[i]["position"] = cached_field.position;
+                                }
                             }
+                            
                             //let debug = fi.fields[i];
                             // //(debug.id+":"+debug.value);
                         }
@@ -516,6 +552,12 @@ export class DevisProvider {
 
         })
 
+    }
+
+    private getCachedValue(key, cache){
+        for (let field of cache){
+            if (field.id == key) return field;
+        }
     }
 
     /**
@@ -676,22 +718,49 @@ export class DevisProvider {
         for (let key of Object.keys(datas)){
             console.log(key);//nom du formulaire
             cache[key]={
+                "key":"server/"+key,//pe probleme...
                 "fields":[]
             };
-            let fields = cache["fields"];
+            let fields = cache[key]["fields"];
             let frm = datas[key];
 
             if(typeof frm == "string"){
-                let prop = frm.split('_')[1];
+                let prop = key.split('_')[1];
                 console.log("nom de prop "+prop);
                 fields.push({
                     "id":prop,
                     "value":frm
                 });
+            } else {
+
+                //pe probleme position???
+                let position = null;
+                for (let prop of Object.keys(frm)){
+
+                    if(prop == "position"){
+                        //la, j'ai une couille.....
+                        position = frm[prop];
+                    } else {
+                        console.log("nom de prop "+prop);
+                        fields.push({
+                            "id":prop,
+                            "value":frm[prop]
+                        });
+                    }
+                    
+                }
+                if(position){
+                    //doit mettre dans le field 0
+                    let f = fields[0];
+                    if(f) f["position"] = position;//en dur, ca craint...
+                }
             }
 
 
         }
+        console.log("Unpacked datas:");
+        console.log(cache)
+        return cache;
     }
 
     //GPS: charge les prix pour le domicile 
@@ -938,10 +1007,9 @@ export class DevisProvider {
                         "id": field["id"],
                         'title': field.title,//pour affichage dans le devis final 
                         //voir si autre chose?????
-                        "data-type":field["data-type"]
+                        "data-type":field["data-type"],
+                        "hide":field.hide
                     };
-
-                    //un cas particulier, les checkboxs
                     
                     //probleme value_label: si options, doit recuperer le label de l'option 
                     if(field.options && field["value"]!=null){

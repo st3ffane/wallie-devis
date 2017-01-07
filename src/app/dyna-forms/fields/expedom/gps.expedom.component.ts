@@ -165,23 +165,28 @@ export class GPSExpedomComponent{
                         }
                     }
             }
-            else {
-                console.log("pas d'options pour ce cache, annule")
-                this.question.__value = null;
-            }
-            /*
-                else if(this.position && this.position.latitude){
-                    
+            // else {
+            //     console.log("pas d'options pour ce cache, annule")
+            //     this.question.__value = null;
+            // }
+            
+                else if(this.position && this.position.lat){
+                    console.log("pas d'options, recharge depuis le serveur")
                     has_location = true;//evite de relancer la geolocalisation
                     this._devis.load_domicile_prices(this.position).then( (dt)=>{
                             //valide la position et enregistre
                                 this.position['options'] = dt;
                                 //recherche la valeur 
+                                console.log("results: ")
+                                console.log(dt);
+                                
                                 for (let opt of this.position.options){
                                     if(opt.value == this.question.__value){
                                         //trouvé
                                         this.filter = "domicile";
-
+                                        console.log("cache valide, affiche!")
+                                        this.filter = "domicile";
+                                        has_location = true; //annule le chargment
                                     }
                                 }
 
@@ -194,7 +199,7 @@ export class GPSExpedomComponent{
                     });
                 }
                 //recupere les valeurs 
-               */
+               
 
             } else {
                 //une reponse en cache, doit selectionner le filtre correspondant

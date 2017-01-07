@@ -50,6 +50,7 @@ export class FNAAComponent{
                             this["set_"+field.id](dts, field);
                         }
                     }
+                    
                     resolve();
                 });
 
@@ -81,11 +82,16 @@ export class FNAAComponent{
         //recupere les infos et submit!
     }
 
+
+    //mise en place de toutes les props
     private set_valeur(dts, field){
         this.form.controls[field.id].setValue( dts["valeur"]);
     }
      private set_immatriculation(dts, field){
         this.form.controls[field.id].setValue( dts["immatriculation"]);
+    }
+    private set_date1erCir(dts, field){
+        this.form.controls[field.id].setValue( dts["date1erCir"]);
     }
     private set_marque(dts, field){
         this.form.controls[field.id].setValue( dts["marque"]);
@@ -115,7 +121,19 @@ export class FNAAComponent{
         let length = +dts["poidsVide"];
         this.set_value_for_select(length, field);
     }
-
+    private set_carrosserieCG(dts, field){
+        this.form.controls[field.id].setValue( dts["carrosserieCG"]);
+    }
+     private set_codifVin(dts, field){
+        this.form.controls[field.id].setValue( dts["codifVin"]);
+    }
+    private set_type(dts, field){
+        this.form.controls[field.id].setValue( dts["type"]);
+    }
+     private set_genreVCG(dts, field){
+        this.form.controls[field.id].setValue( dts["genreVCG"]);
+    }
+    
     private set_motorisation(dts, field){
         let v = dts["energie"].toLowerCase();
         if (v == "gazole") v="diesel";
