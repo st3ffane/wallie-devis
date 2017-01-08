@@ -8,6 +8,7 @@
     text-align: left!important;
   
 }
+.hidden{display:none;}
 .inline{
     display: flex;
     border: none !important;
@@ -20,6 +21,10 @@
             &:nth-child(odd){
                  border: none;
                  margin-right: 5px;
+
+                 @media screen and (max-width:700px){
+                     margin-right: 0px;
+                 }
             }
     }
     .input-container{
@@ -63,3 +68,10 @@
     }
 }
 .wide{width:100%;}
+.error{
+        color: #fd6565;
+        font-weight:700;
+    background-color: rgba(255,255,255,0.07);
+    border-radius: 5px;
+    padding: 5px;
+}

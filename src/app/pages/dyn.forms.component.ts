@@ -107,15 +107,15 @@ export class DynFormsComponent implements OnInit{
     this.group = this.route.snapshot.params['group']; //recup imediatement les données  
     this.form = this.route.snapshot.params['form']; //recup imediatement les données
      
-    // console.log("RELOAD to page "+this.group+","+this.form);
+    // //("RELOAD to page "+this.group+","+this.form);
     //demande au providers la description de ce formulaire 
     this._devis.get_form_descriptor(this.group, this.form).then( (fi) =>{
         
         if(fi) {
 
           //recup le nom du formulaire dans historic -2
-//console.log(this._devis._current_historic_index);
-console.log(this._devis._form_historic.length);
+////(this._devis._current_historic_index);
+//(this._devis._form_historic.length);
           this.prec_form_name = this._devis.getTitleFromHistoric(this.group, this.form);
          // if(this._devis._form_historic.length>0 && this._devis._current_historic_index>=0)  this.prec_form_name = this._devis._form_historic[this._devis._current_historic_index]["name"];
           //probleme: si revient depuis historique....
@@ -126,7 +126,7 @@ console.log(this._devis._form_historic.length);
           window.scrollTo(0,0);
         //this._ref.nativeElement.scrollIntoView();
       } else {
-        console.log("pass de FI????")
+        //("pass de FI????")
       }
 
         
@@ -134,8 +134,8 @@ console.log(this._devis._form_historic.length);
 
     }).catch( (err)=>{
       //erreur de chargement des données du formulaire, voir quoi faire...
-      console.log(err);
-      console.log("ici");
+      //(err);
+      //("ici");
       this.loading = false;
       this.error = err;
       this.infos = null;
@@ -153,7 +153,7 @@ console.log(this._devis._form_historic.length);
    *      a revoir !!!!!
    */
   next(){
-console.log("Calling NEXT");
+
     
 
     this.loading = true;
@@ -192,6 +192,8 @@ console.log("Calling NEXT");
 
   back(){
     //recharge la page precedente 
+    //pour le cache, sauvegarde les valeurs du formulaires 
+    for (let question of this.infos.fields) question.value = question.__value;//
     this._devis.back();
   }
   //@DEPRECATED

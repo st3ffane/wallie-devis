@@ -59,7 +59,7 @@ export class MainPageComponent{
         //verifie si doit charger le cache depuis le serveur 
         if(this._devis._quote_id){
             this.loading = true;
-            console.log("Chargment des infos depuis le serveur");
+            //("Chargment des infos depuis le serveur");
             this._devis.loadCacheFromServer().then( ()=>{
                 //navigue vers la premiere page 
                 return this._devis.next("","");
@@ -82,10 +82,10 @@ export class MainPageComponent{
 
         //charge les devis sauvegardés precedement (tous?)
         // this._devis.get_all_saved_devis().then( (devis)=>{
-        //     // console.log(devis);
+        //     // //(devis);
         //     this.saved_devis = <Array<any>>devis;
         // }).catch( (err)=>{
-        //     console.log(err);
+        //     //(err);
         // })
     }
 
@@ -101,12 +101,12 @@ export class MainPageComponent{
         this._devis.create_new_devis();
         this._devis.next("","").then( (fi)=>{
             //on est parti!!!
-            // console.log("informations recues");
-            // console.log(fi);
+            // //("informations recues");
+            // //(fi);
             this.loading = false;
             this._router.navigate(["/devis",fi.group,fi.form]);
         }).catch( (err)=>{
-            console.log(err);
+            //(err);
         })
         
     }
@@ -116,11 +116,11 @@ export class MainPageComponent{
      * ie: meme page du formulaire, meme historique de navigation
      */
     reload_devis(){
-        // console.log("Reload le devis...");
+        // //("Reload le devis...");
         //ajoute toutes les entrees a l'historique
         let fi = this._devis.repop_historic();
-        // console.log("dernier form infos");
-        // console.log(fi);
+        // //("dernier form infos");
+        // //(fi);
         //navigue vers la page demandée
         this._router.navigate(["/devis",fi.group,fi.form]);
        
@@ -137,12 +137,12 @@ export class MainPageComponent{
      * et relance une requete au webservice de calcul
      */
     to_generated(devis){
-        console.log(devis);
+        //(devis);
       // this._devis.load_saved_devis(devis.id).then( (dt)=>{
             this._devis.set_devis_from_localstorage(devis);
             return this._router.navigate(['/generated']);
         // }).catch ( (err)=>{
-        //     console.log(err);
+        //     //(err);
         // });
         
     }

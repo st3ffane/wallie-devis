@@ -30,8 +30,8 @@ export class FNAAComponent{
             this.loading = true;
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
-                console.log("reponse du webservice....");
-                console.log(dts);
+                //("reponse du webservice....");
+                //(dts);
                 this.vehicule_infos = dts;
                 //a partir de ces infos, populate la question 
                 return new Promise( (resolve, reject)=>{
@@ -45,7 +45,7 @@ export class FNAAComponent{
                     //    if(ctrl){
                     //        ctrl.setValue(dts[field]);
                     //    }
-                    console.log(field.id);
+                    //(field.id);
                         if(this["set_"+field.id]){
                             this["set_"+field.id](dts, field);
                         }
@@ -59,7 +59,7 @@ export class FNAAComponent{
 
             }).catch( (err)=>{
                 
-               if(err == "UNKNOWN"){
+               if(err.code == "UNKNOWN"){
                    //plaque inconnue, demande a verifier
                    this.error = "Le numéro de plaque est inconnu du service de carte grise. Merci de verifier ou de remplir le formulaire ci dessous";
                }
@@ -78,7 +78,7 @@ export class FNAAComponent{
 
     next(){
         //appellé par le submit????
-        console.log("hello");
+        //("hello");
         //recupere les infos et submit!
     }
 

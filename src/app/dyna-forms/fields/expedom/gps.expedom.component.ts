@@ -46,7 +46,7 @@ export class GPSExpedomComponent{
     @ViewChild("domicileMarker") domicileMarker; //le marker domicile....
 
     srch_zipcode: string; //le zip  a rechercher
-    is_localising:boolean = true;//par defaut, tente de se localiser...si false: localisation achevée (success ou error)
+    is_localising:boolean = false;//par defaut, tente de se localiser...si false: localisation achevée (success ou error)
 
     constructor(private _gmap:GmapGeocodeProvider,
                 private _devis:DevisProvider){}
@@ -134,65 +134,66 @@ export class GPSExpedomComponent{
         let has_location = false;
 
 
-        // console.log("cache datas: ");
-        // console.log(this.question.__value);
+        // //("cache datas: ");
+        // //(this.question.__value);
 
 
         //DOIT PAS SE FAIRE ICI !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        console.log("verification du cache")
+        //("verification du cache")
         if(this.question.__value){
             //si domicile, a part 
-            console.log("un cache present: "+this.question.__value);
+            //("un cache present: "+this.question.__value);
 
             if(this.question.__value.startsWith("domicile")){
                 //recup de la geolocation
                 //2 cas, ou arrive par un prec, ou arrive par un reload???
-                // console.log("cache a domicile")
+                // //("cache a domicile")
                 this.position = this.question.position;
 
-                console.log("cache domicile, position sauvegardée")
-                console.log(this.position);
+                //("cache domicile, position sauvegardée")
+                //(this.position);
 
                 //a deja les options???
                 if(this.position && this.position.options){
-                    console.log("des options sauvegardées!!! recherche")
+                    //("des options sauvegardées!!! recherche")
                     for (let opt of this.position.options){
                         if(opt.value == this.question.__value){
                             //trouvé, affichera de toute facon la popup
-                            console.log("cache valide, affiche!")
+                            //("cache valide, affiche!")
                             this.filter = "domicile";
                             has_location = true; //annule le chargment
+                            this.is_localising = false;
                         }
                     }
             }
             // else {
-            //     console.log("pas d'options pour ce cache, annule")
+            //     //("pas d'options pour ce cache, annule")
             //     this.question.__value = null;
             // }
             
                 else if(this.position && this.position.lat){
-                    console.log("pas d'options, recharge depuis le serveur")
+                    //("pas d'options, recharge depuis le serveur")
                     has_location = true;//evite de relancer la geolocalisation
                     this._devis.load_domicile_prices(this.position).then( (dt)=>{
                             //valide la position et enregistre
                                 this.position['options'] = dt;
                                 //recherche la valeur 
-                                console.log("results: ")
-                                console.log(dt);
+                                //("results: ")
+                                //(dt);
                                 
                                 for (let opt of this.position.options){
                                     if(opt.value == this.question.__value){
                                         //trouvé
                                         this.filter = "domicile";
-                                        console.log("cache valide, affiche!")
+                                        //("cache valide, affiche!")
                                         this.filter = "domicile";
                                         has_location = true; //annule le chargment
                                     }
                                 }
 
                     }).catch( (err)=>{
-                        console.log("Error geolocalisation");
-                        console.log(err);
+                        //("Error geolocalisation");
+                        //(err);
                         this.position={};//objet vide???
                         // this.position = {};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
                         this.is_localising = false;
@@ -203,13 +204,13 @@ export class GPSExpedomComponent{
 
             } else {
                 //une reponse en cache, doit selectionner le filtre correspondant
-                console.log("cache depot/port");
+                //("cache depot/port");
                 
                 for (let filtre of this.question.options){
                     for(let opt of filtre.locations){
                         for(let v of opt.options){
                             if(v.value == this.question.__value){
-                                console.log("reponse OK, affiche")
+                                //("reponse OK, affiche")
                                 opt["open_window"] = true;
                                 this.filter = filtre.label;//affiche avec le filtre defini...
                                 break;
@@ -223,7 +224,8 @@ export class GPSExpedomComponent{
         } 
 
         if(!this.noGeo || has_location) return; //si a deja une location (geo ou une adresse...), ne fait rien...
-        console.log("geolocation GO!")
+        //("geolocation GO!")
+        this.is_localising = true;
         this._gmap.geolocalise().then( (pos:any)=> {
             
             
@@ -233,14 +235,14 @@ export class GPSExpedomComponent{
         }).then( (rep)=>{
             
             //VERIFIE SI LE PAYS EST BON.....
-            // console.log(rep);
+            // //(rep);
         let pays = rep["country"].replace("é","e").toUpperCase();
             if(pays != this.question.default_location.country.toUpperCase()){
                 throw "not in place!";
                 
             }
 
-            console.log("valid!!!");
+            //("valid!!!");
             this.position = rep;
             this.question["position"] = this.position;
             
@@ -251,12 +253,12 @@ export class GPSExpedomComponent{
         })
         .then( (dt)=>{
                 //valide la position et enregistre
-               console.log("ajoute les options a la position")
+               //("ajoute les options a la position")
                     this.position['options'] = dt;
 
         }).catch( (err)=>{
-            console.log("Error geolocalisation");
-            console.log(err);
+            //("Error geolocalisation");
+            //(err);
             //this.position=null;//objet vide???
              this.position = {'error':err};// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
@@ -283,10 +285,10 @@ export class GPSExpedomComponent{
         //determine le code CCDT du pays -optimise
         let cnt = CCTD[this.question.default_location.country] || "FR";
 
-        // console.log("recherche pour nom: "+zipcode);
+        // //("recherche pour nom: "+zipcode);
         //this._gmap.get_coords_from_departement_async(zipcode).then( (rep)=>{
         this._gmap.get_coords_from_departement_name_async(zipcode,cnt).then( (rep)=>{
-            console.log(rep);
+            //(rep);
             //VERIFIE SI LE PAYS EST BON.....
             //Réunion
             
@@ -310,7 +312,7 @@ export class GPSExpedomComponent{
 
         }).catch( (err)=>{
             
-            console.log(err);
+            //(err);
             this.position.price_error = "Erreur lors de la recherche des tarifs...";
              //this.position = {};//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
@@ -455,7 +457,7 @@ export class GPSExpedomComponent{
      */
     positionne_marker(evt){
 
-        // console.log("ici, "+this.filter);
+        // //("ici, "+this.filter);
 
         if(this.filter!='domicile') return;
 
@@ -467,7 +469,7 @@ export class GPSExpedomComponent{
         //enregistre la position: permet d'afficher imediatement le marqueur
        this.position = evt.coords;
        
-    //    console.log(evt.coords);
+    //    //(evt.coords);
 
        this._gmap.get_departement_from_coords_async(this.position.lat,this.position.lng,true).then( (rep)=>{
             
@@ -486,9 +488,9 @@ export class GPSExpedomComponent{
         .then( (dt)=>{
             if(!dt || !Array.isArray(dt) || dt.length == 0) throw "Aucune reponse/erreur";
             
-            // console.log("recentrage de la carte???");
+            // //("recentrage de la carte???");
                     this.position['options'] = dt;
-                    // console.log(this.domicileMarker)
+                    // //(this.domicileMarker)
                     this.domicileMarker.open();
                     //recentre la carte
                     // this.question.default_location.lat = this.position.lat;
@@ -496,8 +498,8 @@ export class GPSExpedomComponent{
                     this.is_localising = false;
 
         }).catch( (err)=>{
-            console.log("erreur");
-            console.log(err);
+            //("erreur");
+            //(err);
              this.position['price_error']="Nous n'avons pas pu recuperer les informations de tarifs à partir de votre localisation...";// = this.question.default_location;//remet a zero??? ou garde l'ancien????
              this.is_localising = false;
         });
@@ -511,7 +513,7 @@ export class GPSExpedomComponent{
      * si une seule, selectionne
      */
     check_options(location:any){
-        // console.log("click");
+        // //("click");
         if(location.options && location.options.length == 1){
             //selectionne 
             this.question.__value = location.options[0].value;

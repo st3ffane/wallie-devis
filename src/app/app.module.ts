@@ -55,7 +55,7 @@ import {ToIconUrlPipes} from "./dyna-forms/pipes/to.icon.url.pipe";
 import {SafeHtmlPipe} from "./pipes/safe.html.pipe";
 import {GpsOptionsPipe} from "./dyna-forms/pipes/gps.options.pipe";
 import {BooleanPipe} from "./pipes/boolean.pipe";
-
+import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
 
 //bootstrap 
 //import { ButtonsModule } from 'ng2-bootstrap/ng2-bootstrap';
@@ -96,7 +96,7 @@ let routes = RouterModule.forRoot([
     path:"demande",
     component: DemandeComponent
   }
-  //, { path: '**', component: MainPageComponent }
+  , { path: '**', component: MainPageComponent }//regle pe le probleme de l'URL avec quote_id???
 ]);
 
 
@@ -123,6 +123,7 @@ let routes = RouterModule.forRoot([
     SafeHtmlPipe,
     GpsOptionsPipe,
     BooleanPipe,
+    FNAAGroupPipe,
     
     //AutoScrollComponent
     ConfirmDialog

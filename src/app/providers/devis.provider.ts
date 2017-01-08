@@ -35,11 +35,11 @@ export class DevisProvider {
         let query = window.location.search.substring(1);
         let vars = query.split("&");
         
-        console.log("recuperation des infos de l'URL")
+        //("recuperation des infos de l'URL")
 
         for (let i=0;i<vars.length;i++) {
             let pair = vars[i].split("=");
-            console.log(pair)
+            //(pair)
             if (pair[0].toUpperCase() == 'QUOTE_ID'){
                 this._quote_id = pair[1];
             }
@@ -65,6 +65,19 @@ export class DevisProvider {
     _history_state: string  = null;//uniquemnt utile en cas de reload de page: indique l'URL a obtenir pour charger le formulaire courant
 
 
+
+    /*
+    NOTE: ca aurait ete tellement plus simple d'enregistrer les 4 datas dans chaque URLS des le depart,
+    mais comme a l'origine, le workflow pouvait NE PAS SUIVRE LE MEME CHEMIN, j'ai du passer via les urls.
+    Maintenant que tous les workflows suivent le meme chemin, c'est devenu un peu inutile, mais ca 
+    demanderait de tout remodifier... Donc je garde ca uniqument pour le load des datas cote serveur.
+    */
+    _server_url_params={
+        "marchandise":null,
+        "from":null,
+        "to":null,
+        "motif":null
+    };//les parametres qui entrent en compte pour les requetes de formulaires
 
     /**
      * GESTION DE L'HISTORIQUE DE L'APPLICATION:                          A TESTER -----------------------------------------------------------------------
@@ -272,7 +285,12 @@ export class DevisProvider {
 
             this.devis_infos = this.unpack_datas(cache);
             //this.devis_infos = cache.app_datas;
-
+            //pour povoir valider les formulaires et le caache, je dois garder qqpart en meloire les donnes d'url 
+            
+            this._server_url_params.marchandise = this.get_raw_param("form_marchandise","marchandise");
+            this._server_url_params.from = this.get_raw_param("form_from","from");
+            this._server_url_params.to = this.get_raw_param("form_to","to");
+            this._server_url_params.motif = this.get_raw_param("form_motif","motif");
             return true;
 
         })
@@ -333,9 +351,23 @@ export class DevisProvider {
             if(this.devis_infos[key] && this.devis_infos[key]["key"]){
                     
                     fi = this.devis_infos[key];
+                    let url = fi.url;
+
+                    // console.log("Formulaire deja chargé en memoire, normalement, tout est OK....")
+                    // console.log("Doit juste verifier que les datas dans le formulaire sont valides....")
+
+                    if(group != "global" //toujours garder le cache d'une form globale
+                        && !url.startsWith(this.devis_infos[key].url)){
+                            //reinitialise a null toutes les datas
+                            // console.log("formulaire invalide, remet a zero")
+                            this.reinit_form(key);
+                        }// else {
+                        //     console.log("formulaire valide, garde les datas....")
+                        //     console.log(fi);
+                        // }
                     //if(fi["key"]){
                     // //("veridie si datas valides")
-                    if(group == 'global'){
+                    //if(group == 'global'){
 
                         // //("form valide, repopulate")
                          //sauvegarde l'URL dans l'history 
@@ -360,7 +392,7 @@ export class DevisProvider {
                         //for (let field of fi.fields) field.value = undefined;//remet a null au cas ou les données ne soient pas coherentes
                         
 
-                     }// else {
+                    // }// else {
                     //     //("euh, la, je sais pas....")
                     // }
                     this.current_key = fi.key; //la clé du formulaire courant
@@ -412,7 +444,11 @@ export class DevisProvider {
     
     }
 
-    
+    private reinit_form(form){
+        if (this.devis_infos[form] && this.devis_infos[form]["fields"]){
+            for (let field of this.devis_infos[form]["fields"]) field.value = null;
+        }
+    }    
 
     /**
      * m'indique si le formulaire en memoire est toujours valide,
@@ -472,7 +508,7 @@ export class DevisProvider {
 
             //si provient du serveur, je n'ai pas ces infos...
 
-            let cache_key = this.current_key.split("/");
+            let cache_key = this.current_key ? this.current_key.split("/") : "";
             let form_name:string  = "";//just le nom
             let group =  "";
             if(cache_key.length == 1){
@@ -496,19 +532,41 @@ export class DevisProvider {
             // //("verifie validité formulaire");
             //populate datas a partir du cache de données...
             if(this.devis_infos[form_name]){
-                console.log("Données en cache, verifie si valides")
-                console.log(group);
+                //("Données en cache, verifie si valides")
+                //(group);
 
                 //valeurs du group de cache 
                 let cache_group = this.devis_infos[form_name].key ? this.devis_infos[form_name].key.split("/")[0] : "";
-
+                let cache_form = this.devis_infos[form_name].key ? this.devis_infos[form_name].key.split("/")[1] : "";
                 //test repopulate
-                if (cache_group=="server" || group=="global" || url.startsWith(this.devis_infos[form_name].url)){
-                    console.log("form global ou connue, repopulate")
+
+
+
+
+                //TODO condition pour le repopulate d'apres le cache...
+                /*
+                les differents cas:
+                    - group == global: le formulaire ne change pas => repopulare
+                    - group == server: le cache provient du server, SI les parametres n'ont pas changés, repopulate 
+                    - group == ??? : cache d'un ancien devis, SI les parametres n'ont pas changés, repopulate, sauf si no_cache
+                */
+                // console.log("Cache verification:");
+                // console.log("group: "+group);
+                // console.log("cache_group:"+cache_group);
+                // console.log("url: "+url);
+                // console.log("form url: "+this.devis_infos[form_name].url);
+
+                if( (group == "global") //formulaire toujours valide -ne change jamais
+                    || (cache_group == "server" && this.isServerURLValid() )  //cas cache du server 
+                    || (!group.endsWith("_nocache") && url.startsWith(this.devis_infos[form_name].url)) // cas cache ancien devis
+                )
+                //if (cache_group=="server" || group=="global" || (cache_group==group && cache_form==form_name) )
+                {//url.startsWith(this.devis_infos[form_name].url)){
+                    
                     
                     //meme url et parametres, accepte le cache
                     let cache = this.devis_infos[form_name].fields;
-                    console.log(cache);
+                    //(cache);
                      if(cache){
 
                          //prendre en compte les noms des vars 
@@ -518,7 +576,7 @@ export class DevisProvider {
                             let key = fi.fields[i].id;
                             //recuper la valeur dans le cache 
                             let cached_field = this.getCachedValue(key, cache);
-
+                            //("Valeur a remettre: "+cached_field.value)
                             if(cached_field){
                                 fi.fields[i]['value'] = cached_field.value || '';//enregistre le cache
                                 // //("verifie cache dedie au GPS");
@@ -553,7 +611,20 @@ export class DevisProvider {
         })
 
     }
+    private isServerURLValid(){
+        //verifie si les valeurs actuelles (dans devis_infos) correspondent aux valeurs du cache server url (dans server_url)
+        //si valide, permet le repopulate, sinon, repart sur du vide
+        let mrch = this.get_raw_param("form_marchandise","marchandise");
+        let from = this.get_raw_param("form_from","from");
+        let to = this.get_raw_param("form_to","to");
+       // let motif = this.get_raw_param("form_motif","motif");
 
+        //("nouvelles valeurs:"+mrch+","+from+","+to);
+        //(this._server_url_params);
+        return (this._server_url_params.marchandise == mrch &&
+                this._server_url_params.from == from &&
+        this._server_url_params.to == to);// && this._server_url_params.motif == motif);
+    }
     private getCachedValue(key, cache){
         for (let field of cache){
             if (field.id == key) return field;
@@ -716,7 +787,7 @@ export class DevisProvider {
     private unpack_datas(datas){
         let cache = {};
         for (let key of Object.keys(datas)){
-            console.log(key);//nom du formulaire
+            //(key);//nom du formulaire
             cache[key]={
                 "key":"server/"+key,//pe probleme...
                 "fields":[]
@@ -726,7 +797,7 @@ export class DevisProvider {
 
             if(typeof frm == "string"){
                 let prop = key.split('_')[1];
-                console.log("nom de prop "+prop);
+                //("nom de prop "+prop);
                 fields.push({
                     "id":prop,
                     "value":frm
@@ -741,7 +812,7 @@ export class DevisProvider {
                         //la, j'ai une couille.....
                         position = frm[prop];
                     } else {
-                        console.log("nom de prop "+prop);
+                        //("nom de prop "+prop);
                         fields.push({
                             "id":prop,
                             "value":frm[prop]
@@ -758,8 +829,8 @@ export class DevisProvider {
 
 
         }
-        console.log("Unpacked datas:");
-        console.log(cache)
+        //("Unpacked datas:");
+        //(cache)
         return cache;
     }
 
@@ -819,11 +890,22 @@ export class DevisProvider {
      * si inconnu, renvoie une chaine vide
      */
     private get_param(form, name){
+
         if(this.devis_infos[form] ){
             let frm = this.devis_infos[form];
             if(frm['fields'] && frm['fields'].length>0){
                 if(frm['fields'][0].value) return "&"+name+"="+frm['fields'][0].value;
             }
+        }
+        return '';
+    }
+    private get_raw_param(form, id){
+        //("get_raw_param from:"+form+" name:"+id);
+        if(this.devis_infos[form] && this.devis_infos[form]["fields"] ){
+            for (let field of this.devis_infos[form]["fields"]){
+                if(field["id"] == id) return field["value"];
+            }
+            
         }
         return '';
     }
@@ -1022,7 +1104,7 @@ export class DevisProvider {
                     //certains fields utilise la geolocalisation et ont un field position a sauvegarder
                     
                     if(field["position"] || field["type"]=="gps") {
-                        console.log(field)
+                        //(field)
                         
                         let pos = field["position"];
                         if (field["value"] && field["value"].startsWith("domicile")){
@@ -1046,8 +1128,8 @@ export class DevisProvider {
                             
                             obj["value_label"] = this.get_label_and_depot(field["value"],field.options[1]);
                         } else if(field["value"] && field["value"].startsWith("port") && field.options) {
-                            console.log("Un port!!!");
-                            console.log(field["value"]);
+                            //("Un port!!!");
+                            //(field["value"]);
                             obj["value_label"] = "Dépot EXPEDOM "+obj["value_label"];
                         }
                         //un GPS!

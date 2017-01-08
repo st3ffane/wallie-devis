@@ -36,6 +36,9 @@ const MAPPING= {
     "AUTRES":ESSENCE
 
 }
+const TYPE_MAPPING = {
+    
+}
 
 const API = TARGET+"/wp-admin/admin-ajax.php?action=fnaa&immat="
 @Injectable()
@@ -61,7 +64,7 @@ export class FNAAProvider{
         // });
         return this._http.get(API+immat).toPromise().then( (details:any)=>{
             //parse le contenu pour savoir ce qu'il se passe
-            console.log(details);
+            //(details);
             let parser = new DOMParser();
                 let xmlDoc = parser.parseFromString(details._body,"text/xml");
                 //les données recuperees du webservice
@@ -69,11 +72,15 @@ export class FNAAProvider{
                 //recupere les infos necessaires dedans
                 //verifie si pas d'erreur 
                 let error = xmlDoc.getElementsByTagName("erreur");
+               
                 if(error.length>0){
                     let error_number = xmlDoc.getElementsByTagName("numero").item(0).innerHTML;
-                    throw error.item(0).innerHTML+" ("+error_number+")";
+                    throw {"code":"ERROR", "msg":error.item(0).innerHTML+" ("+error_number+")"};
                 }
-
+                 let fault = xmlDoc.getElementsByTagName("Fault");
+                 if(fault.length>0){
+                     throw {"code":"UNKNOWN", "msg":"immatriculation inconnue"};
+                 }
 
                 let rep = xmlDoc.getElementsByTagName("return");
                 if (rep && rep.length > 0){
@@ -93,8 +100,8 @@ export class FNAAProvider{
 
                 //mapping des differents valeurs : principalement essence 
                 let v = datas["energie"];
-                console.log("mapping des differentes energies possibles");
-                console.log(v);
+                //("mapping des differentes energies possibles");
+                //(v);
                 if(v in MAPPING) datas["energie"]=MAPPING[v];
                 else datas["energie"]=HYBRID;
 

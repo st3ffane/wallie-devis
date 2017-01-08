@@ -91,6 +91,8 @@ export class DynamicFormComponent implements OnInit{
         if(!evt){
             return;
         }
+        //recup les valeurs des formulaires,
+        //Doit aussi se faire si back???
         for (let question of this.formulaire.fields) question.value = question.__value;//
 
         //ajoute une entrée a l'historique 

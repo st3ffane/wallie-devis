@@ -2,10 +2,11 @@
      <div  class="choice-cmp">
                                                     
                       <label > 
-                        <input  [formControlName]="question.id"                        
+                        <input  [formControlName]="question.id"  
+                        (change)="performCheck()"                      
                          type="checkbox" 
                          checked="false"
-                         #checker>
+                         #checker >
                          <div class=" check-container check"></div><span>{{question.title}}</span></label>    
                     <span class="check_clear"><small [innerHTML]="question.description | safeHTML"></small></span>
                  
@@ -14,33 +15,38 @@
 
    
 
-    <table class="vehicules">
-        <tr *ngFor="let group of groups; let i = index">
+    <table class="vehicules" [class.hidden]="!checker.checked">
+        <tr *ngFor="let group of question.__value; let i = index">
 
             <!-- champs FNAA -->
-            <td *ngIf="!group.immatriculation">
-                 <div class="schrink inline">
+            <td *ngIf="group.error">
+                 <span class="immatinfos">{{group.immatriculation}}</span>
+            </td>
+            <!-- le vehicule -->
+             <td *ngIf="!group.error" class="inline">
+                 <span class="immatinfos">{{group.marque+" "+group.modele+" "+group.version}}</span>
+                 <button class="btn btn-danger close" type="button" (click)="delete(i)"><i class="fa fa-close"></i></button>
+             </td>
+        </tr>
+        <tr class="last-child">
+            <td> 
+                <div *ngIf="unknown_error" class="error"><p>La plaque d'immatriculation renseignée semble inconnue. Merci de vérifier.</p></div>
+                <div class="schrink inline">
                     <div class="input-container">
                         <label>Entrez la plaque d'immatriculation du véhicule:</label>  
                         <input #texted type="text"  
-                             type="text"                             
+                             type="text"  
+                             [disabled]="!checker.checked"                           
                             placeholder="ex: 2874AA40"
                             >
                             
                     </div>
                     <!--span>(<small>{{question.description}}</small>)</span-->
-                    <button *ngIf="!loading" class="btn btn-primary " type="button" (click)="load_vehicule_details(i,texted.value)">Details</button>
+                    <button *ngIf="!loading" [disabled]="!checker.checked" class="btn btn-primary " type="button" (click)="load_vehicule_details(texted.value)">Details</button>
                     <button *ngIf="loading"  class="btn btn-primary " type="button" ><i class="fa fa-spin fa-gear"></i></button>
                 </div>
-        </td>
-            <!-- le vehicule -->
-             <td *ngIf="group.immatriculation" class="inline">
-                 <span class="immatinfos">{{group.marque+" "+group.modele+" "+group.version+" "+group.date1erCir}}</span>
-                 <button class="btn btn-danger close" type="button" (click)="delete(i)"><i class="fa fa-close"></i></button>
-             </td>
-        </tr>
-        <tr class="last-child">
-            <td>  <button class="btn btn-primary wide" [disabled]="!checker.checked" type="button" (click)="addField()">Ajouter un vehicule au conteneur</button></td>
+                 <!--button class="btn btn-primary wide" [disabled]="!checker.checked" type="button" (click)="addField()">Ajouter un vehicule au conteneur</button-->
+            </td>
         </tr>
     </table>
 

@@ -9,9 +9,9 @@ import {TARGET} from "../../target";
 @Pipe({name: 'gpsoption'})
 export class GpsOptionsPipe implements PipeTransform {
   transform(value: any, key:string, prop:string) {
-      console.log(value)
+      //(value)
       for(let opt of value.options){
-          console.log(opt)
+          //(opt)
           if (opt.label == key && opt[prop]) return opt[prop];
       }
       return "";

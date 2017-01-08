@@ -129,7 +129,7 @@ export class DynaArborescence2Component{
 
         // for (let option of this.question.options){
         //     //cas le plus simple, une radio normale
-        //     console.log("ajout d'un nouveau control "+option.label+" au groupe: "+groupName)
+        //     //("ajout d'un nouveau control "+option.label+" au groupe: "+groupName)
         //     if (option.value){
         //         radios.push({
         //             'label':option.label,
@@ -139,7 +139,7 @@ export class DynaArborescence2Component{
         //     } else if(option.options){
         //         //doit recreer un groupe specifique...
         //          //creation d'un nouveau groupe de form au besoin
-        //             console.log("creation d'un groupe avec nom: "+groupName);
+        //             //("creation d'un groupe avec nom: "+groupName);
         //         let frmctrl = this.form.controls[groupName];
         //         if(!frmctrl)  {
         //             frmctrl = new FormControl('');
@@ -204,7 +204,7 @@ export class DynaArborescence2Component{
         //         }
         //     }
 
-        //     //console.log(this.form);
+        //     ////(this.form);
         // }
         
     }
@@ -260,12 +260,12 @@ export class DynaArborescence2Component{
         //force le check???
         //au mieux, scroll to the new components 
         // let top = document.getElementById(id).offsetTop - 100; //Getting Y of target element
-        //  console.log("position: "+top)
+        //  //("position: "+top)
         // let  w_top = (window.pageYOffset || document.documentElement.scrollTop)  - (document.documentElement.clientTop || 0);
         
         setTimeout( (v)=>{
              scrollIt(id, 300, 'easeInQuad');
-            //  console.log("hello")
+            //  //("hello")
         }, 100)
        
     }
@@ -340,7 +340,7 @@ export class DynaArborescence2Component{
         //     //si des groupes inferieurs, idem....
         //     for(let opt of option.options){
         //         if(opt.options){
-        //             //console.log(opt.label);
+        //             ////(opt.label);
         //             this.clear_groups(opt,opt.label);
         //         }
                 
@@ -373,7 +373,7 @@ export class DynaArborescence2Component{
 function scrollIt(elementID, duration = 200, easing = 'linear', callback=null) {
   let element = document.getElementById(elementID);
   if(!element) return;
-console.log(element.offsetTop);
+//(element.offsetTop);
 
   // define timing functions
   const easings = {
@@ -439,7 +439,7 @@ console.log(element.offsetTop);
   const destination = documentHeight - element.offsetTop < windowHeight ? documentHeight - windowHeight : element.offsetTop;
 
 
-console.log(destination+","+windowHeight+","+documentHeight)
+//(destination+","+windowHeight+","+documentHeight)
   function scroll() {
     const now = Date.now();
     const time = Math.min(1, ((now - startTime) / duration));

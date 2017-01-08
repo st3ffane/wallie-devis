@@ -77,11 +77,11 @@ export class GmapGeocodeProvider {
         return this._http.get(url)
         .toPromise()
         .then ( (rep:any)=>{
-            // console.log(rep);
+            // //(rep);
             rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                // console.log("des reponses");
-                // console.log(rep);
+                // //("des reponses");
+                // //(rep);
 
                 //recupere les infos administrative_area_level_3
                 // let address = rep.results[0].address_components;
@@ -97,12 +97,12 @@ export class GmapGeocodeProvider {
                 //city, depend si France ou ailleurs 
                 // let city = this.get_type("locality", address) || this.get_type("administrative_area_level_1", address)  ;
                 
-                // console.log("Recherche pays: "+country);
-                // console.log(address);
+                // //("Recherche pays: "+country);
+                // //(address);
                  if(country=="France"){
                     zip  = this.getAddressComponent( address, "postal_code");
                     city = this.getAddressComponent( address, "locality");
-                    // console.log("city: "+city+", zip:"+zip);
+                    // //("city: "+city+", zip:"+zip);
                 } else {
                     //tente de recuperer les infos possibles
                     //me moque du zip 
@@ -121,7 +121,7 @@ export class GmapGeocodeProvider {
                     "country":country
                 }
                
-                console.log(cached_position);
+                //(cached_position);
                 return cached_position;
 
             } else throw ("Erreur recherche du departement");
@@ -131,15 +131,15 @@ export class GmapGeocodeProvider {
 
     private getAddressComponent( results:Array<any>, type:string){
 
-        // console.log("getaddresscomponents");
+        // //("getaddresscomponents");
         let addr = null;
         for (let res of results){
             let types = res.types;
-            // console.log("type: ");
-            // console.log(types);
+            // //("type: ");
+            // //(types);
             for (let t of types){
                 if(type.indexOf(t)!=-1){ 
-                    // console.log("find: "+t);
+                    // //("find: "+t);
                     return this.get_type(type,res.address_components);
                 }
             }
@@ -159,7 +159,7 @@ export class GmapGeocodeProvider {
      */
     get_coords_from_departement_async(zipCode: string){
         if(this.cached_position && zipCode == this.cached_position.zipcode) return Promise.resolve(this.cached_position);
-        // console.log("Recherche coords a partir du departement...");
+        // //("Recherche coords a partir du departement...");
 
         let url = ENDPOINT + "address="+zipCode+"&components=postal_code&region=YT&key="+GMAP_KEY;
         return this._http.get(url)
@@ -167,7 +167,7 @@ export class GmapGeocodeProvider {
         .then ( (rep:any)=>{
              rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
-                // console.log("des reponses");
+                // //("des reponses");
                 let address = rep.results[0].address_components;//la plus precise
                 let geo = rep.results[0].geometry.location;
 
@@ -190,7 +190,7 @@ export class GmapGeocodeProvider {
         return this._http.get(url)
         .toPromise()
         .then ( (rep:any)=>{
-            //console.log(rep)
+            ////(rep)
             //si uniquement le nom d'une ville, me renvoie juste locality
              rep = JSON.parse(rep._body);
             if(rep.status == "OK" && rep.results && rep.results.length){
@@ -231,7 +231,7 @@ export class GmapGeocodeProvider {
                  }
 
                  if((cctd!="FR" && city == undefined) || (cctd=="FR" && zip==undefined)){
-                    console.log("doit relancer la requete avec les parametres");
+                    //("doit relancer la requete avec les parametres");
                     return this.get_departement_from_coords_async(cached_position.lat, cached_position.lng);
                 }
 

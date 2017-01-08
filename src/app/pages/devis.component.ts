@@ -124,7 +124,7 @@ export class DevisComponent implements OnInit{
                 this.loading = false;
             
         }).catch( (err) => {
-            console.log(err);
+            //(err);
             this.loading = false;
             this.error = err;
         });
@@ -155,7 +155,7 @@ export class DevisComponent implements OnInit{
             //on est parti!!!
             this._router.navigate(["/devis",fi.group,fi.form]);
         }).catch( (err)=>{
-            console.log(err);
+            //(err);
         })
         
     }
@@ -169,10 +169,10 @@ export class DevisComponent implements OnInit{
         this.loading = true;
         this._devis.save_current_devis().then( (success)=>{
             this.loading = false;
-            console.log("sauvegarde OK!!!");
+            //("sauvegarde OK!!!");
         }).catch( (err)=>{
             this.loading = false;
-            console.log(err);
+            //(err);
         })
 
     }
