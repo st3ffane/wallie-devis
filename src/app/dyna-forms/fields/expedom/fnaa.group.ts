@@ -2,6 +2,8 @@ import {Component, Input, ViewChild} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 
 import {FNAAProvider} from "../../providers/fnaa.provider";
+import {DevisProvider} from "../../../providers/devis.provider";
+
 
 @Component({
     selector:"fnaa-group",
@@ -16,18 +18,33 @@ export class FNAAGroupComponent{
 
     cache = [];//poiur ne pas tout recharger a chaque fois 
 
+    conteneur = null; //pour connaitre les limitations 
+    
 
     //groups=[];//les informations sur les vheicules
     loading = false;//indique si est en train de charger les infos depuis le webservice
     unknown_error=false; //si une erreur du type "immat inconnue", afficha un message au dessus de la zone d'input 
 
-    constructor(private _fnaa:FNAAProvider){
+    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider){
        
     }
     ngOnInit(){
          //recupere les datas du cache 
          this.cache = this.question.__value;
-         if(this.cache) this.checkBox.nativeElement.checked = true;
+         let cnt = null;
+
+         for (let field of this.formulaire.fields){
+             if(field.id == "conteneur_size"){ //id du field
+                 this.conteneur = field;
+                 break;
+             }
+         }
+         //le type de conteneur est choisi????
+
+
+
+         
+         if(this.conteneur && this.conteneur.value && this.cache) this.checkBox.nativeElement.checked = true;
     }
     
     addField(){
@@ -55,6 +72,8 @@ export class FNAAGroupComponent{
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 
+
+
                  if(!this.question.__value )this.question.__value = [];
                 this.question.__value.push(dts);
                 //a partir de ces infos, populate la question 

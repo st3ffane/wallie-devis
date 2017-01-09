@@ -899,7 +899,7 @@ export class DevisProvider {
         }
         return '';
     }
-    private get_raw_param(form, id){
+    get_raw_param(form, id){
         //("get_raw_param from:"+form+" name:"+id);
         if(this.devis_infos[form] && this.devis_infos[form]["fields"] ){
             for (let field of this.devis_infos[form]["fields"]){

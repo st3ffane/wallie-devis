@@ -1,7 +1,7 @@
 import {Component, Input} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {FNAAProvider} from "../../providers/fnaa.provider";
-
+import {DevisProvider} from "../../../providers/devis.provider";
 
 //permet d'interroger la base des cartes grises pour recuperer les infos sur un vehicule 
 
@@ -21,7 +21,7 @@ export class FNAAComponent{
     error: any;
     loading: boolean = false;//semaphore de chargeement
 
-    constructor(private _fnaa:FNAAProvider){}
+    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider){}
 
     load_vehicule_details(immat:string){
         if(immat){
@@ -32,12 +32,18 @@ export class FNAAComponent{
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 //("reponse du webservice....");
                 //(dts);
-                this.vehicule_infos = dts;
+                
                 //a partir de ces infos, populate la question 
                 return new Promise( (resolve, reject)=>{
                    
                     //new enregistre les données et affiche un recap 
-                    
+                    //verifie si le type de vehicule correspond
+                    if(dts["type_vehicule"] != this._devis.get_raw_param("form_marchandise","marchandise")){
+                        //erreur, refuse le vehicule 
+                        reject({"code":"UNKNOWN", "msg":"immatriculation inconnue"});
+                    }              
+
+                    this.vehicule_infos = dts;      
                     //old: populate le formulaire
                     for (let field of this.formulaire.fields) {
                         //recherche la données correspondante

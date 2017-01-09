@@ -18,6 +18,9 @@ const DIESEL = "diesel";
 const HYBRID = "hybride";
 const ELECTRIC = "electrique";
 
+const VOITURE="voiture";
+const UTILITAIRE="utilitaire";
+const MOTO="moto";
 
 const MAPPING= {
     "ESSENCE":ESSENCE,
@@ -37,7 +40,15 @@ const MAPPING= {
 
 }
 const TYPE_MAPPING = {
-    
+    "VP":VOITURE,
+    "CTTE":UTILITAIRE,//TCP, CAM, CTTE,VASP, TRR, VTST, VTSU
+    "CAM":UTILITAIRE,
+    "TCP":UTILITAIRE,
+    "VASP":UTILITAIRE,
+    "TRR":UTILITAIRE,
+    "VTST":UTILITAIRE,
+    "VTSU":UTILITAIRE,
+    //tout le reste, moto
 }
 
 const API = TARGET+"/wp-admin/admin-ajax.php?action=fnaa&immat="
@@ -105,6 +116,10 @@ export class FNAAProvider{
                 if(v in MAPPING) datas["energie"]=MAPPING[v];
                 else datas["energie"]=HYBRID;
 
+                //pour connaitre le type recuperer en fonction de ce que nous utilisons
+                v = datas["genre_v"];
+                datas["type_vehicule"] = MOTO;//par defaut
+                if(v in TYPE_MAPPING)datas["type_vehicule"] = TYPE_MAPPING[v];
 
                 return datas;
         });
