@@ -5,6 +5,19 @@ import {FNAAProvider} from "../../providers/fnaa.provider";
 import {DevisProvider} from "../../../providers/devis.provider";
 
 
+const COUNTS = {
+    "20":{
+        "voiture":1,
+        "moto":4,
+        "utilitaire":1
+    },
+    "40":{
+        "voiture":3,
+        "moto":5,
+        "utilitaire":1
+    }
+}
+
 @Component({
     selector:"fnaa-group",
     templateUrl:'./fnaa.group.html',
@@ -20,10 +33,11 @@ export class FNAAGroupComponent{
 
     conteneur = null; //pour connaitre les limitations 
     
+   
 
     //groups=[];//les informations sur les vheicules
     loading = false;//indique si est en train de charger les infos depuis le webservice
-    unknown_error=false; //si une erreur du type "immat inconnue", afficha un message au dessus de la zone d'input 
+    unknown_error=null; //si une erreur du type "immat inconnue", afficha un message au dessus de la zone d'input 
 
     constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider){
        
@@ -66,13 +80,27 @@ export class FNAAGroupComponent{
     }
     load_vehicule_details(immat:string){
         if(immat){
-            this.unknown_error = false;
+
+            //chargement des datas....
+            this.unknown_error = null;
             this.loading = true;
 
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 
-
+                //recup les limitationos 
+                let limits = COUNTS[this.conteneur.__value];
+                
+                let type = dts["type_vehicule"];
+                let max = limits[type] || 0;
+                
+                //recup le nbr de vehicules deja inscits avec ce type 
+                if(this.get_vehicule_count(type) + 1 > max ){
+                    //refuse
+                    this.unknown_error = "Vous ne pouvez pas charger plus de "+max+" véhicules du type "+type;
+                     this.loading = false;
+                    return;
+                }
 
                  if(!this.question.__value )this.question.__value = [];
                 this.question.__value.push(dts);
@@ -87,7 +115,7 @@ export class FNAAGroupComponent{
                 //affiche la plaque d'immatriculation et un message pour dire qu'une erreur est arrivée 
                 if(err.code && err.code == "UNKNOWN"){
                     //une erreur du webservice: nom de plaque inconnu, mercid e verifier 
-                    this.unknown_error = true;
+                    this.unknown_error = "La plaque d'immatriculation renseignée semble inconnue. Merci de vérifier.";
                 } else {
                     //une erreur de rezo? impossible de savoir les infos 
                     this.question.push({"immatriculation":immat, "error":"Impossible de se connecter au web service FNAA. voir quoi ecrire..."})
@@ -98,7 +126,17 @@ export class FNAAGroupComponent{
         }
     }
     delete(index){
+        
         //(index);
         if(this.question.__value[index])  this.question.__value.splice(index,1);
+    }
+    private get_vehicule_count(type):number{
+        
+        let count = 0;
+        for (let veh of this.question.__value){
+            
+            if (veh["type_vehicule"] == type) count++;
+        }
+        return count;
     }
 }

@@ -117,9 +117,10 @@ export class FNAAProvider{
                 else datas["energie"]=HYBRID;
 
                 //pour connaitre le type recuperer en fonction de ce que nous utilisons
-                v = datas["genre_v"];
+                v = datas["genreV"];
+                
                 datas["type_vehicule"] = MOTO;//par defaut
-                if(v in TYPE_MAPPING)datas["type_vehicule"] = TYPE_MAPPING[v];
+                if(v in TYPE_MAPPING) datas["type_vehicule"] = TYPE_MAPPING[v];
 
                 return datas;
         });
