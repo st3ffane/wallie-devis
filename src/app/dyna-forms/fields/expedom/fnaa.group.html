@@ -25,7 +25,10 @@
 
             <!-- champs FNAA -->
             <td *ngIf="group.error">
-                 <span class="immatinfos">{{group.immatriculation}}</span>
+                 <span class="immatinfos">{{group.immatriculation}}</span><br/>
+                 <span class="infos">Une erreur est advenue lors de la récuperation des informations sur votre véhicule. Afin de nous permettre de calculer les taxes au
+                     plus juste, merci de renseigner, dans le champs "Précisions" du formulaire "Vos coordonnées" le type du véhicule (voiture,moto ou utilitaire).
+                 </span>
             </td>
             <!-- le vehicule -->
              <td *ngIf="!group.error" class="inline">

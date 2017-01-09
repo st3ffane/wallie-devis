@@ -7,7 +7,7 @@ import {DevisProvider} from "../../../providers/devis.provider";
 
 const COUNTS = {
     "20":{
-        "voiture":1,
+        "voiture":2,
         "moto":4,
         "utilitaire":1
     },
@@ -118,6 +118,8 @@ export class FNAAGroupComponent{
                     this.unknown_error = "La plaque d'immatriculation renseignée semble inconnue. Merci de vérifier.";
                 } else {
                     //une erreur de rezo? impossible de savoir les infos 
+                    if(!this.question.__value )this.question.__value = [];
+                    console.log(err);
                     this.question.push({"immatriculation":immat, "error":"Impossible de se connecter au web service FNAA. voir quoi ecrire..."})
                 }
                 //fallback, demande l'affichage du formulaire
