@@ -30,6 +30,12 @@ select{
 .gm-style-iw > div{
   overflow: visible!important;
 }
+
+.required{
+  font-weight: 700;
+  color: #f19300;
+}
+
 /*
 .entry-content{
   width: 100%!important;

@@ -18,6 +18,7 @@
        <div *ngIf="prec_form_name" style="width: 100%; text-align:left;    margin-bottom: 30px;"> 
          <button type="button" (click)="back()" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Retour à: {{prec_form_name}} </button>
         </div>
+        <!--h5>Les champs suivis par <span class="required">*</span> doivent être renseignés.</h5-->
             <!-- test only, cree un formulaire a partir des infos passées par le js 
             voir a mettre en forme les données.... -->
             <dynamic-form [formulaire]="infos" (submitted)="next()"></dynamic-form>

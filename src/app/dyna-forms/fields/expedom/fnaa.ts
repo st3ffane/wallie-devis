@@ -43,7 +43,11 @@ export class FNAAComponent{
                     if(dts["type_vehicule"] != this._devis.get_raw_param("form_marchandise","marchandise")){
                         //erreur, refuse le vehicule 
                         console.log("unsupported!!!");
-                        reject({"code":"UNSUPPORTED", "msg":"type invalide","type":dts["type_vehicule"]});
+                        //sauvegarde dans le LS les infos??? Au moins l'immat????
+
+                        
+                        reject({"code":"UNSUPPORTED", "msg":"type invalide","type":dts["type_vehicule"],"cache":dts});
+                        return;
                     }              
 
                     this.vehicule_infos = dts;      
@@ -99,7 +103,12 @@ export class FNAAComponent{
         //recupere les infos et submit!
     }
 
-    toMarchandise(type:string){
+    toMarchandise(type:string, cache:any){
+
+        if(cache){
+            //enregistre le cache de la question
+            this.question.__value = cache;
+        }
         //navigue vers la premiere page des formulaires
         let form = this._devis.devis_infos["form_marchandise"];
         if(form){
@@ -132,7 +141,7 @@ export class FNAAComponent{
         }
         
         //supprime la derniere entrée: le formulaire de precisions
-        this._devis._form_historic.pop();
+        //this._devis._form_historic.pop();
         //met le key qui va bien
         this._devis.current_key = "global_nocache/form_to";
         this._devis.load_form_datas_async("global_nocache","form_to").then( (fi)=>{

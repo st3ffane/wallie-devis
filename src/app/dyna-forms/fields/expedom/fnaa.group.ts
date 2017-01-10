@@ -95,12 +95,21 @@ export class FNAAGroupComponent{
                 let limits = COUNTS[this.conteneur.__value];
                 
                 let type = dts["type_vehicule"];
+                type = type=="utilitaire" ? "voiture":type; //utilitaire et voiture idem...
+
                 let max = limits[type] || 0;
                 
+
+                console.log("type: "+type);
+                console.log("max: "+max);
+                
+                let current = this.get_vehicule_count(type);
+                console.log("actual count: "+current);
+
                 //recup le nbr de vehicules deja inscits avec ce type 
-                if(this.get_vehicule_count(type) + 1 > max ){
+                if( current + 1 > max ){
                     //refuse
-                    this.unknown_error = "Vous ne pouvez pas charger plus de "+max+" véhicules du type "+type;
+                    this.unknown_error = "Vous ne pouvez pas charger plus de "+max+" véhicules du type "+dts["type_vehicule"];
                      this.loading = false;
                     return;
                 }
@@ -141,25 +150,28 @@ export class FNAAGroupComponent{
     }
     private get_vehicule_count(type):number{
         if(!this.question.__value) return 0;
+        
         let count = 0;
         for (let veh of this.question.__value){
-            
-            if (veh["type_vehicule"] == type) count++;
+            let t = veh["type_vehicule"];
+            t = t=="utilitaire" ? "voiture" : t;
+            //probleme, vehicule et utilitaire == identique
+            if (t == type) count++;
         }
         return count;
     }
 
      toMarchandise(){
         //navigue vers la premiere page des formulaires
-        this._devis.next("","").then( (fi)=>{
-            //on est parti!!!
-            // //("informations recues");
-            // //(fi);
-            //this.loading = false;
-            this._router.navigate(["/devis",fi.group,fi.form]);
-        }).catch( (err)=>{
-            //(err);
-        })
+        // this._devis.next("","").then( (fi)=>{
+        //     //on est parti!!!
+        //     // //("informations recues");
+        //     // //(fi);
+        //     //this.loading = false;
+        //     this._router.navigate(["/devis",fi.group,fi.form]);
+        // }).catch( (err)=>{
+        //     //(err);
+        // })
         
     }
     toDemande(){
