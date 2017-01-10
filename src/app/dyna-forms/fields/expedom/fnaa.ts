@@ -2,6 +2,7 @@ import {Component, Input} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {FNAAProvider} from "../../providers/fnaa.provider";
 import {DevisProvider} from "../../../providers/devis.provider";
+import {Router} from "@angular/router";
 
 //permet d'interroger la base des cartes grises pour recuperer les infos sur un vehicule 
 
@@ -19,14 +20,15 @@ export class FNAAComponent{
     
     
     error: any;
+    unsupported_error = null;
     loading: boolean = false;//semaphore de chargeement
 
-    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider){}
+    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider, private _router:Router){}
 
     load_vehicule_details(immat:string){
         if(immat){
             this.error = null;
-            
+            this.unsupported_error =null;
             this.loading = true;
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
@@ -40,7 +42,8 @@ export class FNAAComponent{
                     //verifie si le type de vehicule correspond
                     if(dts["type_vehicule"] != this._devis.get_raw_param("form_marchandise","marchandise")){
                         //erreur, refuse le vehicule 
-                        reject({"code":"UNKNOWN", "msg":"immatriculation inconnue"});
+                        console.log("unsupported!!!");
+                        reject({"code":"UNSUPPORTED", "msg":"type invalide","type":dts["type_vehicule"]});
                     }              
 
                     this.vehicule_infos = dts;      
@@ -66,14 +69,22 @@ export class FNAAComponent{
             }).catch( (err)=>{
                 
                if(err.code == "UNKNOWN"){
+                   console.log("unknown!!!");
                    //plaque inconnue, demande a verifier
                    this.error = "Le numéro de plaque est inconnu du service de carte grise. Merci de verifier ou de remplir le formulaire ci dessous";
                }
-               else if (err == "ERROR"){
+               else if (err.code == "ERROR"){
+                   console.log("error!!!");
                    this.error = "Une erreur est arrivée lors de la récuperation des informations sur votre véhicule. Merci de remplir le formulaire suivant à l'aide de votre carte grise";
+               }
+               else if (err.code == "UNSUPPORTED"){
+                   console.log("unsupported!!!");
+                   this.unsupported_error = err;
+                
                }
                else{
                    //bug reseau ou autre
+                   console.log("error rezo!!!");
                    this.error = err;
                }
                this.loading = false;
@@ -88,11 +99,52 @@ export class FNAAComponent{
         //recupere les infos et submit!
     }
 
+    toMarchandise(type:string){
+        //navigue vers la premiere page des formulaires
+        let form = this._devis.devis_infos["form_marchandise"];
+        if(form){
+            //modifie le type de marchandise 
+            for (let field of form.fields){
+                if(field.id=="marchandise"){
+                    field.value = type;
+                }
+            }
+        }
+        //probleme, si return, tout l'historique part en couille....
+        this._devis.clearHistoric();//remet a zero
+        this._devis.current_key = "";
+        this._router.navigate(["/devis","global","form_marchandise"]);
+        
+       
+        
+    }
+    toDemande(){
+        //voir avec vince si possible
+        //this._router.navigate(["/devis",fi.group,fi.form]);
+         let form = this._devis.devis_infos["form_marchandise"];
+        if(form){
+            //modifie le type de marchandise 
+            for (let field of form.fields){
+                if(field.id=="marchandise"){
+                    field.value = "autre";
+                }
+            }
+        }
+        
+        //supprime la derniere entrée: le formulaire de precisions
+        this._devis._form_historic.pop();
+        //met le key qui va bien
+        this._devis.current_key = "global_nocache/form_to";
+        this._devis.load_form_datas_async("global_nocache","form_to").then( (fi)=>{
+            this._router.navigate(["/devis","autre","form_coords"]);
+        });
+    }
+
 
     //mise en place de toutes les props
-    private set_valeur(dts, field){
-        this.form.controls[field.id].setValue( dts["valeur"]);
-    }
+    // private set_valeur(dts, field){
+    //     this.form.controls[field.id].setValue( dts["valeur"]);
+    // }
      private set_immatriculation(dts, field){
         this.form.controls[field.id].setValue( dts["immatriculation"]);
     }

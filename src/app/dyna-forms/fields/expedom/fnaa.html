@@ -1,4 +1,5 @@
 <fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
+        <a (click)="toDemande()">toDemande</a>
         <div class="schrink inline">
             <div class="input-container">
                 <label>{{question.title}}</label>  
@@ -22,7 +23,10 @@
             <p>{{error}}</p>
                
         </div>
-
+        <!-- 2 link: retour page choix de marchandise, go page de contact/demande -->
+         <div *ngIf="unsupported_error" class="error"><p>Attention, votre véhicule semble être un(e) {{unsupported_error.type}},
+         voulez vous recommencer votre devis pour  <a class="link" (click)="toMarchandise(unsupported_error.type)">expédier un véhicule de type {{unsupported_error.type}}</a>
+        ou prendre <a class="link" (click)="toDemande()">contact avec Expedom</a> afin de nous décrire votre projet. </p></div>
         <hr/>
 
 </fieldset>

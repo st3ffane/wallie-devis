@@ -20,7 +20,7 @@
     </div>
    
 
-    <table *ngIf="conteneur?.__value" class="vehicules" [class.hidden]="!checker.checked">
+    <table *ngIf="conteneur?.__value" class="vehicules" [class.hidden]="!checker.checked && conteneur?.__value">
         <tr *ngFor="let group of question.__value; let i = index">
 
             <!-- champs FNAA -->
@@ -32,27 +32,49 @@
             </td>
             <!-- le vehicule -->
              <td *ngIf="!group.error" class="inline">
-                 <span class="immatinfos">{{group.marque+" "+group.modele+" "+group.version}}</span>
+                 <div>
+                    <span class="immatinfos">{{group.marque+" "+group.modele+" "+group.version}}</span>
+                    <p *ngIf="group.type_vehicule == 'utilitaire'">Attention, ce véhicule à caractère utilitaire ne peut pas bénéficier de la franchise, vous aurez des taxes à acquitter </p>
+                </div>
                  <button class="btn btn-danger close" type="button" (click)="delete(i)"><i class="fa fa-close"></i></button>
              </td>
         </tr>
-        <tr class="last-child">
+        <tr class="last-child card" >
             <td> 
                 <div *ngIf="unknown_error" class="error"><p>{{unknown_error}}</p></div>
-                <div class="schrink inline">
-                    <div class="input-container">
-                        <label>Entrez la plaque d'immatriculation du véhicule:</label>  
-                        <input #texted type="text"  
-                             type="text"  
-                             [disabled]="!checker.checked"                           
-                            placeholder="ex: 2874AA40"
-                            >
-                            
+               <div *ngIf="unsupported_error" class="error"><p>Attention, votre véhicule semble être un utilitaire,
+                     merci de sélectionner <a (click)="toMarchandise()">Véhicule utilitaire</a>
+                      comme type de marchandise ou de prendre <a (click)="toDemande()">contact avec Expedom</a></p></div>
+                <form  #vehiculeConteneur="ngForm" (ngSubmit)="load_vehicule_details(name.value, texted.value)">
+                    <div class="schrink inline" >
+                        <div class="input-container">
+                            <label>Entrez la nom du titulaire de la carte grise:</label>  
+                            <input type="text"  
+                                type="text"  
+                                #name
+                                name="name"
+                                [disabled]="!checker.checked"                           
+                                placeholder="ex: Durand Jean-Paul"
+                                
+                                >
+                                
+                        </div>
+                        <div class="input-container">
+                            <label>Entrez la plaque d'immatriculation du véhicule:</label>  
+                            <input #texted type="text"  
+                                type="text"  
+                                [disabled]="!checker.checked" 
+                                name="immat"                          
+                                placeholder="ex: 2874AA40"
+                                
+                                >
+                                
+                        </div>
+                        <!--span>(<small>{{question.description}}</small>)</span-->
+                        <button *ngIf="!loading" [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit" >Embarquer</button>
+                        <button *ngIf="loading"  class="btn btn-primary " type="button" ><i class="fa fa-spin fa-gear"></i></button>
                     </div>
-                    <!--span>(<small>{{question.description}}</small>)</span-->
-                    <button *ngIf="!loading" [disabled]="!checker.checked" class="btn btn-primary " type="button" (click)="load_vehicule_details(texted.value)">Details</button>
-                    <button *ngIf="loading"  class="btn btn-primary " type="button" ><i class="fa fa-spin fa-gear"></i></button>
-                </div>
+                </form>
                  <!--button class="btn btn-primary wide" [disabled]="!checker.checked" type="button" (click)="addField()">Ajouter un vehicule au conteneur</button-->
             </td>
         </tr>

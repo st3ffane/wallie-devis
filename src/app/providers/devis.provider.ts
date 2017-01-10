@@ -342,15 +342,28 @@ export class DevisProvider {
         
                 //cherche si a deja les données du formulaire
             //attention: savoir si toujours valide?????
-
+console.log("get form descriptor");
+console.log(group+", "+form);
             let key =form; //clé du formulaire, unqieument le nom du focrmulaire
 
             // //(" get form descriptor");
             let fi = null;
             //recherche dans les formulaires deja chargés...
+            //verifie que le groupe correspond aussi
             if(this.devis_infos[key] && this.devis_infos[key]["key"]){
                     
+                    
                     fi = this.devis_infos[key];
+
+                    let fi_group = fi.key.split("/")[0];//le groupe
+                    // if(group != "server" && fi_group != group){
+                    //     //invalide, relance la recharge du formulaire avec group et form
+                    //     console.log("groupe differents et non server, charge les données du formulaire") 
+                    //     return this.load_form_datas_async(group,form);
+                    // }
+
+
+
                     let url = fi.url;
 
                     // console.log("Formulaire deja chargé en memoire, normalement, tout est OK....")
@@ -401,6 +414,11 @@ export class DevisProvider {
                     
             }
 
+            //pas de cache, verifie si demande un group/form 
+            // if(group!=null && form!=null){
+            //     console.log("groupe et form, charge les données du formulaire") 
+            //             return this.load_form_datas_async(group,form);
+            // }
 
             //pas de formulaire en memoire, regarde les données d'URL 
             //d'abord l'etat actuel, sinon celui chargé au load et sinon, celui du localStorage
@@ -477,6 +495,8 @@ export class DevisProvider {
          //genere l'url de endpoint 
         let url = endpoint  ? endpoint :    ENDPOINT + this.create_url(group,form);  
         
+
+       
         return this._http.get(url)
         .toPromise()
         .then( (res:Response)=>{
@@ -505,7 +525,7 @@ export class DevisProvider {
             //la clé complete du formulaire
             this.current_key = fi.key;
             // //(this.current_key);
-
+            
             //si provient du serveur, je n'ai pas ces infos...
 
             let cache_key = this.current_key ? this.current_key.split("/") : "";

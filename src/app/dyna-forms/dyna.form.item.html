@@ -140,7 +140,7 @@
         
         <div *ngSwitchCase="'radio'" class="text-center">
               
-                  <h3 class="row text-center">{{question.title}}</h3>
+                  <h4 class="row text-center" style="font-weight: 700;font-size: 1.5em; margin-top: 20px;">{{question.title}}</h4>
                   <p class="row">{{question.description}}</p>
                   <div class="choice-cmp inline"><!-- [class.inline]="question.options.length<3"-->
                     <div class="text-left"  *ngFor="let it of question.options">                        
@@ -194,7 +194,6 @@
             <fnaa-input [formulaire]="formulaire" [question]="question" [form]="form"></fnaa-input>
         </div>
         <div *ngSwitchCase="'fnaa-group'">
-            <p>WARNING: Test only pour l'ajout de vehicules dans les conteneurs.</p>
             
             <fnaa-group [formulaire]="formulaire" [question]="question" [form]="form"></fnaa-group>
         </div>

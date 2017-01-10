@@ -25,15 +25,15 @@
             flex-grow:1;
             align-self: flex-start;
             
-            border: none;
+            border: none!important;
             margin-bottom: 5px;
-            &:nth-child(odd){
-                 border: none;
+           
+                
                  margin-right: 5px;
 
                  @media screen and (max-width:700px){
                      margin-right: 0px;
-                 }
+                 
             }
     }
     .input-container{
@@ -64,18 +64,18 @@
     font-size: 1.5em;
     font-weight: 700;
 }
-.vehicules{
-    tbody{
-        tr{
-            border-bottom: 1px dashed rgba(255,255,255,0.3);
+// .vehicules{
+//     tbody{
+//         tr{
+//             border-bottom: 1px dashed rgba(255,255,255,0.3);
 
-            &.last-child{
-                border-bottom: none;
-            }
-        }
+//             &.last-child{
+//                 border-bottom: none;
+//             }
+//         }
         
-    }
-}
+//     }
+// }
 .wide{width:100%;}
 .error, .infos{
         
@@ -86,4 +86,15 @@
 }
 .error{
     color: #fd6565;
+}
+.link{
+    color: #f19300;
+    font-weight:700;
+    text-decoration: underline;
+    cursor:pointer;
+}
+.card{
+    background-color: rgba(255,255,255,0.07);
+    box-shadow: 0 1px 2px rgba(0,0,0,.25);
+    margin-bottom: 20px;
 }

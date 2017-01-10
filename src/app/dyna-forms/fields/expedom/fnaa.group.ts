@@ -3,7 +3,7 @@ import {FormGroup} from "@angular/forms";
 
 import {FNAAProvider} from "../../providers/fnaa.provider";
 import {DevisProvider} from "../../../providers/devis.provider";
-
+import {Router} from "@angular/router";
 
 const COUNTS = {
     "20":{
@@ -29,6 +29,8 @@ export class FNAAGroupComponent{
     @Input() formulaire;//pour pouvoir faire les modifications
     @ViewChild("checker") checkBox; //la check du composant 
 
+    @ViewChild("name") name;
+    @ViewChild("texted") srchBox;
     cache = [];//poiur ne pas tout recharger a chaque fois 
 
     conteneur = null; //pour connaitre les limitations 
@@ -38,8 +40,8 @@ export class FNAAGroupComponent{
     //groups=[];//les informations sur les vheicules
     loading = false;//indique si est en train de charger les infos depuis le webservice
     unknown_error=null; //si une erreur du type "immat inconnue", afficha un message au dessus de la zone d'input 
-
-    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider){
+    unsupported_error = null;
+    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider, private _router:Router){
        
     }
     ngOnInit(){
@@ -78,11 +80,12 @@ export class FNAAGroupComponent{
             this.question.__value = null;
         }
     }
-    load_vehicule_details(immat:string){
-        if(immat){
+    load_vehicule_details(name:string, immat:string){
+        if(name && immat){
 
             //chargement des datas....
             this.unknown_error = null;
+            this.unsupported_error = null;
             this.loading = true;
 
 
@@ -106,6 +109,8 @@ export class FNAAGroupComponent{
                 this.question.__value.push(dts);
                 //a partir de ces infos, populate la question 
                 this.loading = false;
+                this.srchBox.nativeElement.value = "";
+                this.name.nativeElement.value ="";
                 
             }).catch( (err)=>{
                 //(err);
@@ -116,6 +121,8 @@ export class FNAAGroupComponent{
                 if(err.code && err.code == "UNKNOWN"){
                     //une erreur du webservice: nom de plaque inconnu, mercid e verifier 
                     this.unknown_error = "La plaque d'immatriculation renseignée semble inconnue. Merci de vérifier.";
+                }else if(err.code && err.code =="UNSUPPORTED"){
+                    this.unsupported_error = true;
                 } else {
                     //une erreur de rezo? impossible de savoir les infos 
                     if(!this.question.__value )this.question.__value = [];
@@ -133,7 +140,7 @@ export class FNAAGroupComponent{
         if(this.question.__value[index])  this.question.__value.splice(index,1);
     }
     private get_vehicule_count(type):number{
-        
+        if(!this.question.__value) return 0;
         let count = 0;
         for (let veh of this.question.__value){
             
@@ -141,4 +148,23 @@ export class FNAAGroupComponent{
         }
         return count;
     }
+
+     toMarchandise(){
+        //navigue vers la premiere page des formulaires
+        this._devis.next("","").then( (fi)=>{
+            //on est parti!!!
+            // //("informations recues");
+            // //(fi);
+            //this.loading = false;
+            this._router.navigate(["/devis",fi.group,fi.form]);
+        }).catch( (err)=>{
+            //(err);
+        })
+        
+    }
+    toDemande(){
+        //voir avec vince si possible
+        //this._router.navigate(["/devis",fi.group,fi.form]);
+    }
+
 }

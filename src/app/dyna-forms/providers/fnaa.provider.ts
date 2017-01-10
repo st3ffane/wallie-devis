@@ -39,6 +39,8 @@ const MAPPING= {
     "AUTRES":ESSENCE
 
 }
+
+//probleme, si genre=QM et carrosserie=QLOMP=>voiture
 const TYPE_MAPPING = {
     "VP":VOITURE,
     "CTTE":UTILITAIRE,//TCP, CAM, CTTE,VASP, TRR, VTST, VTSU
@@ -48,9 +50,15 @@ const TYPE_MAPPING = {
     "TRR":UTILITAIRE,
     "VTST":UTILITAIRE,
     "VTSU":UTILITAIRE,
+    "MTL":MOTO,
+    "MTT1":MOTO,
+    "MTT2":"MOTO",
+    "TMP1":MOTO,
+    "TMP2":MOTO
     //tout le reste, moto
 }
-
+//si voiture, les carrosseries acceptées
+const CARROSSERIES = []
 const API = TARGET+"/wp-admin/admin-ajax.php?action=fnaa&immat="
 @Injectable()
 export class FNAAProvider{
@@ -119,8 +127,12 @@ export class FNAAProvider{
                 //pour connaitre le type recuperer en fonction de ce que nous utilisons
                 v = datas["genreV"];
                 
-                datas["type_vehicule"] = MOTO;//par defaut
-                if(v in TYPE_MAPPING) datas["type_vehicule"] = TYPE_MAPPING[v];
+                datas["type_vehicule"] = null;//par defaut
+                
+                if(v=="QM" && datas["carrosserie"]=="QLOMP") datas["type_vehicule"]=VOITURE;
+                else if(v in TYPE_MAPPING) datas["type_vehicule"] = TYPE_MAPPING[v];
+
+                if(datas["type_vehicule"] == null) throw {"code":"UNSUPPORTED","msg":''};
 
                 return datas;
         });
