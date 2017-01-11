@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from "@angular/core";
+import {Component, Input, ViewChild, DoCheck, KeyValueDiffers, KeyValueDiffer} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 
 import {FNAAProvider} from "../../providers/fnaa.provider";
@@ -7,7 +7,7 @@ import {Router} from "@angular/router";
 
 const COUNTS = {
     "20":{
-        "voiture":2,
+        "voiture":1,
         "moto":4,
         "utilitaire":1
     },
@@ -24,7 +24,7 @@ const COUNTS = {
     styleUrls:["./fnaa.group.scss"]
 })
 export class FNAAGroupComponent{
-     @Input()question:any;
+    @Input() question:any;
     @Input() form:FormGroup;
     @Input() formulaire;//pour pouvoir faire les modifications
     @ViewChild("checker") checkBox; //la check du composant 
@@ -34,14 +34,14 @@ export class FNAAGroupComponent{
     cache = [];//poiur ne pas tout recharger a chaque fois 
 
     conteneur = null; //pour connaitre les limitations 
-    
+    differ_conteneur:KeyValueDiffer = null;
    
 
     //groups=[];//les informations sur les vheicules
     loading = false;//indique si est en train de charger les infos depuis le webservice
     unknown_error=null; //si une erreur du type "immat inconnue", afficha un message au dessus de la zone d'input 
     unsupported_error = null;
-    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider, private _router:Router){
+    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider, private _router:Router, private differs: KeyValueDiffers){
        
     }
     ngOnInit(){
@@ -52,6 +52,7 @@ export class FNAAGroupComponent{
          for (let field of this.formulaire.fields){
              if(field.id == "conteneur_size"){ //id du field
                  this.conteneur = field;
+                 this.differ_conteneur =  this.differs.find(this.conteneur).create(null);//pour me prevenir qd le conteneur change
                  break;
              }
          }
@@ -62,7 +63,52 @@ export class FNAAGroupComponent{
          
          if(this.conteneur && this.conteneur.value && this.cache) this.checkBox.nativeElement.checked = true;
     }
-    
+   
+    ngDoCheck() {
+        //la props de conteneur a changé????
+		var changes = this.differ_conteneur.diff(this.conteneur);
+       
+		if(changes) {
+			console.log('changes detected');
+            
+			changes.forEachChangedItem((r) => {
+                console.log('changed ', r.currentValue);
+                console.log(r);
+                if(r.key != "__value") return;
+                this.unknown_error = null;
+                if(r.currentValue == "20"){
+                    //verifie si tout est toujours valide....
+                    console.log("verifie si bon");
+                    let v_count = this.get_vehicule_count("voiture");
+                    let m_count = this.get_vehicule_count("moto");
+                    let limits = COUNTS[r.currentValue];
+
+                    //verification
+                    if(v_count > limits["voiture"] || m_count > limits["moto"] )
+                    {
+                        
+                        let max = v_count;
+                        let type = "voiture/Utilitaire";
+                        if(m_count >limits["moto"]){
+                            max = m_count;
+                            type = "moto";
+                        }
+                        //popup pour avertir du probleme 
+                        this.unknown_error = "Vous ne pouvez pas charger plus de "+max+" véhicules du type "+ type+". Pour changer de conteneur, assurer vous de n'avoir embarquer au maximum que "+limits['voiture']+" voitures/utilitaires et "+limits["moto"]+" motos." ;
+                        
+                        //remet a 40
+                        //this.conteneur.__value = "40";//pas pris en compte...
+                        setTimeout(()=>this.conteneur.__value = "40", 100);
+                        return false;
+                    } 
+                    
+                }
+                
+                
+            });
+		}
+	}
+
     addField(){
         //ajoute un nouveau champs FNAA???
         if(!this.question.__value )this.question.__value = [];
@@ -100,20 +146,21 @@ export class FNAAGroupComponent{
                 let max = limits[type] || 0;
                 
 
-                console.log("type: "+type);
-                console.log("max: "+max);
                 
                 let current = this.get_vehicule_count(type);
-                console.log("actual count: "+current);
-
+                
                 //recup le nbr de vehicules deja inscits avec ce type 
                 if( current + 1 > max ){
                     //refuse
-                    this.unknown_error = "Vous ne pouvez pas charger plus de "+max+" véhicules du type "+dts["type_vehicule"];
+                    let t = dts["type_vehicule"];
+                    t = t=="voiture" ? "voiture/utilitaire" : t;
+
+                    this.unknown_error = "Vous ne pouvez pas charger plus de "+max+" véhicules du type "+ t;
                      this.loading = false;
                     return;
                 }
-
+                //enregistre l'utilisateur 
+                dts["titulaire_cg"] = name;
                  if(!this.question.__value )this.question.__value = [];
                 this.question.__value.push(dts);
                 //a partir de ces infos, populate la question 

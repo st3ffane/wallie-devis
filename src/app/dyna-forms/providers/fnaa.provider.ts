@@ -25,7 +25,7 @@ const MOTO="moto";
 const MAPPING= {
     "ESSENCE":ESSENCE,
     "ESS+GAZO":ESSENCE,
-    "ESS+G.P.L":ESSENCE,
+    "ESS+G.P.L.":ESSENCE,
     "ESS+G.NAT":ESSENCE,
     "BICARBUR":ESSENCE,
     "SUPERETHANOL":ESSENCE,
@@ -115,6 +115,9 @@ export class FNAAProvider{
 
                         }else  datas[key] = elem.innerHTML;//recup simplement
                     }
+                } else {
+                    //reponse totalement inconnue 
+                    throw {"code":"ERROR", "msg":"Reponse inconnue du serveur fnaa."};
                 }
 
                 //mapping des differents valeurs : principalement essence 

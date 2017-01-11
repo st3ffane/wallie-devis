@@ -12,15 +12,13 @@
                  
             
         </div>
-    <div [ngSwitch]="conteneur?.__value">
-        <p class="leftie" *ngSwitchCase="'20'">conteneur 20 pieds: maximum 2 voitures et 4 motos.</p>
-        <p class="leftie" *ngSwitchCase="'40'">conteneur 40 pieds: maximum 3 voitures et 5 motos.</p>
-        <p class="leftie" *ngSwitchDefault>Pour pouvoir ajouter un ou plusieurs véhicules, veuillez auparavant sélectionner un type de conteneur</p>
+    <div *ngIf="!conteneur?.__value">
+        <p class="leftie">Pour pouvoir ajouter un ou plusieurs véhicules, veuillez auparavant sélectionner un type de conteneur</p>
         
     </div>
    
 
-    <table *ngIf="conteneur?.__value" class="vehicules" [class.hidden]="!checker.checked && conteneur?.__value">
+    <table *ngIf="conteneur?.__value" class="vehicules" [class.hidden]="!checker.checked">
         <tr *ngFor="let group of question.__value; let i = index">
 
             <!-- champs FNAA -->
@@ -48,7 +46,7 @@
                 <form  #vehiculeConteneur="ngForm" (ngSubmit)="load_vehicule_details(name.value, texted.value)">
                     <div class="schrink inline" >
                         <div class="input-container">
-                            <label>Entrez la nom du titulaire de la carte grise:</label>  
+                            <label class="truncate">Entrez la nom du titulaire de la carte grise:</label>  
                             <input type="text"  
                                 type="text"  
                                 #name
@@ -60,7 +58,7 @@
                                 
                         </div>
                         <div class="input-container">
-                            <label>Entrez la plaque d'immatriculation du véhicule:</label>  
+                            <label class="truncate">Entrez la plaque d'immatriculation du véhicule:</label>  
                             <input #texted type="text"  
                                 type="text"  
                                 [disabled]="!checker.checked" 
