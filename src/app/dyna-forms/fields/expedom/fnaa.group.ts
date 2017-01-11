@@ -7,7 +7,7 @@ import {Router} from "@angular/router";
 
 const COUNTS = {
     "20":{
-        "voiture":1,
+        "voiture":2,
         "moto":4,
         "utilitaire":1
     },

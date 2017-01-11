@@ -342,8 +342,7 @@ export class DevisProvider {
         
                 //cherche si a deja les données du formulaire
             //attention: savoir si toujours valide?????
-console.log("get form descriptor");
-console.log(group+", "+form);
+
             let key =form; //clé du formulaire, unqieument le nom du focrmulaire
 
             // //(" get form descriptor");
@@ -948,7 +947,9 @@ console.log(group+", "+form);
         //la hauteur et largeur si existe 
         request += this.get_field_by_id("form_precisions","longueur");// this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["longueur"] ? "&longueur="+this.devis_infos["form_precisions"]["longueur"].value : "";
         request += this.get_field_by_id("form_precisions","hauteur");//this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["hauteur"] ? "&hauteur="+this.devis_infos["form_precisions"]["hauteur"].value : "";
-
+        request += this.get_field_by_id("form_precisions","volume");
+        request += this.get_field_by_id("form_precisions","conteneur_size");
+        
         //lance le requete
         return request;
 
