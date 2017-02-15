@@ -15,6 +15,7 @@ const RELOAD = TARGET+"/wp-admin/admin-ajax.php?action=edit_quote&quote_id=";
 @Injectable()
 export class DevisProvider {
 
+    _origine: string ;
     //form_infos:any = [];//par defaut, aucune infos a affiche  @DEPRECATED
     //_cache:any;//les infos du localstorage de la session precedente
 
@@ -34,7 +35,7 @@ export class DevisProvider {
         let query_string = {};
         let query = window.location.search.substring(1);
         let vars = query.split("&");
-        
+        this._origine = "expedom";
         //("recuperation des infos de l'URL")
 
         for (let i=0;i<vars.length;i++) {
@@ -42,6 +43,9 @@ export class DevisProvider {
             //(pair)
             if (pair[0].toUpperCase() == 'QUOTE_ID'){
                 this._quote_id = pair[1];
+            }
+            if (pair[0] == 'origine'){
+                this._origine = pair[1];
             }
         } 
         //
@@ -786,7 +790,7 @@ export class DevisProvider {
         }
 
 
-        let cred = "action=generate_quote&app_datas="+JSON.stringify(details);
+        let cred = "action=generate_quote&app_datas="+JSON.stringify(details)+"&origine="+this._origine;
 
         return this._http.post(TARGET+"/wp-admin/admin-ajax.php", cred,{
             headers:headers
@@ -885,9 +889,9 @@ export class DevisProvider {
     create_url(group:string,form:string):string{
         
          //formulaire courant
-        if (form === "") return "";//demande a charger le premier formulaire
+        if (form === "") return "&origine="+this._origine;//demande a charger le premier formulaire
 
-        let request = "&current="+group+"/"+form;
+        let request = "&current="+group+"/"+form+"&origine="+this._origine;
         //si a le type de marchandise 
         //recup les 4 premiers fields comme parametres d'application
         //note si proviennent du cache, pas le meme chemin....
@@ -899,6 +903,12 @@ export class DevisProvider {
         request += this.get_param("form_from","from");
         request += this.get_param("form_to",'to');
         request += this.get_param("form_motif","motif");
+
+         //la hauteur et largeur si existe 
+        request += this.get_field_by_id("form_precisions","longueur");// this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["longueur"] ? "&longueur="+this.devis_infos["form_precisions"]["longueur"].value : "";
+        request += this.get_field_by_id("form_precisions","hauteur");//this.devis_infos["form_precisions"] && this.devis_infos["form_precisions"]["hauteur"] ? "&hauteur="+this.devis_infos["form_precisions"]["hauteur"].value : "";
+        request += this.get_field_by_id("form_precisions","volume");
+        request += this.get_field_by_id("form_precisions","conteneur_size");
         // //(request);
         //construit l'url 
         return request;
@@ -935,7 +945,7 @@ export class DevisProvider {
         // //("create geo url");
         // //(zipcode);
         //endpoint vers le webservice avec les infos de positions
-        let request = TARGET+"/wp-admin/admin-ajax.php?action=webservice_geolocation_request&form_name="+this.current_key+"&departement_code="+zipcode
+        let request = TARGET+"/wp-admin/admin-ajax.php?action=webservice_geolocation_request&origine="+this._origine+"&form_name="+this.current_key+"&departement_code="+zipcode
                 +"&lat="+position.lat+"&lng="+position.lng+"&city="+position.city;
         //le reste de l'url 
         request += this.devis_infos["form_marchandise"] ? "&marchandise="+this.devis_infos["form_marchandise"].fields[0].value : "";
