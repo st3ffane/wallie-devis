@@ -148,6 +148,17 @@ export class DynamicFormComponent implements OnInit{
                 //si a des contraintes, ajoute les 
                 let ctrl = new FormControl(question.value || '', this.get_validators_for_field(question));
                 group[key] = ctrl;
+
+                //probleme, certains groupes definissent des inner-fields, notamment le hack pour 
+                //les details vehicules, donc si un type 'a la con', recupere les inner pour les inscrires
+                if (question.type=="switch_details"){
+                    for (let option of question.options){
+                        for (let inner_field of option.fields){
+                            let ctrl = new FormControl(inner_field.value || '', this.get_validators_for_field(inner_field));
+                            group[inner_field.id] = ctrl;
+                        }
+                    }
+                }
             }
             //sinon, groupe existe deja....
         }

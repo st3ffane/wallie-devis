@@ -11,7 +11,7 @@ $step : 700px;
 input[type='radio'],
 input[type="checkbox"]{
      /* original check box are push outside the viexport */
-
+ opacity: 0;
   z-index : 0;
 }
 .choice-cmp{
