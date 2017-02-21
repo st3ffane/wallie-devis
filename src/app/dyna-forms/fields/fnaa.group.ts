@@ -21,6 +21,7 @@ export class FNAAGroupComponent{
         this.groups.push({});
     }
     load_vehicule_details(index:number,immat:string){
+        console.log("ici");
         if(immat){
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 console.log("reponse du webservice....");

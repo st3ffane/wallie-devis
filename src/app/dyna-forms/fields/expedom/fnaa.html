@@ -27,6 +27,10 @@
          <div *ngIf="unsupported_error" class="error"><p>Attention, votre véhicule semble être un(e) {{unsupported_error.type}},
          voulez vous recommencer votre devis pour  <a class="btn btn-primary" (click)="toMarchandise(unsupported_error.type,unsupported_error.cache)">expédier un véhicule de type {{unsupported_error.type}}</a>
         ou prendre <a class="btn btn-primary" (click)="toDemande()">contact avec Expedom</a> afin de nous décrire votre projet? </p></div>
+        
+        <div>
+            <h4>{{infos_vehicule}}</h4>
+        </div>
         <hr/>
 
 </fieldset>

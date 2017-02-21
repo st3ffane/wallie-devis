@@ -152,8 +152,11 @@ export class DynamicFormComponent implements OnInit{
                 //probleme, certains groupes definissent des inner-fields, notamment le hack pour 
                 //les details vehicules, donc si un type 'a la con', recupere les inner pour les inscrires
                 if (question.type=="switch_details"){
+                    console.log("un switch details");
                     for (let option of question.options){
+                        console.log(option);
                         for (let inner_field of option.fields){
+                            console.log(inner_field.id)
                             let ctrl = new FormControl(inner_field.value || '', this.get_validators_for_field(inner_field));
                             group[inner_field.id] = ctrl;
                         }
@@ -162,8 +165,9 @@ export class DynamicFormComponent implements OnInit{
             }
             //sinon, groupe existe deja....
         }
+        console.log(group);
         this.form = new FormGroup(group);//renvoie le groupe d'infos
-        
+        console.log(this.form.controls);
     }
 
     /**

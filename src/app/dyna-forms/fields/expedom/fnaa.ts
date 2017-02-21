@@ -22,6 +22,7 @@ export class FNAAComponent{
     error: any;
     unsupported_error = null;
     loading: boolean = false;//semaphore de chargeement
+    infos_vehicule: string;
 
     constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider, private _router:Router){}
 
@@ -30,6 +31,8 @@ export class FNAAComponent{
             this.error = null;
             this.unsupported_error =null;
             this.loading = true;
+            this.infos_vehicule = null;
+
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 //("reponse du webservice....");
@@ -50,19 +53,36 @@ export class FNAAComponent{
                         return;
                     }              
 
-                    this.vehicule_infos = dts;      
+                    this.vehicule_infos = dts;
+                  
+                    var cible = null;      
                     //old: populate le formulaire
                     for (let field of this.formulaire.fields) {
-                        //recherche la données correspondante
-                    //    let ctrl = this.form.controls[field];
-                    //    if(ctrl){
-                    //        ctrl.setValue(dts[field]);
-                    //    }
-                    //(field.id);
-                        if(this["set_"+field.id]){
-                            this["set_"+field.id](dts, field);
+
+                        if(field.type=="switch_details"){
+                            cible = field.options[1];
+                            break;
                         }
                     }
+                    if(cible){
+                        for (let field of cible.fields){
+                            //recherche la données correspondante
+                        //    let ctrl = this.form.controls[field];
+                        //    if(ctrl){
+                        //        ctrl.setValue(dts[field]);
+                        //    }
+                            
+                            if(this["set_"+field.id]){
+                                //console.log(field)
+                                this["set_"+field.id](dts, field);
+                            }
+                        }
+
+                        //cree une phrase d'infos pour l'utilisateur
+                        this.infos_vehicule = this.form.controls["marque"].value+" "+
+                                this.form.controls["modele"].value
+                    }
+
                     
                     resolve();
                 });
@@ -149,20 +169,21 @@ export class FNAAComponent{
         });
     }
 
-
+    
     //mise en place de toutes les props
     // private set_valeur(dts, field){
     //     this.form.controls[field.id].setValue( dts["valeur"]);
     // }
+    private set_marque(dts, field){
+        this.form.controls[field.id].setValue( dts["marque"]);
+    }
      private set_immatriculation(dts, field){
         this.form.controls[field.id].setValue( dts["immatriculation"]);
     }
     private set_date1erCir(dts, field){
         this.form.controls[field.id].setValue( dts["date1erCir"]);
     }
-    private set_marque(dts, field){
-        this.form.controls[field.id].setValue( dts["marque"]);
-    }
+    
     private set_modele(dts, field){
         this.form.controls[field.id].setValue( dts["modele"]+" "+dts["version"]);
     }
@@ -198,7 +219,7 @@ export class FNAAComponent{
         this.form.controls[field.id].setValue( dts["type"]);
     }
      private set_genreVCG(dts, field){
-        this.form.controls[field.id].setValue( dts["genreVCG"]);
+       this.form.controls[field.id].setValue( dts["genreVCG"]);
     }
     
     private set_motorisation(dts, field){

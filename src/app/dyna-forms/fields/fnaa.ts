@@ -16,14 +16,19 @@ export class FNAAComponent{
     @Input() formulaire;//pour pouvoir faire les modifications
 
     vehicule_infos:any = null;//si validé, sera la reponse a la question!
-    
-
     error: any;
 
-    constructor(private _fnaa:FNAAProvider){}
+    constructor(private _fnaa:FNAAProvider){
+        console.log("creation du FNAA")
+    }
 
     load_vehicule_details(immat:string){
+        console.log("recherche: "+immat);
+
+
+
         if(immat){
+            console.log("envoie d'une requete au webservice");
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
                 console.log("reponse du webservice....");
                 console.log(dts);
@@ -34,15 +39,15 @@ export class FNAAComponent{
                     //new enregistre les données et affiche un recap 
                     
                     //old: populate le formulaire
-                    for (let field of this.formulaire.fields) {
+                    for (let field of Object.keys(this.form.controls) {
                         //recherche la données correspondante
                     //    let ctrl = this.form.controls[field];
                     //    if(ctrl){
                     //        ctrl.setValue(dts[field]);
                     //    }
-                    console.log(field.id);
-                        if(this["set_"+field.id]){
-                            this["set_"+field.id](dts, field);
+                    console.log(field);
+                        if(this["set_"+field]){
+                            this["set_"+field](dts, this.form[field].value);
                         }
                     }
 

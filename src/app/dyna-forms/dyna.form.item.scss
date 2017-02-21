@@ -50,10 +50,13 @@
       max-width: 33%;
       min-width: 200px;
       margin-right: 10px;
-      text-align: right;
+      //text-align: right;
+      .check-container{
+        margin: 20px 10px 0 0;
+      }
       span{
         margin: none !important;
-
+        small{text-indent: none;}
       }
   }
 
