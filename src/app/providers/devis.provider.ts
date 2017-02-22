@@ -554,9 +554,9 @@ export class DevisProvider {
                             //comment lui dire: hide si radio du dessus vaut true ou false???
                             //ajoute au formulaire simplement
                             //cree une copie 
-                            let ifield = JSON.parse(JSON.stringify(inner_field));
-                            ifield.display = "none";//empeche de s'afficher
-                            fi.fields.splice(i,0,ifield);
+                            // let ifield = JSON.parse(JSON.stringify(inner_field));
+                            inner_field.display = "none";//empeche de s'afficher
+                            fi.fields.splice(i,0,inner_field);
                             //passe au suivant
                             
                         }

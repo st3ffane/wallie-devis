@@ -1,5 +1,5 @@
-<div [formGroup]="form" class="field" *ngIf="question.display !== 'none'">
-    <h4>ici: {{question.display}}</h4>
+<div [formGroup]="form" class="field" *ngIf="question.display !== 'none' || forcedisplay ===true">
+    <h4>{{question.display +","+forcedisplay}}</h4>
       <div [ngSwitch]="question.type">
 
           
@@ -224,7 +224,7 @@
             </div>
             <div *ngFor="let it of question.options" [hidden]="question.__value != it.label">
                 <div *ngFor='let f of it.fields' class="schrink">
-                    <df-question [formulaire]="formulaire" [question]="f" [form]="form"></df-question>
+                    <df-question [formulaire]="formulaire" [question]="f" [form]="form" [forcedisplay]="true"></df-question>
                 </div>
             </div>
         </div>

@@ -21,6 +21,8 @@ export class DynaFormItemComponent{
     @Input()question:any;
     @Input()formulaire:any;//le formulaire en question, au cas ou
     @Input() form:FormGroup;
+
+    @Input() forcedisplay: boolean = false;
     error: any;
     
     //validation des champs de formulaires
