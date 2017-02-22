@@ -527,8 +527,48 @@ export class DevisProvider {
 
             //la clé complete du formulaire
             this.current_key = fi.key;
-            // //(this.current_key);
             
+            //               HACK!!!
+            //pour la gestion du switch_details, ajoute le contenu des options 
+            //au formulaire, et bind le hidden des inputs au resultat de la radio 
+            /*if (question.type=="switch_details"){
+                    console.log("un switch details");
+                    for (let option of question.options){
+                        console.log(option);
+                        for (let inner_field of option.fields){
+                            console.log(inner_field.id)
+                            let ctrl = new FormControl(inner_field.value || '', this.get_validators_for_field(inner_field));
+                            group[inner_field.id] = ctrl;
+                        }
+                    }
+                }*/
+            for (let i = 0; i<fi.fields.length; i++){
+                let field = fi.fields[i];
+
+                if(field.type == "switch_details"){
+                    
+                    for (let option of field.options){
+                        
+                        for (let inner_field of option.fields){
+                            i++;
+                            //comment lui dire: hide si radio du dessus vaut true ou false???
+                            //ajoute au formulaire simplement
+                            //cree une copie 
+                            let ifield = JSON.parse(JSON.stringify(inner_field));
+                            ifield.display = "none";//empeche de s'afficher
+                            fi.fields.splice(i,0,ifield);
+                            //passe au suivant
+                            
+                        }
+                    }
+                }
+            }
+
+
+
+
+
+
             //si provient du serveur, je n'ai pas ces infos...
 
             let cache_key = this.current_key ? this.current_key.split("/") : "";
