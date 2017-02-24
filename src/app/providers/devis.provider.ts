@@ -153,7 +153,7 @@ export class DevisProvider {
 
         
         let total = this._form_historic.length;
-        for (let i=0;i<total-1;i++){
+        for (let i=0;i<total;i++){
             let h = this._form_historic[i];
             //ajoute une entrée a l'historique: state=url, title: non supporté, url: devis/group/form
             window.history.pushState (h["url"],'',"/devis/"+h['group']+"/"+h['form']);

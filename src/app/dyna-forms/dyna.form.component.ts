@@ -165,9 +165,9 @@ export class DynamicFormComponent implements OnInit{
             }
             //sinon, groupe existe deja....
         }
-        console.log(group);
+        //console.log(group);
         this.form = new FormGroup(group);//renvoie le groupe d'infos
-        console.log(this.form.controls);
+        //console.log(this.form.controls);
     }
 
     /**

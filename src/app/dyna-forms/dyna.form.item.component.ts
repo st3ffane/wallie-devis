@@ -33,8 +33,8 @@ export class DynaFormItemComponent{
         
         if(has_errors){
             //recup l'erreur actuelle de validation
-            console.log("pour: "+this.question.id);
-            console.log(frm.errors);
+            // console.log("pour: "+this.question.id);
+            // console.log(frm.errors);
             this.error = frm.errors;
             
 
