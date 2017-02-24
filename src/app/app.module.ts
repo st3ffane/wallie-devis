@@ -51,6 +51,7 @@ import {FNAAProvider} from "./dyna-forms/providers/fnaa.provider";
 import {GMAP_KEY} from "./gmap.key";
 
 import {GetDevisResultPipe} from "./pipes/get.devis.result.pipe";
+import {GetDevisDetailsPipe} from "./pipes/get.devis.details.pipe";
 import {ToIconUrlPipes} from "./dyna-forms/pipes/to.icon.url.pipe";
 import {SafeHtmlPipe} from "./pipes/safe.html.pipe";
 import {GpsOptionsPipe} from "./dyna-forms/pipes/gps.options.pipe";
@@ -124,7 +125,7 @@ let routes = RouterModule.forRoot([
     GpsOptionsPipe,
     BooleanPipe,
     FNAAGroupPipe,
-    
+    GetDevisDetailsPipe,
     //AutoScrollComponent
     ConfirmDialog
 

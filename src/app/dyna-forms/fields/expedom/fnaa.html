@@ -29,7 +29,7 @@
         ou prendre <a class="btn btn-primary" (click)="toDemande()">contact avec Expedom</a> afin de nous décrire votre projet? </p></div>
         
         <div>
-            <h4>{{infos_vehicule}}</h4>
+            <h4>{{formulaire | GetDevisResultPipe:'vehicule/form_precisions':'marque'}} {{formulaire | GetDevisResultPipe:'vehicule/form_precisions':'modele'}}</h4>
         </div>
         <hr/>
 

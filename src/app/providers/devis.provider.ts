@@ -546,7 +546,7 @@ export class DevisProvider {
                 let field = fi.fields[i];
 
                 if(field.type == "switch_details"){
-                    
+                    field.hide = true;//n'affiche pas dans le résumé
                     for (let option of field.options){
                         
                         for (let inner_field of option.fields){

@@ -11,6 +11,8 @@ export class GetDevisResultPipe implements PipeTransform {
   transform(value: any, group: string, name:string): string {
       if(value == null) return "";
       let frm = null;
+
+      
       if(Array.isArray(value)){
           //resultats
           
@@ -26,12 +28,14 @@ export class GetDevisResultPipe implements PipeTransform {
     else{
         //formulaires
 
-        frm =  value[group];
+        frm =  value[group] || value;
     } 
     
         if(frm) {
+            
             //recherche le field
             for(let field of frm.fields){
+                
                 if(name == field.id) {
                     return field.value_label || "-- --";
                 }
