@@ -1,4 +1,4 @@
-import {Component, Input} from "@angular/core";
+import {Component, Input, ChangeDetectorRef} from "@angular/core";
 import {FormGroup} from "@angular/forms";
 import {FNAAProvider} from "../../providers/fnaa.provider";
 import {DevisProvider} from "../../../providers/devis.provider";
@@ -17,15 +17,26 @@ export class FNAAComponent{
     @Input() formulaire;//pour pouvoir faire les modifications
 
     vehicule_infos:any = null;//si validé, sera la reponse a la question!
-    
+    modele: any;
+    type:any;
     
     error: any;
     unsupported_error = null;
     loading: boolean = false;//semaphore de chargeement
     infos_vehicule: string;
 
-    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider, private _router:Router){}
+    constructor(private _fnaa:FNAAProvider, private _devis:DevisProvider, private _router:Router,
+        private _changeRef:ChangeDetectorRef){}
 
+    ngOnInit(){
+        this.modele = this.getFormDetail("marque");
+        this.type = this.getFormDetail("modele");
+    }
+    private getFormDetail(name){
+        for(let f of this.formulaire.fields){
+            if(f.id == name) return f;
+        }
+    }
     load_vehicule_details(immat:string){
         if(immat){
             this.error = null;
@@ -77,6 +88,7 @@ export class FNAAComponent{
                                 this["set_"+field.id](dts, field);
                             }
                         }
+                        this.formulaire.dumb = this.formulaire.dumb ? false : true;
 
                         //cree une phrase d'infos pour l'utilisateur
                         this.infos_vehicule = this.form.controls["marque"].value+" "+
@@ -185,7 +197,9 @@ export class FNAAComponent{
     }
     
     private set_modele(dts, field){
+        
         this.form.controls[field.id].setValue( dts["modele"]+" "+dts["version"]);
+        //console.log("set modele infos: "+dts["modele"]+", "+this.formulaire["modele"].__value)
     }
     private set_longueur(dts, field){
        //doit determiner la valeur possible 
