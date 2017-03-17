@@ -4,7 +4,7 @@
     </div>
     <form #devisForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="form">
         <div class="row panel-heading">
-            <h3>{{formulaire.title}}</h3>
+            <h3 style="color:#ff9900" [innerHTML]="formulaire.title | safeHTML">aa</h3>
             <div [innerHTML]="formulaire.description | safeHTML"></div>
         </div>
         <div class="center-block">

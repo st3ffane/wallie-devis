@@ -1,48 +1,38 @@
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
+# compiled output
+/dist
+/tmp
 
-# Folder config file
-Desktop.ini
+# dependencies
+/node_modules
 
-# Recycle Bin used on file shares
-$RECYCLE.BIN/
+# IDEs and editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
 
-# Windows Installer files
-*.cab
-*.msi
-*.msm
-*.msp
+# IDE - VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 
-# Windows shortcuts
-*.lnk
+# misc
+/.sass-cache
+/connect.lock
+/coverage/*
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
 
-# =========================
-# Operating System Files
-# =========================
+# e2e
+/e2e/*.js
+/e2e/*.map
 
-# OSX
-# =========================
-
+#System Files
 .DS_Store
-.AppleDouble
-.LSOverride
-
-# Thumbnails
-._*
-
-# Files that might appear in the root of a volume
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-
-# Directories potentially created on remote AFP share
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-src_2/app/dyna-forms/dyna.forms.module.ts
+Thumbs.db

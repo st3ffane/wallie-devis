@@ -1,6 +1,7 @@
 @import "./colors";
-$focus_color : #f19300;
-$focus-shadow-color:#bd7501;
+$focus_color : #5cb85c;
+//$focus-shadow-color:#bd7501;
+$focus-shadow-color:#449d44;
 $color : #aaa;
 $clear-color: #f19300;
 $error_color : #E31111;
@@ -165,7 +166,7 @@ $check-width:30px;
   display: inline-block;
   outline: none!important;
   position: relative;
-  margin-right: 0.5rem;
+  margin-right: 1.5rem;
   z-index: 1000;
       position: relative;
     top: -0.8em;

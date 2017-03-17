@@ -906,8 +906,10 @@ export class DevisProvider {
             let options = JSON.parse(dt._body);
             if(options  && Array.isArray(options)){
                 let sorted = options.sort( (elem1:any, elem2:any)=>{
-                    let v1 = +elem1.value.split('|')[1];
-                    let v2 = +elem2.value.split('|')[1];
+                    // let v1 = +elem1.value.split('|')[1];
+                    // let v2 = +elem2.value.split('|')[1];
+                     let v1 = +elem1.total_price;
+                     let v2 = +elem2.total_price;
                     return v1 - v2;
                 });
 

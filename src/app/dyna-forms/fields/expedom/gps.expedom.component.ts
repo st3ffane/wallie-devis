@@ -116,8 +116,11 @@ export class GPSExpedomComponent{
             for (let loc of opt.locations){
                 if(loc.options){
                      let sorted = loc.options.sort( (elem1:any, elem2:any)=>{
-                        let v1 = +elem1.value.split('|')[1];
-                        let v2 = +elem2.value.split('|')[1];
+                        // let v1 = +elem1.value.split('|')[1];
+                        // let v2 = +elem2.value.split('|')[1];
+                         let v1 = +elem1.total_price;
+                        let v2 = +elem2.total_price;
+                        console.log('caca');
                         return v1 - v2;
                     });
                     loc.options = sorted;

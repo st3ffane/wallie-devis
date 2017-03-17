@@ -141,7 +141,7 @@
         
         <div *ngSwitchCase="'radio'" class="text-center">
               
-                  <h4 class="row text-center" style="font-weight: 700;font-size: 1.5em; margin-top: 20px;">{{question.title}}<span class="required" *ngIf="question.required">*</span></h4>
+                  <h4 class="row text-center" style="font-weight: 300;font-size: 1.2em; margin-top: 0px;"><span [innerHTML]="question.title | safeHTML">aa</span><span class="required" *ngIf="question.required">*</span></h4>
                   <p class="row">{{question.description}}</p>
                   <div class="choice-cmp inline"><!-- [class.inline]="question.options.length<3"-->
                     <div class="text-left"  *ngFor="let it of question.options">                        
@@ -152,7 +152,7 @@
                             [value]="it.value"><!--
                             
                             class=" check-container radio"
-                            --><div class=" check-container radio"></div><span>{{it.label}}</span></label>    
+                            --><div class=" check-container radio"></div><span [innerHTML]="it.label | safeHTML">aa</span></label>    
                             <span><small [innerHTML]="it.description | safeHTML">aa</small></span>
                     </div>    
                     
@@ -235,7 +235,7 @@
               
             <div class="form-check" *ngFor="let it of question.options">
                 
-                  <h3 class="panel-heading">{{it.label}}<span class="required" *ngIf="question.required">*</span></h3>
+                  <h3 class="panel-heading">dezdzedze<span [innerHTML]="it.label | safeHTML">aa</span><span class="required" *ngIf="question.required">*</span></h3>
                       <label class="form-check-label" *ngFor="let opt of it.options">              
                         <input [formControlName]="question.id"                        
                          type="radio" 

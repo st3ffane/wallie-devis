@@ -1,5 +1,5 @@
 <div>
-    <h2 class="row text-center app_title">Devis/Cotation</h2>
+    <!-- <h2 class="row text-center app_title">Devis/Cotation</h2> -->
     <!--div class="logo">&nbsp;</div-->
     <div *ngIf="loading" class="simpleLoader inflow">
     <div class="btPreloader">
@@ -19,14 +19,14 @@
             </div>
 
             <div *ngIf="!error">
-            <h5>Pour un transport de <strong>{{workflow | GetDevisDetailsPipe:'form_marchandise':'marchandise'}}</strong> au départ de <strong>{{workflow | GetDevisDetailsPipe:'form_from':'from'}}</strong> et à destination de 
-            <strong>{{workflow | GetDevisDetailsPipe:'form_to':'to'}}</strong></h5>
+            <h5>Pour un transport de <strong>{{workflow | GetDevisDetailsPipe:'form_marchandise':'marchandise' | stripHTML}}</strong> au départ de <strong>{{workflow | GetDevisDetailsPipe:'form_from':'from' | stripHTML}}</strong> et à destination de 
+            <strong>{{workflow | GetDevisDetailsPipe:'form_to':'to' | stripHTML}}</strong></h5>
             
             <label class="simplecheck"><input type="checkbox" name="details" [(ngModel)]="show_details"><span class="btn btn-primary ">Voir les details de ma commande.</span></label>
             <table class="recap" [class.hidden]="!show_details">
                 <div class="form_infos card" *ngFor="let form of workflow">
                     <!-- le nom du formulaire -->
-                    <tr><td  colspan="2" class="form_title">{{form.title}}</td></tr>
+                    <tr><td  colspan="2" class="form_title" [innerHTML] = "form.title | safeHTML">aa</td></tr>
                     <tr class="form_fields" *ngFor="let field of form.fields">
                         
                             <td *ngIf="!field.hide" class="field_label">{{field.title}} </td>
@@ -36,7 +36,7 @@
                                             <span *ngSwitchCase="'currency'"  >{{field.value_label | number:'2.2-2'}}€</span>
                                             <span *ngSwitchCase="'boolean'"  >{{field.value_label | ouinon}}</span>
                                             <span *ngSwitchCase="'fnaa'" [innerHTML]="field.value | fnaa_group |safeHTML"></span>
-                                            <span *ngSwitchDefault >{{field.value_label}}</span>
+                                            <span *ngSwitchDefault >{{field.value_label | stripHTML}}</span>
                                     </div>
                                 
                                 
@@ -101,9 +101,10 @@
             </div>
             <div id="actions" class="card">
                 <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button-->
-                <a class="btn btn-primary" [href]='pdf_file' target="_blank"><i class="fa fa-file-pdf-o"></i> Telecharger le devis en pdf</a>
-                <a  class="btn btn-primary btn-action btn-lg " [href]="'http://www.expedom.com/dev/produit/acompte-sur-devis/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i> reservez maintenant!</a>
-                <button class="btn btn-primary" (click)="create_devis()">Nouveau devis</button>
+                <a class="btn btn-primary" [href]='pdf_file' target="_blank"><i class="fa fa-file-pdf-o"></i> Télécharger le devis en pdf</a>
+                <a  class="btn btn-primary btn-action btn-lg " [href]="'http://www.expedom.com/dev/produit/acompte-sur-devis/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i> réservez maintenant!</a>
+                <button class="btn btn-primary" (click)="create_devis()"><i class="fa fa-refresh"></i> Nouveau devis</button>
+                 <a  class="btn btn-primary" [href]="'http://www.expedom.com/dev/mon-compte/mes-devis/'" ><i class="fa fa-list"></i> mes devis</a>
             </div>
             <!--div id="actions">
                 <div class="card action">

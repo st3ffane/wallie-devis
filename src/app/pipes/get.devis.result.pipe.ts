@@ -37,6 +37,7 @@ export class GetDevisResultPipe implements PipeTransform {
             for(let field of frm.fields){
                 
                 if(name == field.id) {
+
                     return field.value_label || "-- --";
                 }
             }

@@ -54,6 +54,7 @@ import {GetDevisResultPipe} from "./pipes/get.devis.result.pipe";
 import {GetDevisDetailsPipe} from "./pipes/get.devis.details.pipe";
 import {ToIconUrlPipes} from "./dyna-forms/pipes/to.icon.url.pipe";
 import {SafeHtmlPipe} from "./pipes/safe.html.pipe";
+import {StripHtmlPipe} from "./pipes/strip.html.pipe";
 import {GpsOptionsPipe} from "./dyna-forms/pipes/gps.options.pipe";
 import {BooleanPipe} from "./pipes/boolean.pipe";
 import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
@@ -122,6 +123,7 @@ let routes = RouterModule.forRoot([
     GetDevisResultPipe,
     ToIconUrlPipes,
     SafeHtmlPipe,
+    StripHtmlPipe,
     GpsOptionsPipe,
     BooleanPipe,
     FNAAGroupPipe,

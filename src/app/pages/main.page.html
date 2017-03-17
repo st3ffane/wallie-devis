@@ -6,24 +6,29 @@
     </div>
   </div>
     <!-- <h3 class="text-center">Bienvenue dans l'application de generation de devis EXPEDOM.com</h3> -->
+
+     <div class="text-center">
+        <img class="img-responsive start-image"  [src]="start_image"  (click)="create_devis()" alt="Commencer un nouveau devis" width="1024" height="317" />
+    </div>
+
    
-   <p> Cette application vous permet de calculer au plus juste votre transport de véhicule, conteneur ou colis en groupage entre la métropole et la Réunion/Mayotte.<br/>
-Pensez à vous munir de la <strong>carte de grise du ou des véhicules</strong> le cas échéant</p><br/>
+   <p>Cette application vous permet de calculer au plus juste votre transport de véhicule, conteneur ou colis en groupage <br> entre la métropole et la Réunion/Mayotte. Vous pourrez réserver dans la foulée si vous le souhaitez.<br>Pensez à vous munir de la carte de grise du ou des véhicules le cas échéant</p>
     <div *ngIf="error" class="alert alert-warning">
         Une erreur est arrivée lors du chargement de votre devis en ligne: <strong>{{error}}</strong>
     </div>
     <div *ngIf='reload' class="overlay" [class.open]="reload">
-        <div  >
-            <strong>Un ancien formulaire est present en memoire. Voulez vous le reprendre???</strong><br/>
-            <p>Export de <strong>{{__reloaded | GetDevisDetailsPipe:"form_marchandise":"marchandise"}}
-                    </strong> depuis: <strong>{{__reloaded | GetDevisDetailsPipe:"form_from":"from"}}</strong> vers: <strong>{{__reloaded | GetDevisDetailsPipe:"form_to":"to"}}</strong></p>
+        <div>
+            <strong>Un devis inachevé est present en mémoire. Voulez vous le reprendre?</strong><br/>
+            <p>Export de <strong>{{__reloaded | GetDevisDetailsPipe:"form_marchandise":"marchandise" | stripHTML}}
+                    </strong> depuis: <strong>{{__reloaded | GetDevisDetailsPipe:"form_from":"from" | stripHTML}}</strong> vers: <strong>{{__reloaded | GetDevisDetailsPipe:"form_to":"to" | stripHTML}}</strong></p>
             <button class="btn btn-primary" (click)="reload_devis()">Reprendre mon ancien devis</button>
             <p>ou</p>
             
            
         </div>
     </div>
-    <button class="btn btn-primary" (click)="create_devis()">Commencer un nouveau devis.</button>
+   
+    <p><button class="btn btn-primary" (click)="create_devis()">Commencer un nouveau devis.</button></p>
 
     <!--div class="old" *ngIf="saved_devis.length > 0">
         <h3>Vos anciens devis sauvegardés:</h3>
