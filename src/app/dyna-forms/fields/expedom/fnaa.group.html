@@ -46,7 +46,7 @@
 
 
                 <!-- formulaires possible: ou connait l'immat, ou ne connait pas -->
-                <form  #vehiculeConteneur="ngForm" (ngSubmit)="load_vehicule_details(name.value, texted.value)">
+                <form  #vehiculeConteneur="ngForm" (ngSubmit)="load_vehicule_details(vehiculeConteneur)">
                     <div class="schrink" >
                         <div class="input-container">
                             <label class="truncate">Entrez la nom du titulaire de la carte grise:</label>  
@@ -56,7 +56,8 @@
                                 name="name"
                                 [disabled]="!checker.checked"                           
                                 placeholder="ex: Durand Jean-Paul"
-                                
+                                [(ngModel)]="titulaireName"
+                                required
                                 >
                                 
                         </div>
@@ -91,7 +92,8 @@
                                 [disabled]="!checker.checked" 
                                 name="immat"                          
                                 placeholder="ex: 2874AA40"
-                                
+                                [(ngModel)]="immatriculation"
+                                required
                                 >
                                 <!--span>(<small>{{question.description}}</small>)</span-->
                                 <button *ngIf="!loading" [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit" >Embarquer</button>
@@ -100,7 +102,17 @@
                         </div>
 
                         <div class="input-container" *ngIf="showImmatForm === 'details'">
-                            Formulaire de details
+                           <div class='input-container'>
+                                <label>Type du vehicule:<span class="required">*</span></label> 
+                                <select #texted   name="type">
+                                        <option  value="vehicule">Voiture</option>
+                                        <option  value="utilitaire">Utilitaire</option>
+                                        <option  value="moto">Moto</option>
+                                </select>
+                                <p>Autres properties....????</p>
+                                <p>Besoin d'etre dynamiques?</p>
+                            </div>
+                            <button  [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit">Embarquer</button>
                         </div>
 
                         </div>

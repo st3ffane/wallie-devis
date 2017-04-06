@@ -38,6 +38,10 @@ export class FNAAGroupComponent{
    
 
     showImmatForm: string = 'immat';
+    titulaireName: string = "";
+    immatriculation: string = "";
+
+
 
     //groups=[];//les informations sur les vheicules
     loading = false;//indique si est en train de charger les infos depuis le webservice
@@ -128,7 +132,12 @@ export class FNAAGroupComponent{
             this.question.__value = null;
         }
     }
-    load_vehicule_details(name:string, immat:string){
+    load_vehicule_details(vehiculeConteneur){
+        console.log(vehiculeConteneur);
+        let name = this.titulaireName;
+        let immat = this.immatriculation;
+        if(!name) return;
+       
         if(name && immat){
 
             //chargement des datas....
@@ -167,8 +176,10 @@ export class FNAAGroupComponent{
                 this.question.__value.push(dts);
                 //a partir de ces infos, populate la question 
                 this.loading = false;
-                this.srchBox.nativeElement.value = "";
-                this.name.nativeElement.value ="";
+                // this.srchBox.nativeElement.value = "";
+                // this.name.nativeElement.value ="";
+                this.titulaireName = "";
+                this.immatriculation = "";//remet tout a zero
                 
             }).catch( (err)=>{
                 //(err);
@@ -190,8 +201,13 @@ export class FNAAGroupComponent{
                 //fallback, demande l'affichage du formulaire
                 
             });
+        } else if(this.showImmatForm){
+            //provient des details???
+            console.log("Save vehicule from details form...???");
+            
         }
     }
+    
     delete(index){
         
         //(index);
