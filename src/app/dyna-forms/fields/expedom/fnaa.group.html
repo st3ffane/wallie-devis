@@ -43,8 +43,11 @@
                <div *ngIf="unsupported_error" class="error"><p>Attention, votre véhicule semble être un utilitaire,
                      merci de sélectionner <a (click)="toMarchandise()">Véhicule utilitaire</a>
                       comme type de marchandise ou de prendre <a (click)="toDemande()">contact avec Expedom</a></p></div>
+
+
+                <!-- formulaires possible: ou connait l'immat, ou ne connait pas -->
                 <form  #vehiculeConteneur="ngForm" (ngSubmit)="load_vehicule_details(name.value, texted.value)">
-                    <div class="schrink inline" >
+                    <div class="schrink" >
                         <div class="input-container">
                             <label class="truncate">Entrez la nom du titulaire de la carte grise:</label>  
                             <input type="text"  
@@ -57,21 +60,50 @@
                                 >
                                 
                         </div>
-                        <div class="input-container">
-                            <label class="truncate">Entrez la plaque d'immatriculation du véhicule:</label>  
-                            <input #texted type="text"  
+                        <div class="choice-cmp inline button-group text-left">
+                            <label> <input                         
+                                type="radio" 
+                                checked
+                                value="immat"
+                                [(ngModel)]="showImmatForm"
+                                name="detail_check"
+                                #optionsChoice>
+                                <div class=" check-container radio"></div><span>Je connais l'immatriculation</span>
+                                </label>    
+                                
+
+                                <label> <input                         
+                                type="radio" 
+                                name="detail_check"
+                                value="details"
+                                [(ngModel)]="showImmatForm"
+                                #optionsChoice
+                                >
+                                <div class=" check-container radio"></div><span>Je ne connais pas l'immatriculation</span>
+                                </label>    
+                                
+                                
+                        </div>
+                        <div class="input-container" *ngIf="showImmatForm === 'immat'">
+                            <label class="truncate replace">Entrez la plaque d'immatriculation du véhicule:</label>  
+                            <div class="inline"><input #texted type="text"  
                                 type="text"  
                                 [disabled]="!checker.checked" 
                                 name="immat"                          
                                 placeholder="ex: 2874AA40"
                                 
                                 >
-                                
+                                <!--span>(<small>{{question.description}}</small>)</span-->
+                                <button *ngIf="!loading" [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit" >Embarquer</button>
+                                <button *ngIf="loading"  class="btn btn-primary " type="button" ><i class="fa fa-spin fa-gear"></i></button>
                         </div>
-                        <!--span>(<small>{{question.description}}</small>)</span-->
-                        <button *ngIf="!loading" [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit" >Embarquer</button>
-                        <button *ngIf="loading"  class="btn btn-primary " type="button" ><i class="fa fa-spin fa-gear"></i></button>
-                    </div>
+                        </div>
+
+                        <div class="input-container" *ngIf="showImmatForm === 'details'">
+                            Formulaire de details
+                        </div>
+
+                        </div>
                 </form>
                  <!--button class="btn btn-primary wide" [disabled]="!checker.checked" type="button" (click)="addField()">Ajouter un vehicule au conteneur</button-->
             </td>

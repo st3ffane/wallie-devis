@@ -37,6 +37,8 @@ export class FNAAGroupComponent{
     differ_conteneur:KeyValueDiffer = null;
    
 
+    showImmatForm: string = 'immat';
+
     //groups=[];//les informations sur les vheicules
     loading = false;//indique si est en train de charger les infos depuis le webservice
     unknown_error=null; //si une erreur du type "immat inconnue", afficha un message au dessus de la zone d'input 
@@ -69,14 +71,16 @@ export class FNAAGroupComponent{
 		var changes = this.differ_conteneur.diff(this.conteneur);
        
 		if(changes) {
-			
+			console.log('changes detected');
+            
 			changes.forEachChangedItem((r) => {
-                
+                console.log('changed ', r.currentValue);
+                console.log(r);
                 if(r.key != "__value") return;
                 this.unknown_error = null;
                 if(r.currentValue == "20"){
                     //verifie si tout est toujours valide....
-                    
+                    console.log("verifie si bon");
                     let v_count = this.get_vehicule_count("voiture");
                     let m_count = this.get_vehicule_count("moto");
                     let limits = COUNTS[r.currentValue];
@@ -138,11 +142,7 @@ export class FNAAGroupComponent{
                 //recup les limitationos 
                 let limits = COUNTS[this.conteneur.__value];
                 
-                let type = dts["type_vehicule"];
-                
-                type = type.toLowerCase();
-
-
+                let type = dts["type_vehicule"].toLowerCase();;
                 type = type=="utilitaire" ? "voiture":type; //utilitaire et voiture idem...
 
                 let max = limits[type] || 0;

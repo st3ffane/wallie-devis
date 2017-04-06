@@ -16,6 +16,7 @@
                 <p>{{error}}</p>
                 
                 <a class="btn btn-primary" routerLink="/hello">Retour a l'accueil</a>
+                <!-- <a class="btn btn-primary"  href="https://www.expedom.com/devis-transport-demenagement-reunion">Retour a l'accueil</a> -->
             </div>
 
             <div *ngIf="!error">
@@ -54,7 +55,7 @@
             <!--div id="actions">
                 <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button--
                 <a class="btn btn-primary btn-action btn-lg " [href]='pdf_file' target="_blank">Telecharger le devis en pdf</a>
-                <a  class="btn btn-primary btn-action btn-lg " [href]="'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID" >reservez maintenant!</a>
+                <a  class="btn btn-primary btn-action btn-lg " [href]="'https://www.expedom.com/reservation/?quote_id='+devis_details.QUOTE_ID" >reservez maintenant!</a>
                 <button class="btn btn-primary" (click)="create_devis()">Nouveau devis</button>
             </div-->
             <table class="recap">
@@ -79,7 +80,7 @@
                 
                 <tr class="form_fields"><td class="field_label">Montant TVA:(<strong>{{devis_details.TVA | number:'1.2-2' || 'non applicable'}}%</strong>)</td><td class="field_value">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">Montant Octroi de mer (<strong>{{devis_details.OM?.om | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}€</td></tr>
-                <tr class="form_fields"><td class="field_label">Montant Octroi de mer regionnal (<strong>{{devis_details.OM?.omr | number:'1.2-2'}}€</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Montant Octroi de mer regionnal (<strong>{{devis_details.OM?.omr | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</td></tr>
                 <tr class="form_fields"><td class="field_label">Total des Droits et taxe de douane:</td><td class="field_value">{{devis_details.TAXES | number:'2.2-2'}}€</td></tr>
                 
                 </div>
@@ -102,9 +103,9 @@
             <div id="actions" class="card">
                 <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button-->
                 <a class="btn btn-primary" [href]='pdf_file' target="_blank"><i class="fa fa-file-pdf-o"></i> Télécharger le devis en pdf</a>
-                <a  class="btn btn-primary btn-action btn-lg " [href]="'http://www.expedom.com/dev/produit/acompte-sur-devis/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i> réservez maintenant!</a>
+                <a  class="btn btn-primary btn-action btn-lg " [href]="'https://www.expedom.com/produit/acompte-sur-devis/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i> réservez maintenant!</a>
                 <button class="btn btn-primary" (click)="create_devis()"><i class="fa fa-refresh"></i> Nouveau devis</button>
-                 <a  class="btn btn-primary" [href]="'http://www.expedom.com/dev/mon-compte/mes-devis/'" ><i class="fa fa-list"></i> mes devis</a>
+                 <a  class="btn btn-primary" [href]="'https://www.expedom.com/mon-compte/mes-devis/'" ><i class="fa fa-list"></i> mes devis</a>
             </div>
             <!--div id="actions">
                 <div class="card action">
@@ -112,7 +113,7 @@
                     <p>Télécharger le devis en version PDF</p>
                 </div>
                 <div class="card action">
-                    <a class="wide" [href]="'http://www.expedom.com/dev/reservation/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i></a>
+                    <a class="wide" [href]="'https://www.expedom.com/reservation/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i></a>
                     <p>Reservez maintenant votre transport</p>
                 </div>
                 <div class="card action discreet">

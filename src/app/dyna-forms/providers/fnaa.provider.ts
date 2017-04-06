@@ -52,7 +52,7 @@ const TYPE_MAPPING = {
     "VTSU":UTILITAIRE,
     "MTL":MOTO,
     "MTT1":MOTO,
-    "MTT2":"MOTO",
+    "MTT2":MOTO,
     "TMP1":MOTO,
     "TMP2":MOTO
     //tout le reste, moto

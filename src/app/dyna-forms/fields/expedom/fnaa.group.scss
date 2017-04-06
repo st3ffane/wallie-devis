@@ -68,6 +68,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    &.replace{
+        margin-top: 20px;
+        margin-bottom: -5px;
+    }
 }
 // .vehicules{
 //     tbody{
