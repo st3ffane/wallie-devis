@@ -57,7 +57,7 @@ export class DevisComponent implements OnInit{
     show_details:boolean = false;
     error:string = null; //en cas de probleme....
 
-
+    cible: string = "https://www.expedom.com/produit/acompte-sur-devis/";
 
     constructor( private _devis:DevisProvider,
                 private _router:Router){}
@@ -122,6 +122,10 @@ export class DevisComponent implements OnInit{
                 this.pdf_file = res.pdf_file;
 
                 this.loading = false;
+
+                if(res.calculated_datas.EMITTER == "expesud"){
+                    this.cible = "http://www.expesud.com/reservation/";
+                }
             
         }).catch( (err) => {
             //(err);
