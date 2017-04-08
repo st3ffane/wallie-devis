@@ -65,7 +65,7 @@ export class FNAAComponent{
                     }              
 
                     this.vehicule_infos = dts;
-                  
+                    
                     var cible = null;      
                     //old: populate le formulaire
                     for (let field of this.formulaire.fields) {
@@ -86,7 +86,7 @@ export class FNAAComponent{
                             if(this["set_"+field.id]){
                                 //console.log(field)
                                 this["set_"+field.id](dts, field);
-                            }
+                            } 
                         }
                         this.formulaire.dumb = this.formulaire.dumb ? false : true;
 

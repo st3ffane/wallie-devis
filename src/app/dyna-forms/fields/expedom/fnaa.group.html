@@ -98,19 +98,47 @@
                                 <!--span>(<small>{{question.description}}</small>)</span-->
                                 <button *ngIf="!loading" [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit" >Embarquer</button>
                                 <button *ngIf="loading"  class="btn btn-primary " type="button" ><i class="fa fa-spin fa-gear"></i></button>
-                        </div>
+                           </div>
                         </div>
 
                         <div class="input-container" *ngIf="showImmatForm === 'details'">
-                           <div class='input-container'>
-                                <label>Type du vehicule:<span class="required">*</span></label> 
-                                <select #texted   name="type">
-                                        <option  value="vehicule">Voiture</option>
-                                        <option  value="utilitaire">Utilitaire</option>
-                                        <option  value="moto">Moto</option>
-                                </select>
-                                <p>Autres properties....????</p>
-                                <p>Besoin d'etre dynamiques?</p>
+                            <!-- obligatoire: marque et modele -->
+                            <div >
+                                <div class='input-container'>
+                                    <label>Indiquer le type de véhicule:<span class="required">*</span></label>
+                                    <select  #vehtype name="vehtype" [(ngModel)]="no_immat_type">
+                                            <option *ngFor="let opt of question.options"
+                                             [value]="opt.id"
+                                             >{{opt.label}}</option>
+                                    </select>
+                                    
+                                </div>
+                            </div>
+                            <div *ngFor="let opt of question.options">
+                                <div *ngIf="no_immat_type == opt.id">
+                                    <div class="form-group" *ngFor="let qs of opt.fields">
+                                        
+                                        <div class='input-container' *ngIf="qs.type=='select'">
+                                            <label>{{qs.title}}<span class="required" *ngIf="question.required">*</span></label> 
+                                            <p><small [innerHTML]="qs.description | safeHTML"></small></p>
+                                            <select  [id]="qs.id"   [(ngModel)]="qs.__value" [name]="qs.id">
+                                                    <option *ngFor="let fd of qs.options" [value]="fd.value">{{fd.label}}</option>
+                                            </select>
+                                            
+                                        </div>
+                                        <div class='input-container' *ngIf="qs.type=='text'">
+                                            <label>{{qs.title}}<span class="required">*</span></label> 
+                                            <p><small [innerHTML]="qs.description | safeHTML"></small></p>
+                                            <input type="text" 
+                                                [id]="qs.id"   
+                                                [(ngModel)]="qs.__value" 
+                                                [name]="qs.id"
+                                                required>
+                                                   
+                                            
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <button  [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit">Embarquer</button>
                         </div>

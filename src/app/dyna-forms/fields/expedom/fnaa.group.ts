@@ -42,6 +42,8 @@ export class FNAAGroupComponent{
     immatriculation: string = "";
 
 
+    no_immat_type: string = "vehicule";//workaround?
+
 
     //groups=[];//les informations sur les vheicules
     loading = false;//indique si est en train de charger les infos depuis le webservice
