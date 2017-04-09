@@ -77,8 +77,7 @@ export class FNAAGroupComponent{
 		var changes = this.differ_conteneur.diff(this.conteneur);
        
 		if(changes) {
-			console.log('changes detected');
-            
+			
 			changes.forEachChangedItem((r) => {
                 console.log('changed ', r.currentValue);
                 console.log(r);
@@ -135,7 +134,6 @@ export class FNAAGroupComponent{
         }
     }
     load_vehicule_details(vehiculeConteneur){
-        console.log(vehiculeConteneur);
         let name = this.titulaireName;
         let immat = this.immatriculation;
         if(!name) return;
@@ -149,7 +147,10 @@ export class FNAAGroupComponent{
 
 
             this._fnaa.get_vehicule_details(immat).then( (dts:any)=>{
-                
+                //enregistre l'utilisateur 
+                dts["titulaire_cg"] = name;
+                this.ensureLimits(dts);
+                /*
                 //recup les limitationos 
                 let limits = COUNTS[this.conteneur.__value];
                 
@@ -172,16 +173,15 @@ export class FNAAGroupComponent{
                      this.loading = false;
                     return;
                 }
-                //enregistre l'utilisateur 
-                dts["titulaire_cg"] = name;
-                 if(!this.question.__value )this.question.__value = [];
+                
+                if(!this.question.__value )this.question.__value = [];
                 this.question.__value.push(dts);
                 //a partir de ces infos, populate la question 
                 this.loading = false;
                 // this.srchBox.nativeElement.value = "";
                 // this.name.nativeElement.value ="";
                 this.titulaireName = "";
-                this.immatriculation = "";//remet tout a zero
+                this.immatriculation = "";//remet tout a zero*/
                 
             }).catch( (err)=>{
                 //(err);
@@ -205,11 +205,55 @@ export class FNAAGroupComponent{
             });
         } else if(this.showImmatForm){
             //provient des details???
-            console.log("Save vehicule from details form...???");
+            
+            let dts = {};
+            for(let ctrl in vehiculeConteneur.controls){
+                
+                dts[ctrl]= vehiculeConteneur.controls[ctrl].value;
+                //remet a zero
+                vehiculeConteneur.controls[ctrl].setValue("");
+            }
+            //recup les limitationos 
+            this.ensureLimits(dts);
+            //direct access to window!!!!!!!
+           window.scrollTo(0,this.checkBox.nativeElement.getBoundingClientRect().top+400);
             
         }
     }
     
+    ensureLimits(dts){
+        let limits = COUNTS[this.conteneur.__value];
+                
+        let type = dts["type_vehicule"].toLowerCase();;
+        type = type=="utilitaire" ? "voiture":type; //utilitaire et voiture idem...
+
+        let max = limits[type] || 0;
+        
+
+        
+        let current = this.get_vehicule_count(type);
+        
+        //recup le nbr de vehicules deja inscits avec ce type 
+        if( current + 1 > max ){
+            //refuse
+            let t = dts["type_vehicule"];
+            t = t=="voiture" ? "voiture/utilitaire" : t;
+
+            this.unknown_error = "Vous ne pouvez pas charger plus de "+max+" véhicules du type "+ t;
+                this.loading = false;
+            return;
+        }
+        //enregistre l'utilisateur 
+        
+        if(!this.question.__value )this.question.__value = [];
+        this.question.__value.push(dts);
+        //a partir de ces infos, populate la question 
+        this.loading = false;
+        // this.srchBox.nativeElement.value = "";
+        // this.name.nativeElement.value ="";
+        this.titulaireName = "";
+        this.immatriculation = "";//remet tout a zero
+    }
     delete(index){
         
         //(index);

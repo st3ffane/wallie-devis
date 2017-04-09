@@ -31,7 +31,7 @@
             <!-- le vehicule -->
              <td *ngIf="!group.error" class="inline">
                  <div>
-                    <span class="immatinfos">{{group.marque+" "+group.modele+" "+group.version}}</span>
+                    <span class="immatinfos">{{group.marque+" "+group.modele}}</span>
                     <p *ngIf="group.type_vehicule == 'utilitaire'">Attention, ce véhicule à caractère utilitaire ne peut pas bénéficier de la franchise, vous aurez des taxes à acquitter </p>
                 </div>
                  <button class="btn btn-danger close" type="button" (click)="delete(i)"><i class="fa fa-close"></i></button>
@@ -53,7 +53,7 @@
                             <input type="text"  
                                 type="text"  
                                 #name
-                                name="name"
+                                name="titulaire_cg"
                                 [disabled]="!checker.checked"                           
                                 placeholder="ex: Durand Jean-Paul"
                                 [(ngModel)]="titulaireName"
@@ -62,7 +62,7 @@
                                 
                         </div>
                         <div class="choice-cmp inline button-group text-left">
-                            <label> <input                         
+                            <label class="space-bottom"> <input                         
                                 type="radio" 
                                 checked
                                 value="immat"
@@ -73,7 +73,7 @@
                                 </label>    
                                 
 
-                                <label> <input                         
+                                <label  class="space-bottom"> <input                         
                                 type="radio" 
                                 name="detail_check"
                                 value="details"
@@ -106,7 +106,8 @@
                             <div >
                                 <div class='input-container'>
                                     <label>Indiquer le type de véhicule:<span class="required">*</span></label>
-                                    <select  #vehtype name="vehtype" [(ngModel)]="no_immat_type">
+                                    <select  #vehtype name="vehtype" [(ngModel)]="no_immat_type"
+                                    name="type_vehicule" required>
                                             <option *ngFor="let opt of question.options"
                                              [value]="opt.id"
                                              >{{opt.label}}</option>
