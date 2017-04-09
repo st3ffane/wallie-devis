@@ -92,7 +92,11 @@ export class FNAAComponent{
 
                         //cree une phrase d'infos pour l'utilisateur
                         this.infos_vehicule = this.form.controls["marque"].value+" "+
-                                this.form.controls["modele"].value
+                                this.form.controls["modele"].value;
+
+                        //enregistre les raw_datas puisque tout le monde le veut...
+                        //probleme, affiche [Object object]
+                        this.question._raw_value = dts;
                     }
 
                     

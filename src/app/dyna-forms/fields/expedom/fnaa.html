@@ -10,7 +10,7 @@
                     
                     [placeholder]="question.description"
                     >
-                      
+                <!--input type="hidden" [(ngModel)]="raw_datas"-->
             </div>
             <!--span>(<small>{{question.description}}</small>)</span-->
             <button *ngIf="!loading" class="btn btn-primary" type="button" (click)="load_vehicule_details(texted.value)">Details</button>

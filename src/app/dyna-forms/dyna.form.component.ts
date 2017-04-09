@@ -93,7 +93,12 @@ export class DynamicFormComponent implements OnInit{
         }
         //recup les valeurs des formulaires,
         //Doit aussi se faire si back???
-        for (let question of this.formulaire.fields) question.value = question.__value;//
+        for (let question of this.formulaire.fields) {
+            question.value = question.__value;
+            //si vehicule_infos; HACK POUR FNAA
+            //probleme si revient du cache....
+            if(question._raw_value) question.value = question._raw_value;
+        }
 
         //ajoute une entrée a l'historique 
         let k = this.formulaire['key'];
@@ -139,6 +144,13 @@ export class DynamicFormComponent implements OnInit{
             //CONSEQUENCE: il faut SUBMIT le formulaire pour que les données soient prises en compte
             question.__value = question.value; //recupere les "vraies" valeurs pour les bindings
 
+            //SI FNAA, DOIT AUSSI RECUP LES RAWS_VALUES???
+            if(question.type=="fnaa"){
+                let v = question.value;//normalement, le raw du WS
+                
+                question._raw_value = question.value;
+                question.value = question._raw_value ? question._raw_value['immatriculation'] : "";
+            }
             
             let key = question.id;//la clé de la property a connaitre....
             
@@ -151,6 +163,9 @@ export class DynamicFormComponent implements OnInit{
 
                 //probleme, certains groupes definissent des inner-fields, notamment le hack pour 
                 //les details vehicules, donc si un type 'a la con', recupere les inner pour les inscrires
+                
+                //pourquoi la suppression de ce code???=> parceque tous les champs sont deja presents...
+               
                 /*if (question.type=="switch_details"){
                     console.log("un switch details");
                     for (let option of question.options){
