@@ -1,0 +1,33 @@
+
+.input-container{
+ 
+    text-align: left!important;
+  
+}
+.inline{
+    display: flex;
+    margin-bottom: 20px;
+    .input-container{
+        flex-grow: 1;
+    }
+    button{
+        flex-grow:0;
+            height: 40px;
+    align-self: flex-end;
+        margin-left: 5px;
+    width: 100px;
+    }
+}
+.error{
+        //color: #fd6565;
+        font-weight:700;
+    background-color: rgba(255,255,255,0.07);
+    border-radius: 5px;
+    padding: 5px;
+}
+.link{
+    color: #f19300;
+    font-weight:700;
+    text-decoration: underline;
+    cursor:pointer;
+}

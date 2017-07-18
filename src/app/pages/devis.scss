@@ -1,0 +1,206 @@
+@import "../dyna-forms/material/colors";
+
+.hidden{ display:none; opacity: 0!important;}
+.simplecheck{
+    width: 100%;
+    input{
+        display: none;
+    }
+
+    input:checked ~ span{
+        background-color: #f19300;
+    } 
+}
+
+h5{
+    strong{
+        color: #f19300;
+    }
+}
+.logo{
+    background-image: url("/wp-content/plugins/quote-generator/assets/img/logo-transitaire-EXPEDOM.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 80px;
+    background-position-y: -18px;
+    position: relative;
+    top: -16px;
+}
+.app_title{
+    text-align:center;
+}
+.text-center{
+    text-align: center;
+}
+.recap-text{
+    font-size: 1.2em;
+    text-align: center;
+}
+.result_title{
+        display: table-row;
+}
+tbody{
+    width: 80%;
+    margin: auto;
+    display: table;
+}
+#results{margin-top: 20px;}
+.recap{
+    // display: table;
+    // border-collapse: separate;
+    width: 100%;
+    opacity: 1;
+    transition: opacity 1s ease;
+    .form_infos{
+         //display: table-row-group;
+         //margin-bottom: 20px;
+        .form_title{
+        //    display: table-row;
+        //    position: relative;
+           font-size: 1.5em;
+            font-weight: 700;
+            padding-top: 10px;
+        }
+        .form_fields{
+            
+                .field_label{
+                // display: table-cell;
+                //width: 100%;
+                    padding-left: 10px;
+                    vertical-align: top;
+                    
+                   
+                }
+                .field_value{
+                    // display: table-cell;
+                    
+                    font-size: 1.1em;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    width: 30%;
+                    vertical-align: top;
+                    
+                    
+                }
+            
+            // display: table-row;
+            width: 100%;
+            
+        }
+        
+    }
+}
+
+.card{
+    background-color: rgba(255,255,255,0.07);
+    box-shadow: 0 1px 2px rgba(0,0,0,.25);
+    margin-bottom: 20px;
+
+    &.result{
+        background-color: #f19300;
+    }
+    &.action{
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        width: 128px;
+        align-items: center;
+        margin:5px;
+        a{
+           width: 98px;
+            height: 98px;
+            border-radius: 50%;
+            color: white;
+            background: #f19300;
+            font-size: 3.4em;
+            margin: 5px;
+            &.wide{
+                width: 128px;
+                height: 128px;
+                font-size:4.5em;
+            }
+        }
+        p{
+            text-align: center;
+        }
+
+        
+    }
+}
+.form_title{
+        //    display: table-row;
+        //    position: relative;
+           font-size:18px;
+            font-weight: 700;
+            padding-top: 10px;
+            text-transform: uppercase;
+        }
+        .form_fields{
+
+            // display: table-row;
+            width: 100%;
+            &.result{
+                background-color: #f19300;
+            }
+            .field_label{
+                // display: table-cell;
+                    padding-left: 10px;
+                    vertical-align: top;
+
+                    &.result{
+                       font-size: 1.2em;
+                       font-weight: 700;
+                       vertical-align: middle;
+                   }
+            }
+            .field_value{
+                // display: table-cell;
+                font-size: 1.1em;
+                font-weight: 700;
+                text-transform: uppercase;
+                width: 30%;
+                vertical-align: top;
+                &.result{
+                    font-size: 2em;
+                }
+                
+            }
+        }
+#actions{
+    display: flex;
+    
+    @media screen and (max-width: 700px){
+        flex-direction: column;
+    }
+    margin-bottom: 30px;
+    .btn-primary{
+        width: 50% !important;
+        padding: 20px 0px;
+        margin: 10px;
+         @media screen and (max-width: 700px){
+            width: 100%!important;
+            margin-left:0;
+            margin-right:0;
+        }
+
+        &:hover{
+            color: white!important;
+        }
+    }
+    .btn-action{
+        background-color: $focus_color;
+        white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+    }
+    .btn-action:hover {
+    background-color: $focus-shadow-color!important;
+    box-shadow: 0 15px 10px -10px rgba(31, 31, 31, 0.5);
+    }
+    .btn-action:focus,
+    .btn-action:active{
+    background-color: $focus-shadow-color!important;
+    box-shadow: none;
+    }
+  
+}

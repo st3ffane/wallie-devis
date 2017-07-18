@@ -1,0 +1,62 @@
+@import "../material/check";
+
+    //     `.label>input{
+    //         font-size: 1.1em;
+    //     }
+    //     .inert{
+    //         pointer-events:none;
+    //         color: #E3E3E3;
+    //     }`
+    // ]
+
+.left{
+    margin-left: 20px;
+}
+.text-center{
+  
+}
+.text-left{
+  text-align:left;
+  margin-bottom: 10px;
+//   display:inline-block;
+}
+
+.hideIfInactive{
+         opacity: 0;
+        display: none;
+        overflow: hidden;
+        
+        
+    }
+
+.revealIfActive{
+    display: block;
+    opacity: 1;
+   overflow: visible;
+    position: relative;
+    left: 40px;
+}
+@import "../material/check";
+
+.choice-cmp{
+    //position: relative;
+    // overflow: hidden;
+    padding: 20px 0;
+    
+    
+}
+.inline{
+    
+        
+        
+        &>*{
+           
+            &.check-container{
+                text-align:center;
+            }
+
+            
+        }
+        
+    
+}

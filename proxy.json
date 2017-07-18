@@ -1,0 +1,13 @@
+[
+  {
+    "context": ["/wp-admin/**","/wp-content/**"],
+    "target": {
+        "host": "devis.local",
+        "protocol": "http:",
+        "port": 80
+      },
+    "changeOrigin": true,
+    "secure": false,
+    "logLevel": "debug"
+  }
+]

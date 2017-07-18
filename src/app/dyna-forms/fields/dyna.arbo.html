@@ -1,0 +1,64 @@
+ <fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
+    <div class="choice-cmp  hideIfInactive" [class.revealIfActive]="ctrlActive">
+    <div  class="text-left elems" *ngFor="let it of options.options">  
+    <!-- si une simple checkbox -->   
+                     
+                        
+                      
+                    
+    <div *ngIf="it.value" >                      
+        <label > 
+        
+            <input   [formControlName]="question.id"                        
+            type="radio" 
+            [(ngModel)]="question.__value"
+            (change)="clear_groups()"
+            [value]="it.value"
+            [attr.name]="question.id"
+            required
+            class=" check-container radio"
+            >
+            <span>{{it.label}}</span></label>
+            <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span> 
+        <!--input  [formControlName]="question.id"                        
+            type="radio" 
+            [(ngModel)]="question.__value"
+            (change)="clear_groups()"
+            [value]="it.value"
+            [attr.name]="question.id"
+            class="form-check-input"
+            required
+            >
+        {{it.label}}</label-->    
+    </div>
+    <!-- si un groupe d'options cree une checkbox par defaut qui permettra l'edition des autres????-->
+    <fieldset *ngIf="it.options" class="form-group" >
+    
+        <label class="sous-options">
+            <input   [formControlName]="groupName" 
+            type="radio" 
+            [attr.name]="groupName"
+            [(ngModel)]="groupValue"
+            (change)="annul()" 
+            [value]="it.label"
+            #triggerer
+            class=" check-container radio group"
+            ><span>{{it.label}}</span></label> 
+            <span><small>{{it.description || "Merci de mettre une petite description sur tous les items des formulaires pour expliquer ce qu'ils font...'"}}</small></span>
+        <!--input type="radio" [formControlName]="groupName" 
+        [attr.name]="groupName"
+        [(ngModel)]="groupValue"
+        (change)="annul()" 
+            [value]="it.label"
+        #trigger
+        >{{it.label}}</label>
+        <span>{{trigger.checked}}</span-->
+        <df-arbo-question [question]="question" [groupName]="it.label" [options]="it" [form]="form" 
+            [ctrlActive]="triggerer.checked"></df-arbo-question>
+        
+    </fieldset>         
+
+
+    </div>
+    </div>
+</fieldset>

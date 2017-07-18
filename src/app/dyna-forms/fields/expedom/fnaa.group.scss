@@ -1,0 +1,114 @@
+@import "../../material/check";
+.text-center{
+    margin-bottom: 20px;
+
+}
+.choice-cmp{
+    text-align: left;
+    margin-bottom: 0px;
+}
+.leftie{
+    text-align: left;
+    text-indent: 45px;
+    font-weight: 700px;
+}
+.input-container{
+ 
+    text-align: left!important;
+  
+}
+.hidden{display:none;}
+.inline{
+    display: flex;
+    border: none !important;
+    &>*{
+            flex-grow:1;
+            align-self: flex-start;
+            
+            border: none!important;
+            margin-bottom: 5px;
+           
+                
+                 margin-right: 5px;
+
+                 @media screen and (max-width:700px){
+                     margin-right: 0px;
+                 
+            }
+    }
+    .input-container{
+        flex-grow: 1;
+    }
+    button{
+        flex-grow:0;
+            height: 40px;
+            width: 100px;
+    align-self: flex-end;
+    @media screen and (max-width:700px){
+        flex-grow: 1;
+        width: 100%;
+    }
+    &.close{
+        border-radius: 50%;
+        width:40px;
+        color:red;
+        opacity:0.5;
+         @media screen and (max-width:700px){
+            flex-grow: 0;
+            width: 40px;
+        }
+    }
+    }
+}
+.immatinfos{
+    font-size: 1.5em;
+    font-weight: 700;
+}
+.truncate{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.replace{
+        margin-top: 20px;
+        margin-bottom: -5px;
+    }
+}
+// .vehicules{
+//     tbody{
+//         tr{
+//             border-bottom: 1px dashed rgba(255,255,255,0.3);
+
+//             &.last-child{
+//                 border-bottom: none;
+//             }
+//         }
+        
+//     }
+// }
+.wide{width:100%;}
+.error, .infos{
+        
+        font-weight:700;
+    background-color: rgba(255,255,255,0.07);
+    border-radius: 5px;
+    padding: 5px;
+}
+.error{
+    color: #fd6565;
+}
+.link{
+    color: #f19300;
+    font-weight:700;
+    text-decoration: underline;
+    cursor:pointer;
+}
+.card{
+    background-color: rgba(255,255,255,0.07);
+    box-shadow: 0 1px 2px rgba(0,0,0,.25);
+    margin-bottom: 20px;
+}
+
+.spance-bottom{
+    margin-bottom: 10px;
+}

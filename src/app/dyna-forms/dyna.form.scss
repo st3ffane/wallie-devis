@@ -1,0 +1,43 @@
+.panel-heading{
+    position: relative;
+    text-align: center;
+
+    .title{
+        position: relative;
+        font-size: 2em;
+        line-height: 0.8em;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin: 10px 0;
+        
+        /*font : normal 80px/1 "Nova Flat", Helvetica, sans-serif;*/
+        text-shadow: 2px 4px 3px rgba(0,0,0,0.3);
+
+    
+
+       
+    }
+    p{
+        margin-top: 30px;
+    }
+    
+    margin: 20px 0;
+}
+.next_step{
+    button{
+        width: 100%;
+    }
+    
+}
+
+.error{
+    text-align:center;
+    span{
+        font-size: 1.1em;
+        display:block;
+    }
+}
+
+.orangetxt{
+color:#ff9900 !important ;
+}

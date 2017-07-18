@@ -1,0 +1,21 @@
+<div>
+    <div *ngIf="error">
+        {{error}}
+    </div>
+    <form #devisForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="form">
+        <div class="row panel-heading">
+            <h3 class="orangetxt" [innerHTML]="formulaire.title | safeHTML">aa</h3>
+            <div [innerHTML]="formulaire.description | safeHTML"></div>
+        </div>
+        <div class="center-block">
+            <div *ngFor='let field of formulaire.fields' class='form-row' class="row options-group">
+            <df-question [formulaire]="formulaire" [question]="field" [form]="form"></df-question>
+            </div>
+        </div>
+        <div class="row next_step">
+            <button class="btn-lg btn-primary btn-block" type="submit" [disabled]="devisForm.form?.valid == false">Suivant</button>
+        </div>
+    </form>
+
+    <confirm-dlg [display]="show_confirm" *ngIf="formulaire.confirm" [confirm]="formulaire.confirm" (onAnswered)="doSubmit($event)"></confirm-dlg>
+</div>

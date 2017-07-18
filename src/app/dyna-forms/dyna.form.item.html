@@ -1,0 +1,284 @@
+<div [formGroup]="form" class="field" *ngIf="question.display !== 'none' || forcedisplay ===true">
+    
+      <div [ngSwitch]="question.type">
+
+          
+
+        <div *ngSwitchCase="'text'" class="form-group">
+        
+
+            <!--label [attr.for]="question.id">{{question.title}}</label>
+            <span>(<small>{{question.description}}</small>)</span>
+            <input  [formControlName]="question.id"
+                    [id]="question.id" type="text" [(ngModel)]="question.__value"
+                    class='form-control form-control-lg' required
+                     -->
+        <div class="schrink">
+            <div class="input-container">
+                <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>  
+                <input #texted type="text"  
+                [formControlName]="question.id"
+                    [id]="question.id" type="text" 
+                    [(ngModel)]="question.__value"
+                    [placeholder]="question.description"
+                    >
+                      
+            </div>
+            <!--span>(<small>{{question.description}}</small>)</span-->
+        </div>
+                    
+        </div>
+
+
+
+        <div *ngSwitchCase="'number'" class="form-group">
+            <div  class="schrink">
+                <div class="input-container">
+                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>
+                    <input #texted type="text" 
+                    [formControlName]="question.id"
+                        [id]="question.id" type="number" 
+                        [(ngModel)]="question.__value"
+                        [placeholder]="question.description"
+                        >
+                            
+                </div>
+                <!--span>(<small>{{question.description}}</small>)</span-->
+            </div>
+        </div>
+
+
+
+        <div *ngSwitchCase="'email'" class="form-group">
+            <div  class="schrink">
+                <div class="input-container">
+                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>   
+                    <input #texted type="text" 
+                    [formControlName]="question.id"
+                        [id]="question.id" type="email" 
+                        [(ngModel)]="question.__value"
+                        [placeholder]="question.description"
+                        >
+                        
+                </div>
+                <!--span>(<small>{{question.description}}</small>)</span-->
+            </div>
+
+            
+        </div>
+
+        <div *ngSwitchCase="'date'" class="form-group">
+            <div  class="schrink">
+                <div class="input-container">
+                    <!-- verifier avec Firefox -->
+                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>   
+                    <input #texted type="date" 
+                    [formControlName]="question.id"
+                        [id]="question.id" type="email" 
+                        [(ngModel)]="question.__value"
+                        [placeholder]="question.description"
+                        >
+                        
+                </div>
+                <!--span>(<small>{{question.description}}</small>)</span-->
+            </div>
+
+            
+        </div>
+
+
+        <div *ngSwitchCase="'textarea'" class="form-group">
+            <div  class="schrink">
+                <div class='input-container'>
+                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label> 
+                    <textarea #texted [formControlName]="question.id"
+                        [id]="question.id" [(ngModel)]="question.__value"
+                         
+                         height="3em"
+                         [placeholder]="question.description"
+                        ></textarea>
+                       
+                </div>
+                <!--span>(<small>{{question.description}}</small>)</span-->
+            </div>
+
+            <!--label [attr.for]="question.id">{{question.title}}</label>
+            <span>(<small>{{question.description}}</small>)</span>
+            <textarea [formControlName]="question.id"
+                    [id]="question.id" [(ngModel)]="question.__value"
+                    class='form-control form-control-lg' required
+                    ></textarea-->
+        </div>
+
+
+
+        <div *ngSwitchCase="'select'" class="form-group">
+            <div class="schrink">
+                <div class='input-container'>
+                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label> 
+                    <p><small [innerHTML]="question.description | safeHTML"></small></p>
+                    <select #texted [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
+                      >
+                            <option *ngFor="let opt of question.options" [value]="opt.value">{{opt.label}}</option>
+                    </select>
+                       
+                </div>
+                <!--span>(<small>{{question.description}}</small>)</span-->
+            </div>
+            <!--label [attr.for]="question.id">{{question.title}}</label>
+            <span>(<small>{{question.description}}</small>)</span>
+            <select [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
+             class="form-control" required>
+                <option *ngFor="let opt of question.options" [value]="opt.value">{{opt.label}}</option>
+            </select-->
+        </div>
+
+
+
+
+        
+
+        
+        <div *ngSwitchCase="'radio'" class="text-center">
+              
+                  <h4 class="row text-center" style="font-weight: 300;font-size: 1.2em; margin-top: 0px;"><span [innerHTML]="question.title | safeHTML">aa</span><span class="required" *ngIf="question.required">*</span></h4>
+                  <p class="row">{{question.description}}</p>
+                  <div class="choice-cmp inline"><!-- [class.inline]="question.options.length<3"-->
+                    <div class="text-left"  *ngFor="let it of question.options">                        
+                        
+                            <label> <input   [formControlName]="question.id"                        
+                            type="radio" 
+                            [(ngModel)]="question.__value"
+                            [value]="it.value"><!--
+                            
+                            class=" check-container radio"
+                            --><div class=" check-container radio"></div><span [innerHTML]="it.label | safeHTML">aa</span></label>    
+                            <span><small [innerHTML]="it.description | safeHTML">aa</small></span>
+                    </div>    
+                    
+                </div>
+              
+           
+            
+        </div>
+         <div *ngSwitchCase="'checkbox'" class="choice-cmp">
+                                                    
+                      <label > 
+                        <input  [formControlName]="question.id"                        
+                         type="checkbox" 
+                         [(ngModel)]="question.__value"
+                         [value]="question.selected"
+                         
+                        
+                    ><div class=" check-container check"></div><span>{{question.title}}</span><span class="required" *ngIf="question.required">*</span></label>    
+                    <span class="check_clear"><small [innerHTML]="question.description | safeHTML"></small></span>
+                 
+            
+        </div>
+
+
+
+
+        <div *ngSwitchCase="'arbo-radio'">
+                <df-arbo-question [question]="question" [groupName]="'trigger'" [options]="question" [form]="form" [ctrlActive]="true"></df-arbo-question>            
+        </div>
+        <div *ngSwitchCase="'arbo2-radio'">
+                <df-arbo2-question [question]="question" [groupName]="'trigger'" [options]="question" [form]="form" [ctrlActive]="true"></df-arbo2-question>            
+        </div>
+
+
+
+
+        <div *ngSwitchCase="'fnaa'">
+            <fnaa-input [formulaire]="formulaire" [question]="question" [form]="form"></fnaa-input>
+        </div>
+        <div *ngSwitchCase="'fnaa-group'">            
+            <fnaa-group [formulaire]="formulaire" [question]="question" [form]="form"></fnaa-group>
+        </div>
+
+
+
+        <div *ngSwitchCase="'gps'">
+            <dyna-gps [question]="question" [form]="form"></dyna-gps>
+        </div>
+
+        <div class="schrink" *ngSwitchCase="'switch_details'">
+            <!-- une liste de choix + les choix dans des divs -->
+            <!--h4 class="row text-center" style="font-weight: 700;font-size: 1.5em; margin-top: 20px;">{{question.title}}<span class="required" *ngIf="question.required">*</span></h4-->
+            <p class="row">{{question.description | safeHTML}}</p>
+                  
+            <div class="choice-cmp inline button-group">
+                 <div class="text-left"  *ngFor="let it of question.options">                        
+                        
+                            <label> <input   [formControlName]="question.id"                        
+                            type="radio" 
+                            [(ngModel)]="question.__value"
+                            [value]="it.label"
+                            #optionsChoice>
+                            <div class=" check-container radio"></div><span>{{it.label}}</span>
+                            </label>    
+                            <span><small [innerHTML]="it.description | safeHTML">aa</small></span>
+                            
+                            
+                    </div> 
+            </div>
+            <div *ngFor="let it of question.options" [hidden]="question.__value != it.label">
+                <div *ngFor='let f of it.fields' class="schrink">
+                    <df-question [formulaire]="formulaire" [question]="f" [form]="form" [forcedisplay]="true"></df-question>
+                </div>
+            </div>
+           
+        </div>
+
+
+
+        <div class="row options-group" *ngSwitchCase="'category-radio'">
+              
+            <div class="form-check" *ngFor="let it of question.options">
+                
+                  <h3 class="panel-heading">dezdzedze<span [innerHTML]="it.label | safeHTML">aa</span><span class="required" *ngIf="question.required">*</span></h3>
+                      <label class="form-check-label" *ngFor="let opt of it.options">              
+                        <input [formControlName]="question.id"                        
+                         type="radio" 
+                         [(ngModel)]="question.__value"
+                         [value]="opt.value"
+                         required
+                            class="form-check-input">
+                        {{opt.label}}</label>    
+                                     
+            </div>
+              
+           
+            
+        </div>
+      </div>
+      <div *ngIf="isValid"  class="alert">
+        <ul>
+            <li *ngIf="error.required">
+            Ce champs doit obligatoirement etre renseigné!
+            </li>
+            <li *ngIf="error.minlength">
+            Ce champs doit faire plus de <span>{{error.minlength.requiredLength}}</span> caractères.
+            </li>
+            <li *ngIf="error.maxlength">
+            Ce champs doit faire moins de <span>{{error.maxlength.requiredLength}}</span> caractères.
+            </li>
+            <li *ngIf="error.pattern">
+            Le contenu de ce champs n'est pas valide!
+            </li>
+
+            <li *ngIf="error.email">
+            Merci d'indiquer une adresse mail valide.
+            </li>
+
+            <li *ngIf="error.min">
+            Vous devez renseigner un nombre superieur à <span>{{error.min.requiredValue}}</span>.
+            </li>
+             <li *ngIf="error.max">
+            Vous devez renseigner un nombre inferieur à <span>{{error.max.requiredValue}}</span>.
+            </li>
+        </ul>
+      </div>
+    
+        
+    </div>

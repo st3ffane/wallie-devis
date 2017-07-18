@@ -1,0 +1,36 @@
+<fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
+        
+        <div class="schrink inline">
+            <div class="input-container">
+                <label>{{question.title}}</label>  
+                <input #texted type="text"  
+                    [formControlName]="question.id"
+                    [(ngModel)]= "question.__value"
+                    [id]="question.id" type="text" 
+                    
+                    [placeholder]="question.description"
+                    >
+                <!--input type="hidden" [(ngModel)]="raw_datas"-->
+            </div>
+            <!--span>(<small>{{question.description}}</small>)</span-->
+            <button *ngIf="!loading" class="btn btn-primary" type="button" (click)="load_vehicule_details(texted.value)">Vérifier</button>
+            <button *ngIf="loading" class="btn btn-primary" type="button" ><i class="fa fa-spin fa-gear"></i></button>
+        </div>
+        <div *ngIf="loading">
+            <p>Chargement des informations sur votre véhicule. Merci de patienter...<i class="fa fa-spin fa-gear"></i></p>
+        </div>
+        <div *ngIf="error" class="error">
+            <p>{{error}}</p>
+               
+        </div>
+        <!-- 2 link: retour page choix de marchandise, go page de contact/demande -->
+         <div *ngIf="unsupported_error" class="error"><p>Attention, votre véhicule semble être un(e) {{unsupported_error.type}},
+         voulez vous recommencer votre devis pour  <a class="btn btn-primary" (click)="toMarchandise(unsupported_error.type,unsupported_error.cache)">expédier un véhicule de type {{unsupported_error.type}}</a>
+        ou prendre <a class="btn btn-primary" (click)="toDemande()">contact avec Expedom</a> afin de nous décrire votre projet? </p></div>
+        
+        <div>
+            <h4>{{modele.__value || "Aucun véhicule spécifié"}} {{type.__value}}</h4>
+        </div>
+        <hr/>
+
+</fieldset>

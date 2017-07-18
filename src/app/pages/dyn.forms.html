@@ -1,0 +1,29 @@
+<div class="form-container">
+  <div *ngIf="loading" class="simpleLoader">
+    <div class="btPreloader">
+    
+      <div class="btLoader"></div> 
+    </div>
+  </div>
+    <!--h2 class="row text-center app_title">Calculateur de devis</h2>
+    <div class="logo">&nbsp;</div-->
+    <div *ngIf="error" class="error">
+      <p>Oups, nous avons eu un probleme de chargement des informations....</p>
+      <p>{{error}}</p>
+      
+      <a class="btn btn-primary" routerLink="/">Retour a l'accueil</a>
+    </div>
+
+    <div *ngIf="infos" class="container-fluid">
+       <div *ngIf="prec_form_name" class="back-button-wrap"> 
+         <button type="button" (click)="back()" class="btn btn-primary"><i class="fa fa-arrow-left"></i> Retour <!--<span> à: {{prec_form_name | stripHTML}} </span>--></button>
+        </div>
+        <!--h5>Les champs suivis par <span class="required">*</span> doivent être renseignés.</h5-->
+            <!-- test only, cree un formulaire a partir des infos passées par le js 
+            voir a mettre en forme les données.... -->
+            <dynamic-form [formulaire]="infos" (submitted)="next()"></dynamic-form>
+            
+           
+    </div>
+    
+</div>

@@ -1,0 +1,127 @@
+<div>
+    <!-- <h2 class="row text-center app_title">Devis/Cotation</h2> -->
+    <!--div class="logo">&nbsp;</div-->
+    <div *ngIf="loading" class="simpleLoader inflow">
+    <div class="btPreloader">
+    
+      <div class="btLoader"></div> 
+      <p>Chargement de votre devis, merci de patienter quelques instants....</p>
+    </div>
+
+
+  </div>
+    <div *ngIf='!loading'>
+            <div *ngIf="error" class="error">
+                <p>Oups, nous avons eu un probleme lors de la generation du devis....</p>
+                <p>{{error}}</p>
+                
+                <a class="btn btn-primary" routerLink="/hello">Retour a l'accueil</a>
+                <!-- <a class="btn btn-primary"  href="https://www.expedom.com/devis-transport-demenagement-reunion">Retour a l'accueil</a> -->
+            </div>
+
+            <div *ngIf="!error">
+            <h5>Pour un transport de <strong>{{workflow | GetDevisDetailsPipe:'form_marchandise':'marchandise' | stripHTML}}</strong> au départ de <strong>{{workflow | GetDevisDetailsPipe:'form_from':'from' | stripHTML}}</strong> et à destination de 
+            <strong>{{workflow | GetDevisDetailsPipe:'form_to':'to' | stripHTML}}</strong></h5>
+            
+            <label class="simplecheck"><input type="checkbox" name="details" [(ngModel)]="show_details"><span class="btn btn-primary ">Voir les details de ma commande.</span></label>
+            <table class="recap" [class.hidden]="!show_details">
+                <div class="form_infos card" *ngFor="let form of workflow">
+                    <!-- le nom du formulaire -->
+                    <tr><td  colspan="2" class="form_title" [innerHTML] = "form.title | safeHTML">aa</td></tr>
+                    <tr class="form_fields" *ngFor="let field of form.fields">
+                        
+                            <td *ngIf="!field.hide" class="field_label">{{field.title}} </td>
+                            <td *ngIf="!field.hide" class="field_value" >
+                            
+                                    <div [ngSwitch]="field['data-type']">
+                                            <span *ngSwitchCase="'currency'"  >{{field.value_label | number:'2.2-2'}}€</span>
+                                            <span *ngSwitchCase="'boolean'"  >{{field.value_label | ouinon}}</span>
+                                            <span *ngSwitchCase="'fnaa'" [innerHTML]="field.value | fnaa_group |safeHTML"></span>
+                                            <span *ngSwitchDefault >{{field.value_label | stripHTML}}</span>
+                                    </div>
+                                
+                                
+                            </td>
+                       
+                    </tr>
+                    
+                </div>
+            </table>
+            
+            
+
+            <div id="results" *ngIf="devis_details">
+            <h3>Votre estimation: </h3>
+            <!--div id="actions">
+                <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button--
+                <a class="btn btn-primary btn-action btn-lg " [href]='pdf_file' target="_blank">Telecharger le devis en pdf</a>
+                <a  class="btn btn-primary btn-action btn-lg " [href]="'https://www.expedom.com/reservation/?quote_id='+devis_details.QUOTE_ID" >reservez maintenant!</a>
+                <button class="btn btn-primary" (click)="create_devis()">Nouveau devis</button>
+            </div-->
+            <table class="recap">
+                <div class="card">
+                <tr><td  colspan="2" class="form_title">Depuis Lieu de prise en charge jusqu'a rendu bord navire/port d'arrivée</td></tr>
+                <tr class="form_fields"><td class="field_label">Port de depart:</td><td class="field_value">{{devis_details.PORT_DE_DEPART}}</td></tr>
+                
+                <!-- ajouter ville de prise en charge ou nom du depot -->
+                 <tr class="form_fields"><td class="field_label">Prise en charge <strong>{{workflow | GetDevisDetailsPipe:'form_pec':'pec'}}</strong> </td><td class="field_value">{{devis_details.PEC | number:'2.2-2' || 'non applicable'}}€</td></tr>
+                 
+                 
+                 <tr class="form_fields"><td class="field_label">Prix du transport (port à port)</td><td class="field_value">{{devis_details.P | number:'2.2-2'}}€</td></tr>
+                 <!-- indiquer le type d'assurance-->
+                 <tr class="form_fields"><td class="field_label">Assurance (<strong>{{workflow | GetDevisDetailsPipe:'form_assurance':'assurance'}}</strong>):</td><td class="field_value">{{devis_details.A | number:'2.2-2'}}€</td></tr>
+                </div>
+
+                 <div class="card">
+                <tr><td  colspan="2" class="form_title">Recapitulatif des taxes à titre indicatif</td></tr>
+                <tr class="form_fields"><td class="field_label">Valeur de la marchandise:</td><td class="field_value">{{devis_details.V | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">valeur taxable sur marchandise:</td><td class="field_value">{{devis_details.CAF | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Taxe sur marchandise (<strong>TSM</strong>):</td><td class="field_value">{{devis_details.TSM | number:'2.2-2'}}€</td></tr>
+                
+                <tr class="form_fields"><td class="field_label">Montant TVA:(<strong>{{devis_details.TVA | number:'1.2-2' || 'non applicable'}}%</strong>)</td><td class="field_value">{{devis_details.TVA_VALUE | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Montant Octroi de mer (<strong>{{devis_details.OM?.om | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OM | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Montant Octroi de mer regionnal (<strong>{{devis_details.OM?.omr | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.OM_VALUES?.OMR | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Total des Droits et taxe de douane:</td><td class="field_value">{{devis_details.TAXES | number:'2.2-2'}}€</td></tr>
+                
+                </div>
+
+                 <div class="card">
+                <tr><td  colspan="2" class="form_title">Depuis bord navire/port d'arrivée jusqu'a lieu de livraison</td></tr>
+                <tr class="form_fields"><td class="field_label">Frais de dégroupage & Dédouanement:</td><td class="field_value">{{devis_details.FR | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Montant TVA sur prestation (<strong>{{devis_details.TVA_RU | number:'1.2-2'}}%</strong>):</td><td class="field_value">{{devis_details.TVA_RU_VALUE | number:'2.2-2'}}€</td></tr>
+                
+                <tr class="form_fields"><td class="field_label">Livraison <strong>{{workflow | GetDevisDetailsPipe:'form_livraison':'livraison'}}</strong></td><td class="field_value">{{devis_details.PT | number:'2.2-2'}}€</td></tr>
+                <tr class="form_fields"><td class="field_label">Total Frais Locaux:</td><td class="field_value">{{devis_details.TOTAL_REUNION | number:'2.2-2'}}€</td></tr>
+                </div>
+            
+                 <div class="card result">
+                <tr class="form_fields"><td class="field_label result">Total à payer:</td><td class="field_value result">{{devis_details.TOTAL_A_PAYER | number:'2.2-2'}}€</td></tr>
+                </div>
+            </table>
+            
+            </div>
+            <div id="actions" class="card">
+                <!--button *ngIf="has_IDB && devis_infos?.date==null" class="btn btn-primary wide" (click)="save_devis()">Sauvegarder le devis</button-->
+                <a class="btn btn-primary" [href]='pdf_file' target="_blank"><i class="fa fa-file-pdf-o"></i> Télécharger le devis en pdf</a>
+                <a  class="btn btn-primary btn-action btn-lg " [href]="cible+'?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i> réservez maintenant!</a>
+                <button class="btn btn-primary" (click)="create_devis()"><i class="fa fa-refresh"></i> Nouveau devis</button>
+                 <a  class="btn btn-primary" [href]="'https://www.expedom.com/mon-compte/mes-devis/'" ><i class="fa fa-list"></i> mes devis</a>
+            </div>
+            <!--div id="actions">
+                <div class="card action">
+                    <a  [href]='pdf_file' target="_blank"><i class="fa fa-file-pdf-o"></i></a>
+                    <p>Télécharger le devis en version PDF</p>
+                </div>
+                <div class="card action">
+                    <a class="wide" [href]="'https://www.expedom.com/reservation/?quote_id='+devis_details.QUOTE_ID" ><i class="fa fa-calendar"></i></a>
+                    <p>Reservez maintenant votre transport</p>
+                </div>
+                <div class="card action discreet">
+                    <a (click)="create_devis()"><i class="fa fa-file-o"></i></a>
+                    <p>Recréer un nouveau devis</p>
+                </div>
+               
+            </div-->
+        </div>
+        </div>
+</div>

@@ -1,0 +1,155 @@
+<fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
+     <div  class="choice-cmp">
+                                                    
+                      <label > 
+                        <input  [formControlName]="question.id"  
+                        (change)="performCheck()"                      
+                         type="checkbox" 
+                         checked="false"
+                         #checker >
+                         <div class=" check-container check"></div><span>{{question.title}}</span></label>    
+                    <span class="check_clear"><small [innerHTML]="question.description | safeHTML"></small></span>
+                 
+            
+        </div>
+    <div *ngIf="!conteneur?.__value">
+        <p class="leftie">Pour pouvoir ajouter un ou plusieurs véhicules, veuillez auparavant sélectionner un type de conteneur</p>
+        
+    </div>
+   
+
+    <table *ngIf="conteneur?.__value" class="vehicules" [class.hidden]="!checker.checked">
+        <tr *ngFor="let group of question.__value; let i = index">
+
+            <!-- champs FNAA -->
+            <td *ngIf="group.error">
+                 <span class="immatinfos">{{group.immatriculation}}</span><br/>
+                 <span class="infos">Une erreur est advenue lors de la récuperation des informations sur votre véhicule. Afin de nous permettre de calculer les taxes au
+                     plus juste, merci de renseigner, dans le champs "Précisions" du formulaire "Vos coordonnées" le type du véhicule (voiture,moto ou utilitaire).
+                 </span>
+            </td>
+            <!-- le vehicule -->
+             <td *ngIf="!group.error" class="inline">
+                 <div>
+                    <span class="immatinfos">{{group.marque+" "+group.modele}}</span>
+                    <p *ngIf="group.type_vehicule == 'utilitaire'">Attention, ce véhicule à caractère utilitaire ne peut pas bénéficier de la franchise, vous aurez des taxes à acquitter </p>
+                </div>
+                 <button class="btn btn-danger close" type="button" (click)="delete(i)"><i class="fa fa-close"></i></button>
+             </td>
+        </tr>
+        <tr class="last-child card" >
+            <td> 
+                <div *ngIf="unknown_error" class="error"><p>{{unknown_error}}</p></div>
+               <div *ngIf="unsupported_error" class="error"><p>Attention, votre véhicule semble être un utilitaire,
+                     merci de sélectionner <a (click)="toMarchandise()">Véhicule utilitaire</a>
+                      comme type de marchandise ou de prendre <a (click)="toDemande()">contact avec Expedom</a></p></div>
+
+
+                <!-- formulaires possible: ou connait l'immat, ou ne connait pas -->
+                <form  #vehiculeConteneur="ngForm" (ngSubmit)="load_vehicule_details(vehiculeConteneur)">
+                    <div class="schrink" >
+                        <div class="input-container">
+                            <label class="truncate">Entrez la nom du titulaire de la carte grise:</label>  
+                            <input type="text"  
+                                type="text"  
+                                #name
+                                name="titulaire_cg"
+                                [disabled]="!checker.checked"                           
+                                placeholder="ex: Durand Jean-Paul"
+                                [(ngModel)]="titulaireName"
+                                required
+                                >
+                                
+                        </div>
+                        <div class="choice-cmp inline button-group text-left">
+                            <label class="space-bottom"> <input                         
+                                type="radio" 
+                                checked
+                                value="immat"
+                                [(ngModel)]="showImmatForm"
+                                name="detail_check"
+                                #optionsChoice>
+                                <div class=" check-container radio"></div><span>Je connais l'immatriculation</span>
+                                </label>    
+                                
+
+                                <label  class="space-bottom"> <input                         
+                                type="radio" 
+                                name="detail_check"
+                                value="details"
+                                [(ngModel)]="showImmatForm"
+                                #optionsChoice
+                                >
+                                <div class=" check-container radio"></div><span>Je ne connais pas l'immatriculation</span>
+                                </label>    
+                                
+                                
+                        </div>
+                        <div class="input-container" *ngIf="showImmatForm === 'immat'">
+                            <label class="truncate replace">Entrez la plaque d'immatriculation du véhicule:</label>  
+                            <div class="inline"><input #texted type="text"  
+                                type="text"  
+                                [disabled]="!checker.checked" 
+                                name="immat"                          
+                                placeholder="ex: 2874AA40"
+                                [(ngModel)]="immatriculation"
+                                required
+                                >
+                                <!--span>(<small>{{question.description}}</small>)</span-->
+                                <button *ngIf="!loading" [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit" >Embarquer</button>
+                                <button *ngIf="loading"  class="btn btn-primary " type="button" ><i class="fa fa-spin fa-gear"></i></button>
+                           </div>
+                        </div>
+
+                        <div class="input-container" *ngIf="showImmatForm === 'details'">
+                            <!-- obligatoire: marque et modele -->
+                            <div >
+                                <div class='input-container'>
+                                    <label>Indiquer le type de véhicule:<span class="required">*</span></label>
+                                    <select  #vehtype name="vehtype" [(ngModel)]="no_immat_type"
+                                    name="type_vehicule" required>
+                                            <option *ngFor="let opt of question.options"
+                                             [value]="opt.id"
+                                             >{{opt.label}}</option>
+                                    </select>
+                                    
+                                </div>
+                            </div>
+                            <div *ngFor="let opt of question.options">
+                                <div *ngIf="no_immat_type == opt.id">
+                                    <div class="form-group" *ngFor="let qs of opt.fields">
+                                        
+                                        <div class='input-container' *ngIf="qs.type=='select'">
+                                            <label>{{qs.title}}<span class="required" *ngIf="question.required">*</span></label> 
+                                            <p><small [innerHTML]="qs.description | safeHTML"></small></p>
+                                            <select  [id]="qs.id"   [(ngModel)]="qs.__value" [name]="qs.id">
+                                                    <option *ngFor="let fd of qs.options" [value]="fd.value">{{fd.label}}</option>
+                                            </select>
+                                            
+                                        </div>
+                                        <div class='input-container' *ngIf="qs.type=='text'">
+                                            <label>{{qs.title}}<span class="required">*</span></label> 
+                                            <p><small [innerHTML]="qs.description | safeHTML"></small></p>
+                                            <input type="text" 
+                                                [id]="qs.id"   
+                                                [(ngModel)]="qs.__value" 
+                                                [name]="qs.id"
+                                                required>
+                                                   
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button  [disabled]="!vehiculeConteneur.form.valid" class="btn btn-primary " type="submit">Embarquer</button>
+                        </div>
+
+                        </div>
+                </form>
+                 <!--button class="btn btn-primary wide" [disabled]="!checker.checked" type="button" (click)="addField()">Ajouter un vehicule au conteneur</button-->
+            </td>
+        </tr>
+    </table>
+
+
+</fieldset>
