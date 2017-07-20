@@ -1,10 +1,10 @@
-import {Component, OnInit} from "@angular/core";
+/*import {Component, OnInit} from "@angular/core";
 import {DynaForm} from "../dyna-forms/forms/dyna.form";
 import {DynaFormTestProvider} from "../providers/dyna.form.test.provider";
 
 /**
  * @DEBUG ONLY: me permet de generer simplment et rapidement un formulaire de test
- */
+ *
 @Component({
     selector: "test-dyna-forms",
     template:`
@@ -30,3 +30,4 @@ export class DynaTestComponent implements OnInit{
         console.log("doing submit!!!!");
     }
 }
+*/

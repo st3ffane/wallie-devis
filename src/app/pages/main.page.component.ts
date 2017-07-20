@@ -49,7 +49,7 @@ export class MainPageComponent{
     saved_devis = [];//les informations de devis chargés en BdD
     error: string = null;
 
-    private start_image = "assets/start.png";
+    start_image = "assets/start.png";
 
     constructor( private _devis:DevisProvider,
                 private _router:Router){}

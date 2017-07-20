@@ -97,7 +97,7 @@
                                     <!--input type="text" value="Un autre departement" #zipcode [(NgValue)]="srch_zipcode" [value]="srch_zipcode || '' "
                                     [class.full]="zipcode.value!=''"-->
                                      <label>Entrez le nom de votre ville/lieu-dit ou cliquez sur la carte.</label>  
-                                    <input type="text" value="Un autre departement" #zipcode [value]="srch_zipcode || ''" 
+                                    <input type="text"  #zipcode [value]="srch_zipcode || ''" 
                                     [class.ng-valid]="zipcode.value!=''" >
                                          
                                 </div>

@@ -9,7 +9,7 @@ import {TARGET} from "../../target";
 @Pipe({name: 'toIconUrl'})
 export class ToIconUrlPipes implements PipeTransform {
   transform(value: any): string {
-      return TARGET+"/wp-content/plugins/quote-generator/assets/img/marker-"+value+".svg";
+      return TARGET+"/wp-content/plugins/expedom/assets/img/marker-"+value+".svg";
    
   }
 }

@@ -1,0 +1,13 @@
+<div>
+  <!-- clickable thumb -->
+        <a class="lightbox" (click)="toggle();">
+           <img [src]="lighbox.thumb"/>
+        </a> 
+        <!-- lighbox -->
+        <div #lghtBx class="lightbox-target" [class.lbactive]="active" id="goofy">
+
+           <img [src]="lighbox.src"/>
+            <p class="description" style="color: #E3E3E3;font-size: 1.6em;background: rgba(0,0,0,0.3);margin: 0;padding: 10px;">{{lightbox.description}}</p>
+           <a class="lightbox-close" (click)="toggle();"></a>
+        </div>
+</div>

@@ -31,44 +31,9 @@ import { AppRoutingModule } from './app.routing.module';
 import { AgmCoreModule } from '@agm/core';
 import {GMAP_KEY} from "./gmap.key";
 
-/*
-//reactive forms et generation dynamique des formulaires
-import {ReactiveFormsModule} from "@angular/forms";//formulaire dynamiques
+import {enableProdMode} from '@angular/core';
+enableProdMode();
 
-
-
-import {DynamicFormComponent} from "./dyna-forms/dyna.form.component";
-import {DynaFormItemComponent} from "./dyna-forms/dyna.form.item.component";
-import {DynaArborescenceComponent} from "./dyna-forms/fields/dyna.arborescence.component";
-import {DynaArborescence2Component} from "./dyna-forms/fields/dyna.arborescence2.component";
-import {FNAAComponent} from "./dyna-forms/fields/expedom/fnaa";
-import {FNAAGroupComponent} from "./dyna-forms/fields/expedom/fnaa.group";
-
-//import {AutoScrollComponent} from "./directives/autoscroll.component";
-import {ConfirmDialog} from "./dyna-forms/dialogs/confirm.dialog";
-
-import {GPSExpedomComponent} from "./dyna-forms/fields/expedom/gps.expedom.component";
-
-import {GmapGeocodeProvider} from "./dyna-forms/providers/gmap.geocode.provider";
-import {FNAAProvider} from "./dyna-forms/providers/fnaa.provider";
-
-
-import {GetDevisResultPipe} from "./pipes/get.devis.result.pipe";
-import {GetDevisDetailsPipe} from "./pipes/get.devis.details.pipe";
-import {ToIconUrlPipes} from "./dyna-forms/pipes/to.icon.url.pipe";
-import {SafeHtmlPipe} from "./pipes/safe.html.pipe";
-import {StripHtmlPipe} from "./pipes/strip.html.pipe";
-import {GpsOptionsPipe} from "./dyna-forms/pipes/gps.options.pipe";
-import {BooleanPipe} from "./pipes/boolean.pipe";
-import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
-
-//bootstrap 
-//import { ButtonsModule } from 'ng2-bootstrap/ng2-bootstrap';
-//normalement, je devrais definir un fichier special pour ca, mais vu qu'il y a pas
-//grand chose....
-//let routes = RouterModule.forRoot([
-
-*/
 
 @NgModule({
   declarations: [
@@ -77,25 +42,7 @@ import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
     DevisComponent,
     MainPageComponent,
     DemandeComponent,
-    //DynaTestComponent,
-    // DynamicFormComponent,
-    // DynaFormItemComponent,
-    // DynaArborescenceComponent,
-    // DynaArborescence2Component,
-    // GPSExpedomComponent,
-    // FNAAComponent,
-    // FNAAGroupComponent,
     
-    // GetDevisResultPipe,
-    // ToIconUrlPipes,
-    // SafeHtmlPipe,
-    // StripHtmlPipe,
-    // GpsOptionsPipe,
-    // BooleanPipe,
-    // FNAAGroupPipe,
-    // GetDevisDetailsPipe,
-    // //AutoScrollComponent
-    // ConfirmDialog
 
   ],
   imports: [
@@ -106,16 +53,11 @@ import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
     CoreModule.forRoot({}),
     
     PipesModule,
-    // ReactiveFormsModule,
     AgmCoreModule.forRoot({
       apiKey: GMAP_KEY//'AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038'
     }),
     DynaFormsModule,
   ],
-  providers: [
-              // GmapGeocodeProvider,
-              // FNAAProvider
-              ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
