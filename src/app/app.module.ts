@@ -1,11 +1,13 @@
 
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { RouterModule, Routes }   from '@angular/router';
 import "./rxjs-operators";
 
+
+//import {ReactiveFormsModule} from "@angular/forms";//formulaire dynamiques
+import { FormsModule } from '@angular/forms';
 //les composants principaux de l'application
 import { AppComponent } from './app.component';//bootstrap
 import {DevisComponent} from "./pages/devis.component";//resultat du devis
@@ -17,16 +19,23 @@ import {DemandeComponent} from "./pages/demande.component";//marchandise = autre
 //le module pour le provider principal
 import {CoreModule} from "./providers/provider.module";
 
+//les formulaires dynamiques
+import {DynaFormsModule} from "./dyna-forms/dyna.forms.module";
+
+//des composants pour tout le monde
+import {PipesModule} from "./pipes/pipes.module";
+
 //les routes de l'application
-
 import { AppRoutingModule } from './app.routing.module';
+//import { AgmCoreModule } from 'angular2-google-maps/core';
+import { AgmCoreModule } from '@agm/core';
+import {GMAP_KEY} from "./gmap.key";
 
-
-
+/*
 //reactive forms et generation dynamique des formulaires
 import {ReactiveFormsModule} from "@angular/forms";//formulaire dynamiques
 
-import { AgmCoreModule } from 'angular2-google-maps/core';
+
 
 import {DynamicFormComponent} from "./dyna-forms/dyna.form.component";
 import {DynaFormItemComponent} from "./dyna-forms/dyna.form.item.component";
@@ -43,7 +52,6 @@ import {GPSExpedomComponent} from "./dyna-forms/fields/expedom/gps.expedom.compo
 import {GmapGeocodeProvider} from "./dyna-forms/providers/gmap.geocode.provider";
 import {FNAAProvider} from "./dyna-forms/providers/fnaa.provider";
 
-import {GMAP_KEY} from "./gmap.key";
 
 import {GetDevisResultPipe} from "./pipes/get.devis.result.pipe";
 import {GetDevisDetailsPipe} from "./pipes/get.devis.details.pipe";
@@ -60,7 +68,7 @@ import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
 //grand chose....
 //let routes = RouterModule.forRoot([
 
-
+*/
 
 @NgModule({
   declarations: [
@@ -69,26 +77,25 @@ import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
     DevisComponent,
     MainPageComponent,
     DemandeComponent,
-    
     //DynaTestComponent,
-    DynamicFormComponent,
-    DynaFormItemComponent,
-    DynaArborescenceComponent,
-    DynaArborescence2Component,
-    GPSExpedomComponent,
-    FNAAComponent,
-    FNAAGroupComponent,
+    // DynamicFormComponent,
+    // DynaFormItemComponent,
+    // DynaArborescenceComponent,
+    // DynaArborescence2Component,
+    // GPSExpedomComponent,
+    // FNAAComponent,
+    // FNAAGroupComponent,
     
-    GetDevisResultPipe,
-    ToIconUrlPipes,
-    SafeHtmlPipe,
-    StripHtmlPipe,
-    GpsOptionsPipe,
-    BooleanPipe,
-    FNAAGroupPipe,
-    GetDevisDetailsPipe,
-    //AutoScrollComponent
-    ConfirmDialog
+    // GetDevisResultPipe,
+    // ToIconUrlPipes,
+    // SafeHtmlPipe,
+    // StripHtmlPipe,
+    // GpsOptionsPipe,
+    // BooleanPipe,
+    // FNAAGroupPipe,
+    // GetDevisDetailsPipe,
+    // //AutoScrollComponent
+    // ConfirmDialog
 
   ],
   imports: [
@@ -97,14 +104,17 @@ import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
     HttpModule,
     AppRoutingModule,
     CoreModule.forRoot({}),
-    ReactiveFormsModule,
+    
+    PipesModule,
+    // ReactiveFormsModule,
     AgmCoreModule.forRoot({
       apiKey: GMAP_KEY//'AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038'
-    })
+    }),
+    DynaFormsModule,
   ],
   providers: [
-              GmapGeocodeProvider,
-              FNAAProvider
+              // GmapGeocodeProvider,
+              // FNAAProvider
               ],
   bootstrap: [AppComponent]
 })

@@ -4,12 +4,13 @@ import {
 
 import { CommonModule }      from '@angular/common';
 
+import { HttpModule } from '@angular/http';
 
 import { DevisProvider }       from './devis.provider';
 import { DevisProviderConfig } from './devis.provider.config';
 
 @NgModule({
-  imports:      [ CommonModule ],
+  imports:      [ CommonModule, HttpModule ],
   providers:    [ DevisProvider ]
 })
 export class CoreModule {

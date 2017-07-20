@@ -215,7 +215,7 @@
 
         
 
-        <sebm-google-map [latitude]="question?.default_location.lat" [longitude]="question?.default_location.lng"
+        <agm-map [latitude]="question?.default_location.lat" [longitude]="question?.default_location.lng"
             [zoom]="question?.default_location.zoom || 6"
             (mapClick)="positionne_marker($event)"
             [scrollwheel]="false"
@@ -230,13 +230,13 @@
                 <div *ngIf="filter!='domicile'">
                    
                     
-                    <sebm-google-map-marker  *ngFor="let m of opt.locations"
+                    <agm-marker  *ngFor="let m of opt.locations"
                         [latitude]="m?.lat" [longitude]="m?.lng" 
                         [iconUrl]="opt.label | toIconUrl"
                         (markerClick)="check_options(m)">
 
                         <!-- si une seule reponse, affiche directement l'infos window???  -->
-                        <sebm-google-map-info-window [isOpen]="  m.open_window === true">
+                        <agm-info-window [isOpen]="  m.open_window === true">
                             <div class="infos">
                                 <strong>{{m?.label}}</strong>
                                 <p>{{m?.description}}</p>
@@ -251,9 +251,9 @@
                                     </div>
                                 </fieldset>
                             </div>
-                        </sebm-google-map-info-window >   
+                        </agm-info-window >   
 
-                    </sebm-google-map-marker>
+                    </agm-marker>
                 </div>
 
                 
@@ -261,9 +261,9 @@
              <div  *ngIf="noGeo==true && filter=='domicile' && position && !position.error">
                         
                             <!-- DOMICILE : permet d'afficher les differents prix: Toujours afficher a l'ecran-->
-                        <sebm-google-map-marker  [latitude]="position?.lat" [longitude]="position?.lng"
+                        <agm-marker  [latitude]="position?.lat" [longitude]="position?.lng"
                         [iconUrl]="'domicile' | toIconUrl"  >
-                            <sebm-google-map-info-window   [isOpen]="position?.lat" #domicileMarker >
+                            <agm-info-window   [isOpen]="position?.lat" #domicileMarker >
                             <div class="infos">
                                 <strong>{{question.default_location?.label}}</strong>
                                 <p>{{question.default_location?.description}}</p>
@@ -286,13 +286,13 @@
                             </div>
 
                                 
-                            </sebm-google-map-info-window> 
-                        </sebm-google-map-marker>
+                            </agm-info-window> 
+                        </agm-marker>
                 </div>
 
             
         
-        </sebm-google-map>
+        </agm-map>
 
         
     </div>
