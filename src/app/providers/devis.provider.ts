@@ -445,10 +445,9 @@ export class DevisProvider {
             //window.history.state: si navigue par bouton Back/prev du navigateur
             //_history_state: si arrive directement sur la page depuis ailleurs???? probleme du a angular qui efface les données d'url 
             //last_visited: si proviens du bouton Reprendre mon ancien formulaire 
-            let url = this.devis_infos[key]['url'] || window.history.state || this._history_state || this.last_visited_url_LS ;
-            console.log(window.history.state)
-            console.log(this._history_state)
-            console.log(this.last_visited_url_LS)
+            let last = this.devis_infos[key] ? this.devis_infos[key]['url'] : null;
+            let url = last || window.history.state || this._history_state || this.last_visited_url_LS ;
+           
             
             console.log(url);
             if (url && url!="undefined"){

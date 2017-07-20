@@ -13,18 +13,13 @@ import {MainPageComponent} from "./pages/main.page.component";//landing page
 import {DynFormsComponent} from "./pages/dyn.forms.component";//ce qui genere les formulaires
 import {DemandeComponent} from "./pages/demande.component";//marchandise = autre
 
-//debug only
-import {DynaTestComponent} from './pages/dyna.test.component';
 
+//le module pour le provider principal
+import {CoreModule} from "./providers/provider.module";
 
+//les routes de l'application
 
-//import { DevisRestProvider} from "./providers/devis.rest.provider";
-import {DevisProvider} from "./providers/devis.provider";
-// import {FormDetailResolve} from "./providers/guards/form.guard";
-// import {FormDeactiveGuard} from "./providers/guards/form.deactive.guard";
-
-import {DynaFormTestProvider} from "./providers/dyna.form.test.provider";
-//import {DynaFormsModule} from "./dyna-forms/dyna.forms.module";
+import { AppRoutingModule } from './app.routing.module';
 
 
 
@@ -64,43 +59,6 @@ import {FNAAGroupPipe} from "./dyna-forms/pipes/fnaa.group.pipe";
 //normalement, je devrais definir un fichier special pour ca, mais vu qu'il y a pas
 //grand chose....
 //let routes = RouterModule.forRoot([
-let routes:Routes =[ 
-  {
-    path:"",
-    redirectTo:"/hello",
-    pathMatch: 'full'
-  },
-  /*{
-    path: 'test',
-    component: DynaTestComponent  //juste pour pouvoir tester a fond les forms dynamiques
-  },*/
- {
-    path:"devis-transport-demenagement-reunion",
-    component:MainPageComponent
-  },
-  {
-    path:"hello",
-    component:MainPageComponent
-  },
-  {
-    path: 'devis/:group/:form',
-    component: DynFormsComponent,
-    //canDeactivate:[FormDeactiveGuard] n'empeche pas l'URL de changer...
-    // resolve:{
-    //   form_infos:FormDetailResolve
-    // }
-  },
-  //voir si on decoupe tout....
-  {
-    path:"generated",
-    component: DevisComponent
-  },
-  {
-    path:"demande",
-    component: DemandeComponent
-  }
-  , { path: '**', component: MainPageComponent }//regle pe le probleme de l'URL avec quote_id???
-];
 
 
 
@@ -112,7 +70,7 @@ let routes:Routes =[
     MainPageComponent,
     DemandeComponent,
     
-    DynaTestComponent,
+    //DynaTestComponent,
     DynamicFormComponent,
     DynaFormItemComponent,
     DynaArborescenceComponent,
@@ -137,22 +95,17 @@ let routes:Routes =[
     BrowserModule,
     FormsModule,
     HttpModule,
-    RouterModule.forRoot(
-      routes,
-      //{ enableTracing: true } // <-- debugging purposes only
-    ),
-    //ButtonsModule,
-    //DynaFormsModule
+    AppRoutingModule,
+    CoreModule.forRoot({}),
     ReactiveFormsModule,
     AgmCoreModule.forRoot({
       apiKey: GMAP_KEY//'AIzaSyAsbik8b9mp-_O3ubvV0ybqozM7UGJfToQ&#038'
     })
   ],
-  providers: [DevisProvider,
-              //FormDeactiveGuard,
+  providers: [
               GmapGeocodeProvider,
-              FNAAProvider,
-               DynaFormTestProvider],
+              FNAAProvider
+              ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
