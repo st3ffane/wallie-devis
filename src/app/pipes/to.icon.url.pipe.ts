@@ -6,10 +6,10 @@
 import { Pipe, PipeTransform } from '@angular/core';
 //import {TARGET} from "../../target";
 
-@Pipe({name: 'toIconUrl'})
-export class ToIconUrlPipes implements PipeTransform {
+@Pipe({name: 'toImageUrl'})
+export class ToImageUrlPipes implements PipeTransform {
   transform(value: any): string {
-      return "/wp-content/plugins/expedom/assets/img/marker-"+value+".svg";
+      return "/wp-content/plugins/expedom/assets/img/"+value;
    
   }
 }

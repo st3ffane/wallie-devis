@@ -9,13 +9,13 @@ import { GetDevisResultPipe }     from './get.devis.result.pipe';
 import { SafeHtmlPipe } from './safe.html.pipe';
 import {StripHtmlPipe} from "./strip.html.pipe";
 import {FNAAGroupPipe} from "./fnaa.group.pipe";
-
+import {ToImageUrlPipes} from "./to.icon.url.pipe";
 
 import {LightBoxComponent} from "./lighbox";
 
 @NgModule({
   imports:      [ CommonModule ],
-  declarations: [ BooleanPipe, GetDevisResultPipe, SafeHtmlPipe, StripHtmlPipe,FNAAGroupPipe , LightBoxComponent],
-  exports:      [ BooleanPipe, GetDevisResultPipe, SafeHtmlPipe, StripHtmlPipe, FNAAGroupPipe, LightBoxComponent ]
+  declarations: [ BooleanPipe, GetDevisResultPipe, SafeHtmlPipe, StripHtmlPipe,FNAAGroupPipe , LightBoxComponent, ToImageUrlPipes],
+  exports:      [ BooleanPipe, GetDevisResultPipe, SafeHtmlPipe, StripHtmlPipe, FNAAGroupPipe, LightBoxComponent, ToImageUrlPipes ]
 })
 export class PipesModule { }

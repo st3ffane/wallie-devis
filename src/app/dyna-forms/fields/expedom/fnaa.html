@@ -2,7 +2,7 @@
         
         <div class="schrink inline">
             <div class="input-container">
-                <label>{{question.title}}</label>  
+                <label><span>{{question.title}}</span><lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>  
                 <input #texted type="text"  
                     [formControlName]="question.id"
                     [(ngModel)]= "question.__value"

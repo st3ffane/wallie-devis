@@ -1,0 +1,20 @@
+<fieldset  class="text-center " [formGroup]="form" ><!--[class.left]='groupName'-->
+        
+        <div class="schrink inline">
+            <div class="input-container">
+                <label>{{question.label}}</label>  
+                <small>{{question.description}}</small>
+                <input #texted type="text"  
+                    [formControlName]="question.id"
+                    [(ngModel)]= "question.__value"
+                    [id]="question.id" type="text" 
+                    
+                    [placeholder]="question.description"
+                    >
+                <!--input type="hidden" [(ngModel)]="raw_datas"-->
+            </div>
+            
+        </div>
+        
+
+</fieldset>

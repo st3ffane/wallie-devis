@@ -7,7 +7,7 @@
                          type="checkbox" 
                          checked="false"
                          #checker >
-                         <div class=" check-container check"></div><span>{{question.title}}</span></label>    
+                         <div class=" check-container check"></div><span>{{question.title}}</span><lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>    
                     <span class="check_clear"><small [innerHTML]="question.description | safeHTML"></small></span>
                  
             

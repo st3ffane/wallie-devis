@@ -20,7 +20,8 @@
                         <!--
                             
                             class=" check-container radio"
-                            --><div class=" check-container radio"></div><span>{{it.label}}</span></label>
+                            --><div class=" check-container radio"></div><span>{{it.label}}</span>
+                            <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
                         <span><small [innerHTML]="it.description | safeHTML"></small></span>
                         
                 </div>
@@ -36,7 +37,8 @@
                         <!--
                             
                             class=" check-container radio"
-                            --><div class=" check-container radio group"></div><span>{{it.label}}</span></label>
+                            --><div class=" check-container radio group"></div><span>{{it.label}}</span>
+                            <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
                         <span><small [innerHTML]="it.description | safeHTML"></small></span>
                 </div>
             </div>

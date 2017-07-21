@@ -7,7 +7,7 @@ import {Component, Input} from "@angular/core";
   styleUrls:['./lightbox.scss']
 })
 export class LightBoxComponent{
-  @Input() lighbox;//les informations sur la lighbox
+  @Input() lightbox;//les informations sur la lighbox
   active:boolean = false;
 
   toggle(){

@@ -15,7 +15,8 @@
                      -->
         <div class="schrink">
             <div class="input-container">
-                <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>  
+                <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>  
                 <input #texted type="text"  
                 [formControlName]="question.id"
                     [id]="question.id" type="text" 
@@ -34,7 +35,8 @@
         <div *ngSwitchCase="'number'" class="form-group">
             <div  class="schrink">
                 <div class="input-container">
-                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>
+                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                    <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
                     <input #texted type="text" 
                     [formControlName]="question.id"
                         [id]="question.id" type="number" 
@@ -52,7 +54,8 @@
         <div *ngSwitchCase="'email'" class="form-group">
             <div  class="schrink">
                 <div class="input-container">
-                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>   
+                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                     <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>   
                     <input #texted type="text" 
                     [formControlName]="question.id"
                         [id]="question.id" type="email" 
@@ -71,7 +74,8 @@
             <div  class="schrink">
                 <div class="input-container">
                     <!-- verifier avec Firefox -->
-                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label>   
+                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                     <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>   
                     <input #texted type="date" 
                     [formControlName]="question.id"
                         [id]="question.id" type="email" 
@@ -90,7 +94,8 @@
         <div *ngSwitchCase="'textarea'" class="form-group">
             <div  class="schrink">
                 <div class='input-container'>
-                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label> 
+                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                    <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label> 
                     <textarea #texted [formControlName]="question.id"
                         [id]="question.id" [(ngModel)]="question.__value"
                          
@@ -115,7 +120,8 @@
         <div *ngSwitchCase="'select'" class="form-group">
             <div class="schrink">
                 <div class='input-container'>
-                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span></label> 
+                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                    <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label> 
                     <p><small [innerHTML]="question.description | safeHTML"></small></p>
                     <select #texted [id]="question.id"  [formControlName]="question.id" [(ngModel)]="question.__value" 
                       >
@@ -141,7 +147,9 @@
         
         <div *ngSwitchCase="'radio'" class="text-center">
               
-                  <h4 class="row text-center" style="font-weight: 300;font-size: 1.2em; margin-top: 0px;"><span [innerHTML]="question.title | safeHTML">aa</span><span class="required" *ngIf="question.required">*</span></h4>
+                  <h4 class="row text-center" style="font-weight: 300;font-size: 1.2em; margin-top: 0px;">
+                    <span [innerHTML]="question.title | safeHTML">aa</span><span class="required" *ngIf="question.required">*</span>
+                    <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></h4>
                   <p class="row">{{question.description}}</p>
                   <div class="choice-cmp inline"><!-- [class.inline]="question.options.length<3"-->
                     <div class="text-left"  *ngFor="let it of question.options">                        
@@ -152,7 +160,9 @@
                             [value]="it.value"><!--
                             
                             class=" check-container radio"
-                            --><div class=" check-container radio"></div><span [innerHTML]="it.label | safeHTML">aa</span></label>    
+                            --><div class=" check-container radio"></div><span [innerHTML]="it.label | safeHTML">aa</span>
+                            <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box>
+                            </label>    
                             <span><small [innerHTML]="it.description | safeHTML">aa</small></span>
                     </div>    
                     
@@ -170,7 +180,8 @@
                          [value]="question.selected"
                          
                         
-                    ><div class=" check-container check"></div><span>{{question.title}}</span><span class="required" *ngIf="question.required">*</span></label>    
+                    ><div class=" check-container check"></div><span>{{question.title}}</span><span class="required" *ngIf="question.required">*</span>
+                    <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>    
                     <span class="check_clear"><small [innerHTML]="question.description | safeHTML"></small></span>
                  
             
@@ -216,6 +227,7 @@
                             [value]="it.label"
                             #optionsChoice>
                             <div class=" check-container radio"></div><span>{{it.label}}</span>
+                            <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box>
                             </label>    
                             <span><small [innerHTML]="it.description | safeHTML">aa</small></span>
                             
@@ -244,7 +256,7 @@
                          [value]="opt.value"
                          required
                             class="form-check-input">
-                        {{opt.label}}</label>    
+                        <span>{{opt.label}}</span><lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>    
                                      
             </div>
               
