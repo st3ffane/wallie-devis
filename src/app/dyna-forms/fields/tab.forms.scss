@@ -1,0 +1,75 @@
+@import "/../material/colors";
+
+
+.tabs {
+  position: relative;   
+  //min-height: 200px; /* This part sucks */
+  clear: both;
+  margin: 25px 0;
+  
+ 
+}
+.tab {
+  float: left;
+  
+}
+.tab label {
+//   background: #eee; 
+//  padding: 10px; 
+//   border: 1px solid #ccc; 
+   
+  position: relative;
+  
+  cursor:pointer;
+  //min-width: 200px;
+    font-size: 1em;
+    text-transform: uppercase;
+    text-align: center;
+  
+    span{
+      display: block;
+      padding: 10px;
+      color: #527ea4;
+     
+    }
+}
+.tab [type=radio] {
+  display: none;   
+}
+.content {
+  
+  //position: relative;
+  //margin-top: 44px;
+  //margin-bottom: 20px;
+  //color:#3E3E3E;
+//   position: absolute;
+//   top: 44px;
+//   left: 0;
+// //   background: white;
+//   right: 0;
+//   bottom: 0;
+  padding-top: 20px;
+//   border: 1px solid #ccc; 
+
+  div{
+    margin-top: 24px;
+    background-color: rgba(255,255,255,0.07);
+    padding: 10px;
+  }
+
+}
+[type=radio]:checked ~ span {
+  background: rgba(255,255,255,0.07);
+  //border-bottom: 2px solid $focus_color;;
+  color: white!important;
+  width: 100%;
+    display: block;
+    padding-bottom: 10px;
+    border-radius: 5px 5px 0 0;
+    //border: 1px solid #3E3E3E;
+  border-bottom: none;
+//   z-index: 2;
+}
+[type=radio]:checked ~ label ~ .content {
+   z-index: 1;
+}

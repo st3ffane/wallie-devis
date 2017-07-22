@@ -263,6 +263,25 @@
            
             
         </div>
+
+
+
+
+        <div *ngSwitchCase="'tabs'" class="form-group">
+            <div  class="schrink">
+                <div class="input-container">
+                    <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                    <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
+                    <small>{{question.description | safeHTML}}</small>
+                    <tab-forms [question]="question" [form]="form"></tab-forms> 
+                </div>
+                
+            </div>
+        </div>
+
+
+
+
       </div>
       <div *ngIf="isValid"  class="alert">
         <ul>

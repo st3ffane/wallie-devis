@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 .rowItem{
-  transform: none!important;
+    -webkit-transform: none!important; /* Safari and Chrome */
+       -moz-transform: none!important; /* Firefox */
+        -ms-transform: none!important; /* IE 9 */
+         -o-transform: none!important; /* Opera */
+            transform: none!important;
 }
