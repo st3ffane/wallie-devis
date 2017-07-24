@@ -132,8 +132,6 @@ export class DynamicFormComponent implements OnInit{
     }
 
     ngOnChanges(dt){
-        console.log("new datas");
-        console.log(dt)
         //questions a ete modifié, met a jour le formulaire...
         let group:any = {};
         let first: string = this.formulaire.fields? this.formulaire.fields[0].id : null;

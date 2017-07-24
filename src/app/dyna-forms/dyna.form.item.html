@@ -37,7 +37,9 @@
                 <div class="input-container">
                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
                     <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
+                    <small>{{question.description}}</small>
                     <input #texted type="text" 
+                    [name]="question.id"
                     [formControlName]="question.id"
                         [id]="question.id" type="number" 
                         [(ngModel)]="question.__value"
@@ -272,7 +274,7 @@
                 <div class="input-container">
                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
                     <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
-                    <small>{{question.description | safeHTML}}</small>
+                    <small [innerHTML]="question.description | safeHTML"></small>
                     <tab-forms [question]="question" [form]="form"></tab-forms> 
                 </div>
                 

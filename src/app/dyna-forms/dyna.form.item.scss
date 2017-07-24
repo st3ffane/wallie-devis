@@ -20,7 +20,9 @@
 .input-container{
  
     text-align: left!important;
-  
+    label{
+      display:block;
+    }
 }
 .alert{
   color: #f37474;

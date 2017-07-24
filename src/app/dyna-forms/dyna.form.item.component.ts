@@ -29,7 +29,7 @@ export class DynaFormItemComponent{
     //voir a le faire reagir au onblur
     get isValid(){
         let frm = this.form.controls[this.question.id];        
-        let has_errors = !frm.valid && frm.touched;
+        let has_errors = frm ?  !frm.valid && frm.touched : false;
         
         if(has_errors){
             //recup l'erreur actuelle de validation
