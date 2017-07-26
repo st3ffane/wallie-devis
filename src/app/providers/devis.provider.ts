@@ -1176,7 +1176,7 @@ export class DevisProvider {
                 for (let field of fields){
                     let obj =
                     {
-                        "value":field["value"] || null,
+                        "value":field["value"] || field['__value'] || null,
                         "value_label":field["value_label"] || field["value"],
                         "id": field["id"],
                         'title': field.title,//pour affichage dans le devis final 

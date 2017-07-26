@@ -1,4 +1,4 @@
-import {Component, Input, ChangeDetectorRef} from "@angular/core";
+import {Component, Input, ChangeDetectorRef, forwardRef} from "@angular/core";
 import {DevisProvider} from "../../providers/devis.provider";
 import {FormGroup, FormControl, Validators} from "@angular/forms";
 //import {DynaForm} from "./forms/dyna.form";
@@ -12,7 +12,19 @@ import { NG_VALIDATORS} from '@angular/forms';
 @Component({
   selector:"tab-forms",
   templateUrl:"./tab.forms.html",
-  styleUrls:["./tab.forms.scss"]
+  styleUrls:["./tab.forms.scss"],
+  providers: [
+    { 
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TabComponent),
+      multi: true
+    },
+    { 
+      provide: NG_VALIDATORS,
+      useValue: forwardRef(() => TabComponent),
+      multi: true
+    }
+  ]
 })
 export class TabComponent {
     @Input()question:any;
@@ -26,6 +38,12 @@ export class TabComponent {
 
     get filter(){return this._filter;}
     set filter(value:any){
+      this.setFilterData(value);
+      this.propagateChange(this._filter);
+
+    }
+
+    private setFilterData(value:any){
       this._filter = value;
       console.log("valeur de cache ", value)
       //recupere la tab a afficher
@@ -36,11 +54,9 @@ export class TabComponent {
           this.clearFormCtrls();
           this.addFormCtrls(tab);
           this.selected_tab = tab;
-          return;
+          break;
         }
       }
-      this.propagateChange(this._filter);
-
     }
     private clearFormCtrls(){
       if(this.selected_tab){
@@ -76,7 +92,7 @@ export class TabComponent {
       this.create_forms_elements();
       //recup le 1er id comme valeur de l'input
       if(this.question){
-        let id = this.question.value ?  this.question.value.filter : null;
+        let id = this.question.value;
         console.log("precendtly tabs: ",id);
         if(id) this.filter = id;
         else this.filter = this.question.options[0].id;
@@ -183,8 +199,21 @@ export class TabComponent {
 
 
   writeValue(value: any) {
-    if (value !== undefined) {
-        this._filter = value;
+    console.log("WRITE VALUE ------------------------")
+    console.log("set value from cache ", value)
+    if (value ) {
+      console.log("current filter ",value)
+        this.setFilterData(value);
+    } else {
+      //valeur par defaut
+      console.log("question: ",this.question)
+     /*if(this.question){
+        let id = this.question.value ?  this.question.value.filter : null;
+        console.log("precendtly tabs: ",id);
+        if(!id) id = this.question.options[0].id;
+        this.setFilterData(id);
+        //recup le current tab
+      }*/
     }
   }
   propagateChange = (_: any) => {};

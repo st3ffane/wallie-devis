@@ -145,14 +145,19 @@ export class DynamicFormComponent implements OnInit{
             //de perdre la coherence des données 
             //CONSEQUENCE: il faut SUBMIT le formulaire pour que les données soient prises en compte
             question.__value = question.value; //recupere les "vraies" valeurs pour les bindings
-
+            //remet a null pour ce cas 
+            question.value = null;
+            
             //SI FNAA, DOIT AUSSI RECUP LES RAWS_VALUES???
             if(question.type=="fnaa"){
                 let v = question.value;//normalement, le raw du WS
                 
                 question._raw_value = question.value;
                 question.value = question._raw_value ? question._raw_value['immatriculation'] : "";
-            }
+            } else if(question.type == "tabs"){
+              console.log("had a tabs", question)
+            } 
+
             
             let key = question.id;//la clé de la property a connaitre....
             
