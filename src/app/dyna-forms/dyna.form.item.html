@@ -275,13 +275,30 @@
                     <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
                     <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
                     <small [innerHTML]="question.description | safeHTML"></small>
-                    <tab-forms [question]="question" [form]="form"></tab-forms> 
+                    <tab-forms [question]="question" [form]="form" 
+                    [id]="question.id"></tab-forms> 
                 </div>
                 
             </div>
         </div>
 
-
+        <div *ngSwitchCase="'calculator'" class="form-group">
+        
+        <div class="schrink">
+            <div class="input-container">
+                <label>{{question.title}}<span class="required" *ngIf="question.required">*</span>
+                <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>  
+                <volume-calculator #texted 
+                    [formControlName]="question.id"
+                    [id]="question.id"
+                    [question]="question"
+                    [(ngModel)]="question.__value"
+                    required
+                    ></volume-calculator>
+                      
+            </div>
+            <!--span>(<small>{{question.description}}</small>)</span-->
+        </div>
 
 
       </div>
@@ -310,6 +327,7 @@
              <li *ngIf="error.max">
             Vous devez renseigner un nombre inferieur à <span>{{error.max.requiredValue}}</span>.
             </li>
+            
         </ul>
       </div>
     

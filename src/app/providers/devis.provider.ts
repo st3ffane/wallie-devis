@@ -1275,6 +1275,11 @@ export class DevisProvider {
                 "value":field.__value || null,
                 "id":field.id
             };
+
+
+            if(field.type=="tabs"){
+              console.log("Tabs!!!!", field.__value)
+            }
             
             //si une position, enregistre 
             if (field.position) dt["position"] = field.position;

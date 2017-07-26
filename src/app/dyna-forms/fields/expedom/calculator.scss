@@ -1,0 +1,59 @@
+.inline{
+  
+  
+  form{
+    width: 100%;
+    margin-top: 15px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-end;
+    vertical-align: baseline;
+    div{
+      width: 20%;
+      
+      
+    }
+    span{
+      font-weight: 900;
+      margin: 5px;
+    }
+    
+
+    .adding{
+      float: none;
+    margin-left: 10px;
+    width: 64px;
+    height: 42px;
+    background-color: #46b8da;
+    
+    }
+  }
+}
+
+.error{
+  font-weight: 900;
+    color: darkred;
+    text-align: center;
+    width: 100%;
+    display: block;
+}
+table{
+  margin-top: 20px;
+    text-align: center;
+    
+
+    th{
+      text-align: center;
+    }
+    td {
+      font-size: 1.1em;
+    }
+}

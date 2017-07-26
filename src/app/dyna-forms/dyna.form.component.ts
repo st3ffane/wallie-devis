@@ -33,7 +33,7 @@ export class DynamicFormComponent implements OnInit{
 
     @Output() submitted = new EventEmitter();//pour prevenir le component parent que le formulaire a ete submitted
     constructor(private _devis:DevisProvider){
-      console.log("here constructor")
+      //console.log("here constructor")
     }
 
    
@@ -41,7 +41,7 @@ export class DynamicFormComponent implements OnInit{
 
     ngOnInit(){
         // silence is golden
-        console.log("here")
+        //console.log("here")
     }
 
     onSubmit(){
@@ -100,6 +100,7 @@ export class DynamicFormComponent implements OnInit{
             //si vehicule_infos; HACK POUR FNAA
             //probleme si revient du cache....
             if(question._raw_value) question.value = question._raw_value;
+           
         }
 
         //ajoute une entrée a l'historique 

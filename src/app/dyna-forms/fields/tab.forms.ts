@@ -27,6 +27,7 @@ export class TabComponent {
     get filter(){return this._filter;}
     set filter(value:any){
       this._filter = value;
+      console.log("valeur de cache ", value)
       //recupere la tab a afficher
       for(let tab of this.question.options){
         if(tab.id == this.filter){
@@ -75,7 +76,7 @@ export class TabComponent {
       this.create_forms_elements();
       //recup le 1er id comme valeur de l'input
       if(this.question){
-        let id = this.question.value;
+        let id = this.question.value ?  this.question.value.filter : null;
         console.log("precendtly tabs: ",id);
         if(id) this.filter = id;
         else this.filter = this.question.options[0].id;
@@ -93,7 +94,7 @@ export class TabComponent {
       // ERREUR: le cache n'enregistre pas...
       let ctrl = new FormControl('');
       //recup la valeur????
-      ctrl.setValue(this.question.value);
+      //ctrl.setValue(this.question.value.filter);
       this.form.addControl(this.filter_form_ctrl, ctrl);
         //zone de recherche        
         /*this.filter_form_ctrl = "gps_search_"+this.question.id

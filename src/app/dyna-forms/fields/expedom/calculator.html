@@ -1,0 +1,32 @@
+<div>
+  <label>{{question.title}}</label>
+  <small>{{question.description}}</small>
+  <input type="number" step="0.01" min="0" [(ngModel)]="volume">
+
+  <p>{{question.calculator?.label}}</p>
+  <div class="inline">
+  <form  #colisConteneur="ngForm" (ngSubmit)="addNewColis()">
+    <div><label>{{question.calculator?.width}}</label><input type="number" step="0.01" min="0.01" [(ngModel)]="width" required name="width"></div><span>x</span>
+    <div><label>{{question.calculator?.height}}</label><input type="number" step="0.01" min="0.01" [(ngModel)]="height" required name="height"></div><span>x</span>
+    <div><label>{{question.calculator?.depth}}</label><input type="number" step="0.01" min="0.01" [(ngModel)]="depth" required name="depth"></div>
+    <button class="btn btn-info close adding" type="submit" ><i class="fa fa-plus"></i></button>
+  </form>
+
+  </div>
+  <span *ngIf="error_msg" class="error">{{error_msg}}</span>
+  <table class="colis" *ngIf="colis.length>0">
+    <tr>
+      <th>{{question.calculator?.width}}</th>
+      <th>{{question.calculator?.height}}</th>
+      <th>{{question.calculator?.depth}}</th>
+      <th> </th>
+    </tr>
+    <tr *ngFor="let c of colis">
+      <td><span>{{c.width}}</span><span> m</span></td>
+      <td><span>{{c.height}}</span><span> m</span></td>
+      <td><span>{{c.depth}}</span><span> m</span></td>
+      <td><button class="btn btn-danger close" type="button" (click)="removeFromVolume(c)"><i class="fa fa-close"></i></button>
+    </tr>
+  </table>
+
+</div>
