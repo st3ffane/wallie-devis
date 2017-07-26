@@ -1184,9 +1184,38 @@ export class DevisProvider {
                         "data-type":field["data-type"],
                         "hide":field.hide
                     };
+
+                    //dans le cas d'un tabs, les valeurs sont particulieres
+                    if(field.type == "tabs"){
+                      //doit aussi recup les valeurs de la tab
+                      let filter = obj.value;
+                      let v = {
+                        filter: filter
+                      };
+
+                      if(filter){
+                        let panel = null;
+                        for(let p of field.options){
+                          if(p.id == filter){
+                            panel = p;
+                            break;
+                          }
+                        }
+                        if(panel){
+                          //recup les données
+                          for(let f of panel.fields){
+                            //enregistre les valeurs
+                            v[f.id] = f.__value;//?
+                          }
+                        }
+
+                      }
+
+                      obj.value = v;
+                    }
                     
                     //probleme value_label: si options, doit recuperer le label de l'option 
-                    if(field.options && field["value"]!=null){
+                    if(field.options && field["value"]!=null && field.type!="tabs"){
                         
                         let v  = this.get_label_for_value(field["value"], field.options);
                         

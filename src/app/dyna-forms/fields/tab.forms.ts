@@ -36,6 +36,9 @@ export class TabComponent {
 
     selected_tab : any = null;
 
+    cache:any = null;
+
+
     get filter(){return this._filter;}
     set filter(value:any){
       this.setFilterData(value);
@@ -61,10 +64,12 @@ export class TabComponent {
     private clearFormCtrls(){
       if(this.selected_tab){
         //supprime
+        console.log("Suppression des controls");
         for(let question of this.selected_tab.fields){
          let key = question.id;//la clé de la property a connaitre....
-         question.value = this.form.controls[key].value;
-        this.form.removeControl(key);
+         console.log("control:",key,this.form.controls[key])
+         //question.value = this.form.controls[key].value;
+        try{this.form.removeControl(key);}catch(err){}
       }
       }
     }
@@ -78,9 +83,12 @@ export class TabComponent {
         
                 //cree un nouveau control pour cette clé 
                 //si a des contraintes, ajoute les 
-                let ctrl = new FormControl(question.value || '', this.get_validators_for_field(question));
-                this.form.addControl(key,ctrl);
-                ctrl.setValue(question.__value);//a tester
+                let ctrl = new FormControl(question.__value || '', this.get_validators_for_field(question));
+                if(this.form[key])this.form.setControl(key,ctrl);
+                else this.form.addControl(key,ctrl);
+
+                console.log("Set value for control ",question.__value)
+                //ctrl.setValue(question.__value);//a tester
       }
       
       
@@ -93,7 +101,7 @@ export class TabComponent {
       //recup le 1er id comme valeur de l'input
       if(this.question){
         let id = this.question.value;
-        console.log("precendtly tabs: ",id);
+        
         if(id) this.filter = id;
         else this.filter = this.question.options[0].id;
       }
@@ -201,9 +209,29 @@ export class TabComponent {
   writeValue(value: any) {
     console.log("WRITE VALUE ------------------------")
     console.log("set value from cache ", value)
-    if (value ) {
-      console.log("current filter ",value)
-        this.setFilterData(value);
+    if (value) {
+
+      if(  value == this.cache) return;
+
+      this.cache = value;
+      console.log("current filter ",value);
+        let filter = value.filter;
+        console.log("filter: ",filter);
+        //set panel values
+        if(filter && this.question){
+          for(let q of this.question.options){
+            if(filter == q.id){
+              for(let f of q.fields){
+                f.value = value[f.id];
+                f.__value = value[f.id];
+                console.log("set ",f.id,"to",f.value)
+                
+              }
+            }
+          }
+          //recup le current tab
+        }
+        this.setFilterData(value.filter);
     } else {
       //valeur par defaut
       console.log("question: ",this.question)

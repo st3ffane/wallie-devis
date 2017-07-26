@@ -155,7 +155,12 @@ export class DynamicFormComponent implements OnInit{
                 question._raw_value = question.value;
                 question.value = question._raw_value ? question._raw_value['immatriculation'] : "";
             } else if(question.type == "tabs"){
-              console.log("had a tabs", question)
+              console.log("had a tabs", question);
+              //parse le contenu de la value: doit normalement avoir le type(filter) et les datas
+              if(question.__value){
+                let v = question.__value;
+                
+              }
             } 
 
             
