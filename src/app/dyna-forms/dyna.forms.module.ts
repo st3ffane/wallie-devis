@@ -29,6 +29,8 @@ import {PIPES} from "./pipes/pipes";
 import { AgmCoreModule } from '@agm/core';
 
 import {PipesModule} from "app/pipes/pipes.module";
+import {MarchandiseTypePipes} from "./pipes/marchandise.pipe";
+import {VolumePipes} from "./pipes/volume.pipe";
 
 import {GmapGeocodeProvider} from "./providers/gmap.geocode.provider";
 import {FNAAProvider} from "./providers/fnaa.provider";
@@ -53,6 +55,6 @@ et   properties:waahg-svg/datas/Abstractproperty
      ],
     declarations:[DynamicFormComponent,DynaFormItemComponent,...FIELDS, ...DIALOGS, ...PIPES],
     providers:[GmapGeocodeProvider, FNAAProvider],
-    exports:[DynamicFormComponent]
+    exports:[DynamicFormComponent, MarchandiseTypePipes, VolumePipes]
 })
 export class DynaFormsModule{}
