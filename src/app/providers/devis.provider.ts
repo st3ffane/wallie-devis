@@ -360,15 +360,15 @@ export class DevisProvider {
         
                 //cherche si a deja les données du formulaire
             //attention: savoir si toujours valide?????
-            console.log('get form descriptor ',group,form)
+            //('get form descriptor ',group,form)
             let key =form; //clé du formulaire, unqieument le nom du focrmulaire
 
             // //(" get form descriptor");
             let fi = null;
             //recherche dans les formulaires deja chargés...
             //verifie que le groupe correspond aussi
-            console.log(this.devis_infos[key]);
-            console.log("Verifie historic")
+            //(this.devis_infos[key]);
+            //("Verifie historic")
             if(this.devis_infos[key] && this.devis_infos[key]["key"]){
                     
                     
@@ -378,7 +378,7 @@ export class DevisProvider {
                     let fi_group = fi.key.split("/")[0];//le groupe
                     // if(group != "server" && fi_group != group){
                     //     //invalide, relance la recharge du formulaire avec group et form
-                    //     console.log("groupe differents et non server, charge les données du formulaire") 
+                    //     //("groupe differents et non server, charge les données du formulaire") 
                     //     return this.load_form_datas_async(group,form);
                     // }
 
@@ -386,17 +386,17 @@ export class DevisProvider {
 
                     let url = fi.url;
 
-                    console.log("Formulaire deja chargé en memoire, normalement, tout est OK....")
-                    console.log("Doit juste verifier que les datas dans le formulaire sont valides....")
+                    //("Formulaire deja chargé en memoire, normalement, tout est OK....")
+                    //("Doit juste verifier que les datas dans le formulaire sont valides....")
 
                     if(group != "global" //toujours garder le cache d'une form globale
                         && !url.startsWith(this.devis_infos[key].url)){
                             //reinitialise a null toutes les datas
-                            // console.log("formulaire invalide, remet a zero")
+                            // //("formulaire invalide, remet a zero")
                             this.reinit_form(key);
                         }// else {
-                        //     console.log("formulaire valide, garde les datas....")
-                        //     console.log(fi);
+                        //     //("formulaire valide, garde les datas....")
+                        //     //(fi);
                         // }
                     //if(fi["key"]){
                     // //("veridie si datas valides")
@@ -436,7 +436,7 @@ export class DevisProvider {
 
             //pas de cache, verifie si demande un group/form 
             // if(group!=null && form!=null){
-            //     console.log("groupe et form, charge les données du formulaire") 
+            //     //("groupe et form, charge les données du formulaire") 
             //             return this.load_form_datas_async(group,form);
             // }
 
@@ -449,7 +449,7 @@ export class DevisProvider {
             let url = last || window.history.state || this._history_state || this.last_visited_url_LS ;
            
             
-            console.log(url);
+            //(url);
             if (url && url!="undefined"){
                //page avec une navigation, recharge le formulaire 
                 return this.load_form_datas_async(null,null,url);//.then( (dt)=>{
@@ -517,7 +517,7 @@ export class DevisProvider {
         let url = endpoint  ? endpoint :    ENDPOINT + this.create_url(group,form);  
         
 
-       console.log("chargement du formulaire depuis ",url)
+       //("chargement du formulaire depuis ",url)
         return this._http.get(url)
         .toPromise()
         .then( (res:Response)=>{
@@ -525,7 +525,7 @@ export class DevisProvider {
             
             
             let fi = res.json();//les données recuperer du serveur
-            console.log(fi);
+            //(fi);
             if(fi["key"] === undefined){
                 this.current_key = null;//au cas ou...
                 
@@ -550,17 +550,17 @@ export class DevisProvider {
             //pour la gestion du switch_details, ajoute le contenu des options 
             //au formulaire, et bind le hidden des inputs au resultat de la radio 
             /*if (question.type=="switch_details"){
-                    console.log("un switch details");
+                    //("un switch details");
                     for (let option of question.options){
-                        console.log(option);
+                        //(option);
                         for (let inner_field of option.fields){
-                            console.log(inner_field.id)
+                            //(inner_field.id)
                             let ctrl = new FormControl(inner_field.value || '', this.get_validators_for_field(inner_field));
                             group[inner_field.id] = ctrl;
                         }
                     }
                 }*/
-            console.log("populate form")
+            //("populate form")
             for (let i = 0; i<fi.fields.length; i++){
                 let field = fi.fields[i];
 
@@ -611,10 +611,10 @@ export class DevisProvider {
             // //(form_name)
             fi["url"]  =  url; //sauvegarde l'url du formulaire demandé en cas de retour via l'historique de navigation du
             //navigateur
-            console.log("verifie validité formulaire");
+            //("verifie validité formulaire");
             //populate datas a partir du cache de données...
             if(this.devis_infos[form_name]){
-                console.log("Données en cache, verifie si valides")
+                //("Données en cache, verifie si valides")
                 //(group);
 
                 //valeurs du group de cache 
@@ -632,11 +632,11 @@ export class DevisProvider {
                     - group == server: le cache provient du server, SI les parametres n'ont pas changés, repopulate 
                     - group == ??? : cache d'un ancien devis, SI les parametres n'ont pas changés, repopulate, sauf si no_cache
                 */
-                // console.log("Cache verification:");
-                // console.log("group: "+group);
-                // console.log("cache_group:"+cache_group);
-                // console.log("url: "+url);
-                // console.log("form url: "+this.devis_infos[form_name].url);
+                // //("Cache verification:");
+                // //("group: "+group);
+                // //("cache_group:"+cache_group);
+                // //("url: "+url);
+                // //("form url: "+this.devis_infos[form_name].url);
 
                 if( (group == "global") //formulaire toujours valide -ne change jamais
                     || (cache_group == "server" && this.isServerURLValid() )  //cas cache du server 
@@ -686,7 +686,7 @@ export class DevisProvider {
             //soit elles y sont deja (vient avec BACK/PREC ou chargement du LS)
             //soit la methode est appellée avant le changement d'URL (dyn.forms.component.next()) 
             //et les données seront enregistrées apres...
-            console.log(fi);
+            //(fi);
             
             return fi;//retourne juste le formulaire
 
@@ -1186,7 +1186,7 @@ export class DevisProvider {
                     };
 
                     //dans le cas d'un tabs, les valeurs sont particulieres
-                    if(field.type == "tabs"){
+                    /*if(field.type == "tabs"){
                       //doit aussi recup les valeurs de la tab
                       let filter = obj.value;
                       let v = {
@@ -1212,7 +1212,7 @@ export class DevisProvider {
                       }
 
                       obj.value = v;
-                    }
+                    }*/
                     
                     //probleme value_label: si options, doit recuperer le label de l'option 
                     if(field.options && field["value"]!=null && field.type!="tabs"){
@@ -1307,7 +1307,7 @@ export class DevisProvider {
 
 
             if(field.type=="tabs"){
-              console.log("Tabs!!!!", field.__value)
+              //("Tabs!!!!", field.__value)
             }
             
             //si une position, enregistre 

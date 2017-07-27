@@ -18,7 +18,7 @@ export class VolumePipes implements PipeTransform {
       //sinon, recherche le type de la valeur
       //let dv = this._devis.get_devis()[id];
       
-      console.log("formulaire:",field);
+      
       let v= field.value;
       if(typeof v == "string") {
         //probleme: valeur de la combo, j'ai besoin du label...
@@ -27,7 +27,7 @@ export class VolumePipes implements PipeTransform {
       }
       if(v.filter && v.volume_qtte){
         //2 cas: que marchandise ou les taux aussi
-        return v.volume_qtte+" m3";
+        return v.volume_qtte_label || v.volume_qtte+" m3";
       }
        
       //recupe le field

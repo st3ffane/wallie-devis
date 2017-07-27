@@ -48,7 +48,7 @@ export class TabComponent {
 
     private setFilterData(value:any){
       this._filter = value;
-      console.log("valeur de cache ", value)
+      //console.log("valeur de cache ", value)
       //recupere la tab a afficher
       for(let tab of this.question.options){
         if(tab.id == this.filter){
@@ -64,10 +64,10 @@ export class TabComponent {
     private clearFormCtrls(){
       if(this.selected_tab){
         //supprime
-        console.log("Suppression des controls");
+        //console.log("Suppression des controls");
         for(let question of this.selected_tab.fields){
          let key = question.id;//la clé de la property a connaitre....
-         console.log("control:",key,this.form.controls[key])
+        // console.log("control:",key,this.form.controls[key])
          //question.value = this.form.controls[key].value;
         try{this.form.removeControl(key);}catch(err){}
       }
@@ -87,8 +87,7 @@ export class TabComponent {
                 if(this.form[key])this.form.setControl(key,ctrl);
                 else this.form.addControl(key,ctrl);
 
-                console.log("Set value for control ",question.__value)
-                //ctrl.setValue(question.__value);//a tester
+                
       }
       
       
@@ -223,18 +222,28 @@ export class TabComponent {
             if(filter == q.id){
               for(let f of q.fields){
                 f.value = value[f.id];
-                f.__value = value[f.id];
+                //f.__value = value[f.id];
                 console.log("set ",f.id,"to",f.value)
                 
               }
             }
           }
-          //recup le current tab
+
         }
-        this.setFilterData(value.filter);
+        else {
+            //une simple string, donc récupere dans le 1er???
+            //recup le current tab
+            filter = this.question.options[0].id;
+            //EXPEDOM old version HACK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            let f = this.question.options[0].fields[0];
+            f.value = value;
+            //END HACK !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+        }
+        this.setFilterData(filter);
     } else {
       //valeur par defaut
-      console.log("question: ",this.question)
+     console.log("question: ",this.question)
      /*if(this.question){
         let id = this.question.value ?  this.question.value.filter : null;
         console.log("precendtly tabs: ",id);

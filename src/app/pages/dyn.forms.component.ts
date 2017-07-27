@@ -76,14 +76,14 @@ export class DynFormsComponent implements OnInit{
 
   ngOnInit(){
     
-    console.log("get route params")
+    //("get route params")
     //en cas de back/prev directement depuis le navigateur, listen to Location.popstate...
     //ecoute les events du router
     this.routerSubscription = this._router.events.map( event => event instanceof NavigationEnd )
     .subscribe( (evt) => {
         //permet de savoir qd les parametres de l'URL on changés!!!
-        console.log("something here")
-          console.log(evt);
+        //("something here")
+          //(evt);
         if(evt === true) {
 
           //navigation finie, doit enregistrer une nouvelle entree dans l'historique 
@@ -119,7 +119,7 @@ export class DynFormsComponent implements OnInit{
     this.group = this.route.snapshot.params['group']; //recup imediatement les données  
     this.form = this.route.snapshot.params['form']; //recup imediatement les données
      
-    console.log("RELOAD to page "+this.group+","+this.form);
+    //("RELOAD to page "+this.group+","+this.form);
     //demande au providers la description de ce formulaire 
     this._devis.get_form_descriptor(this.group, this.form).then( (fi) =>{
         
@@ -133,12 +133,12 @@ export class DynFormsComponent implements OnInit{
           //probleme: si revient depuis historique....
 
 
-          console.log(fi)
+          //(fi)
           this.infos = fi;//affichage
           window.scrollTo(0,0);
         //this._ref.nativeElement.scrollIntoView();
       } else {
-        console.log("pass de FI????")
+        //("pass de FI????")
       }
 
         
@@ -146,7 +146,7 @@ export class DynFormsComponent implements OnInit{
 
     }).catch( (err)=>{
       //erreur de chargement des données du formulaire, voir quoi faire...
-      console.log(err);
+      //(err);
       //("ici");
       this.loading = false;
       this.error = err;

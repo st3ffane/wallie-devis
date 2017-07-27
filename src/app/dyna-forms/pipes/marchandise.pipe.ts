@@ -23,7 +23,7 @@ export class MarchandiseTypePipes implements PipeTransform {
       if(typeof v == "string") return v;
       if(v.filter && v.marchandise){
         //2 cas: que marchandise ou les taux aussi
-        return v.marchandise;
+        return v.marchandise_label || v.marchandise;
       }
        
       //recupe le field

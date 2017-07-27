@@ -33,7 +33,7 @@ export class DynamicFormComponent implements OnInit{
 
     @Output() submitted = new EventEmitter();//pour prevenir le component parent que le formulaire a ete submitted
     constructor(private _devis:DevisProvider){
-      //console.log("here constructor")
+      ////("here constructor")
     }
 
    
@@ -41,7 +41,7 @@ export class DynamicFormComponent implements OnInit{
 
     ngOnInit(){
         // silence is golden
-        //console.log("here")
+        ////("here")
     }
 
     onSubmit(){
@@ -55,8 +55,8 @@ export class DynamicFormComponent implements OnInit{
         //         let msg = verify_form_constraint(constraint, this.formulaire)
         //         if(msg){
         //             this.error = msg;
-        //             console.log("verify not passed!!");
-        //             console.log(constraint.type);
+        //             //("verify not passed!!");
+        //             //(constraint.type);
         //             return false;
         //         }
 
@@ -100,6 +100,40 @@ export class DynamicFormComponent implements OnInit{
             //si vehicule_infos; HACK POUR FNAA
             //probleme si revient du cache....
             if(question._raw_value) question.value = question._raw_value;
+
+            //si tabs, cree un objet
+            if(question.type=="tabs"){
+              console.log("validate tabs, create object", question);
+              let v= question.value;
+
+              //recup la tab 
+              for(let t of question.options){
+                if (t.id == v){
+                  //youpi
+                  console.log("tab trouvée");
+                  
+                      let obj = {
+                        filter: v
+                      };
+                        
+                        
+                          //recup les données
+                          for(let f of t.fields){
+                            //enregistre les valeurs
+                            obj[f.id] = f.__value;//?
+                            //si un select, recup aussi le label
+                            if(f.type=="select"){
+                              obj[f.id+"_label"] = this.get_label_for_value(f.__value,f.options);
+                            }
+                            //obj[f.id+"_label"] = f.
+                          }
+                        
+
+                      
+                      question.value = obj;
+                }
+              }
+            }
            
         }
 
@@ -112,7 +146,19 @@ export class DynamicFormComponent implements OnInit{
         this.submitted.emit();
 
     }
-
+    private get_label_for_value(value, options){
+        for (let opt of options){
+            
+            
+            if (opt["options"] || opt["locations"]){
+                let lbl = this.get_label_for_value(value, opt["options"] || opt["locations"] );
+                if(lbl) return lbl;
+                //sinon, continue
+            }
+            else if (opt["value"] && opt["value"] == value) return opt["label"] || opt['title'];
+        }
+        return false;//on a pas trouvé
+    }
     doConfirmReturn(ok){
         if(ok) this.doSubmit();
     }
@@ -155,7 +201,7 @@ export class DynamicFormComponent implements OnInit{
                 question._raw_value = question.value;
                 question.value = question._raw_value ? question._raw_value['immatriculation'] : "";
             } else if(question.type == "tabs"){
-              console.log("had a tabs", question);
+              //("had a tabs", question);
               //parse le contenu de la value: doit normalement avoir le type(filter) et les datas
               if(question.__value){
                 let v = question.__value;
@@ -179,11 +225,11 @@ export class DynamicFormComponent implements OnInit{
                 //pourquoi la suppression de ce code???=> parceque tous les champs sont deja presents...
                
                 /*if (question.type=="switch_details"){
-                    console.log("un switch details");
+                    //("un switch details");
                     for (let option of question.options){
-                        console.log(option);
+                        //(option);
                         for (let inner_field of option.fields){
-                            console.log(inner_field.id)
+                            //(inner_field.id)
                             let ctrl = new FormControl(inner_field.value || '', this.get_validators_for_field(inner_field));
                             group[inner_field.id] = ctrl;
                         }
@@ -192,9 +238,9 @@ export class DynamicFormComponent implements OnInit{
             }
             //sinon, groupe existe deja....
         }
-        //console.log(group);
+        ////(group);
         this.form = new FormGroup(group);//renvoie le groupe d'infos
-        //console.log(this.form.controls);
+        ////(this.form.controls);
     }
 
     /**
