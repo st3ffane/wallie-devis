@@ -91,7 +91,7 @@ export class GmapGeocodeProvider {
                 let address = rep.results;
 
 
-                let country = this.getAddressComponent( address, "country") || "France";
+                let country = this.getAddressComponent( address, "country") || "Unknown";
                 let zip = "";
                 let city = "";
                 //city, depend si France ou ailleurs 

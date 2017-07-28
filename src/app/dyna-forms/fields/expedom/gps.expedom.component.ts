@@ -476,11 +476,14 @@ export class GPSExpedomComponent{
        this._gmap.get_departement_from_coords_async(this.position.lat,this.position.lng,true).then( (rep)=>{
             
             //VERIFIE SI LE PAYS EST BON.....
-            
-            /*if(rep["country"].toUpperCase() != this.question.default_location.country.toUpperCase()){
+            let pays = rep["country"].normalize('NFD').replace(/[\u0300-\u036f]/g, "").toUpperCase();
+            // console.log(pays, this.question.default_location.country.toUpperCase());
+            // console.log(rep);
+            if(pays != this.question.default_location.country.toUpperCase()){
                 
                 throw "not in place!";
-            }*/
+            }
+            
             this.position = rep;
             this.question["position"] = this.position;
             this.is_localising = false;
