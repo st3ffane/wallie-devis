@@ -25,10 +25,11 @@ export class VolumePipes implements PipeTransform {
         return v;
 
       }
-      if(v.filter && v.volume_qtte){
+      if(v.filter){
         //2 cas: que marchandise ou les taux aussi
-        return v.volume_qtte_label || v.volume_qtte+" m3";
-      }
+        return v.volume_qtte_label || v.volume_qtte_calc+" m3";
+
+      } 
        
       //recupe le field
       return "Invalide";

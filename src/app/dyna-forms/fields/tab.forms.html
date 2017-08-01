@@ -14,7 +14,7 @@
     <div class="content">
         <!-- suivant le filtre, affiche le contenu possible -->
         <div *ngIf="selected_tab">
-          <df-question *ngFor='let field of selected_tab.fields' [formulaire]="formulaire" [question]="field" [form]="form"></df-question>
+          <df-question *ngFor='let field of selected_tab.fields' [formulaire]="formulaire" [question]="field" [form]="form" [hasValidate]="has_validate"></df-question>
         </div>
     </div>
 

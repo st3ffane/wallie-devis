@@ -1186,7 +1186,7 @@ export class DevisProvider {
                     };
 
                     //dans le cas d'un tabs, les valeurs sont particulieres
-                    /*if(field.type == "tabs"){
+                    if(field.type == "tabs" && typeof obj.value == 'string'){
                       //doit aussi recup les valeurs de la tab
                       let filter = obj.value;
                       let v = {
@@ -1212,7 +1212,7 @@ export class DevisProvider {
                       }
 
                       obj.value = v;
-                    }*/
+                    }
                     
                     //probleme value_label: si options, doit recuperer le label de l'option 
                     if(field.options && field["value"]!=null && field.type!="tabs"){

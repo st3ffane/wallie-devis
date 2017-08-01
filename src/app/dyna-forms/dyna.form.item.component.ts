@@ -21,25 +21,29 @@ export class DynaFormItemComponent{
     @Input()question:any;
     @Input()formulaire:any;//le formulaire en question, au cas ou
     @Input() form:FormGroup;
+    @Input() hasValidate:boolean;
 
     @Input() forcedisplay: boolean = false;
     error: any;
     
     //validation des champs de formulaires
     //voir a le faire reagir au onblur
-    get isValid(){
+    //probleme, doit etre appeller a chaque modif...
+    isValid(){
+      this.error = null;
         let frm = this.form.controls[this.question.id];        
-        let has_errors = frm ?  !frm.valid && frm.touched : false;
         
+        let has_errors = frm ?  !frm.valid  : false;
+        console.log(frm.errors, has_errors);
         if(has_errors){
             //recup l'erreur actuelle de validation
-            // console.log("pour: "+this.question.id);
-            // console.log(frm.errors);
+            console.log("pour: "+this.question.id);
+             console.log(frm.errors);
             this.error = frm.errors;
             
 
-        } else this.error = undefined;
-        return has_errors;
+        }
+        return (this.hasValidate || frm.touched) && this.error!=null;
     }
    
 

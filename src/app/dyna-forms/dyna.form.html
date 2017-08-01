@@ -2,18 +2,18 @@
     <div *ngIf="error">
         {{error}}
     </div>
-    <form #devisForm="ngForm" (ngSubmit)="onSubmit()" [formGroup]="form">
+    <form #devisForm="ngForm" (ngSubmit)="onSubmit(devisForm)" [formGroup]="form">
         <div class="row panel-heading">
             <h3 class="orangetxt" [innerHTML]="formulaire.title | safeHTML">aa</h3>
             <div [innerHTML]="formulaire.description | safeHTML"></div>
         </div>
         <div class="center-block">
             <div *ngFor='let field of formulaire.fields' class='form-row' class="row options-group">
-            <df-question [formulaire]="formulaire" [question]="field" [form]="form"></df-question>
+            <df-question [formulaire]="formulaire" [question]="field" [form]="form" [hasValidate]="has_validate"></df-question>
             </div>
         </div>
         <div class="row next_step">
-            <button class="btn-lg btn-primary btn-block" type="submit" [disabled]="devisForm.form?.valid == false">Suivant</button>
+            <button class="btn-lg btn-primary btn-block" type="submit" >Suivant</button>
         </div>
     </form>
 

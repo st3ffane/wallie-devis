@@ -1,5 +1,5 @@
 import {Component, Input, OnInit, Output, EventEmitter, HostListener} from "@angular/core";
-import {FormGroup, FormControl, Validators} from "@angular/forms";
+import {FormGroup, FormControl, Validators, FormGroupDirective} from "@angular/forms";
 import {DynaForm} from "./forms/dyna.form";
 import {verify_form_constraint} from "./forms/constraints/constraints";
 import * as validate from "./validators/constraints.validator";
@@ -27,6 +27,7 @@ export class DynamicFormComponent implements OnInit{
     form: FormGroup; //le group d'inputs de ce formulaire
     error:string;//en cas de non validation des contraintes de formulaires
 
+    has_validate:boolean = false;
 
     show_confirm : boolean = false; //si une confirmation, trigger pour l'afficher
 
@@ -44,7 +45,7 @@ export class DynamicFormComponent implements OnInit{
         ////("here")
     }
 
-    onSubmit(){
+    onSubmit(form:FormGroupDirective){
         //si je garde l'idée des contraintes de formulaires,
         //c'est ici que ca se passera....
         // this.error = null;
@@ -62,7 +63,16 @@ export class DynamicFormComponent implements OnInit{
 
         //     }
         // }
+         this.has_validate = true;
+        if(!form.valid){
+          console.log("INVALID!!!!!!!!!!!!!!!!");
+          //recup la premiere erreur
+          let elem = document.getElementsByClassName("ng-invalid")[1];
+          console.log(elem)
+          scrollIt(elem);
 
+          return;
+        }
         if(this.isConfirmNeeded() ){
             //affiche la dialog de confirmation 
             this.show_confirm = true;
@@ -85,14 +95,16 @@ export class DynamicFormComponent implements OnInit{
         return true;
     }
 
-    private doSubmit(evt?:any){
+    private doSubmit(form?:any){
         //switch toutes les __value vers value (pour eviter de faire n'importe quoi avec les next/prev du navigateur)
         // permet de decoupler l'interface graphique des veritables données 
          //remet la dialog en place
-        this.show_confirm = false;
-        if(!evt){
+        //this.show_confirm = false;
+        if(!form){
             return;
         }
+       
+        this.show_confirm = false;
         //recup les valeurs des formulaires,
         //Doit aussi se faire si back???
         for (let question of this.formulaire.fields) {
@@ -141,7 +153,7 @@ export class DynamicFormComponent implements OnInit{
         let k = this.formulaire['key'];
         k = k.split('/');
         this._devis.addToHistoric(k[0],k[1],this.formulaire["url"], this.formulaire["title"]);
-
+        
 
         this.submitted.emit();
 
@@ -180,6 +192,7 @@ export class DynamicFormComponent implements OnInit{
 
     ngOnChanges(dt){
         //questions a ete modifié, met a jour le formulaire...
+        this.has_validate = false;
         let group:any = {};
         let first: string = this.formulaire.fields? this.formulaire.fields[0].id : null;
 
@@ -322,4 +335,98 @@ export class DynamicFormComponent implements OnInit{
         }
     }
     
+}
+
+function scrollIt(element, duration = 200, easing = 'linear', callback=null) {
+  //let element = document.getElementById(elementID);
+  if(!element) return;
+  console.log(element.offsetTop);
+
+  // define timing functions
+  const easings = {
+    linear(t) {
+      return t;
+    },
+    easeInQuad(t) {
+      return t * t;
+    },
+    easeOutQuad(t) {
+      return t * (2 - t);
+    },
+    easeInOutQuad(t) {
+      return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    },
+    easeInCubic(t) {
+      return t * t * t;
+    },
+    easeOutCubic(t) {
+      return (--t) * t * t + 1;
+    },
+    easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+    },
+    easeInQuart(t) {
+      return t * t * t * t;
+    },
+    easeOutQuart(t) {
+      return 1 - (--t) * t * t * t;
+    },
+    easeInOutQuart(t) {
+      return t < 0.5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t;
+    },
+    easeInQuint(t) {
+      return t * t * t * t * t;
+    },
+    easeOutQuint(t) {
+      return 1 + (--t) * t * t * t * t;
+    },
+    easeInOutQuint(t) {
+      return t < 0.5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t;
+    }
+  };
+
+  // Returns document.documentElement for Chrome and Safari
+  // document.body for rest of the world
+  function checkBody() {
+    document.documentElement.scrollTop += 1;
+    const body = (document.documentElement.scrollTop !== 0) ? document.documentElement : document.body;
+    document.documentElement.scrollTop -= 1;
+    return body;
+  }
+
+  const body = checkBody();
+  const start = body.scrollTop;
+  const startTime = Date.now();
+
+  // Height checks to prevent requestAnimationFrame from infinitely looping
+  // If the function tries to scroll below the visible document area
+  // it should only scroll to the bottom of the document
+  const documentHeight = Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);
+  const windowHeight = window.innerHeight || document.documentElement.clientHeight || document.getElementsByTagName('body')[0].clientHeight;
+  const destination = documentHeight - element.offsetTop < windowHeight ? documentHeight - windowHeight : element.offsetTop;
+
+
+  console.log(destination+","+windowHeight+","+documentHeight)
+  function scroll() {
+    const now = Date.now();
+    const time = Math.min(1, ((now - startTime) / duration));
+    const timeFunction = easings[easing](time);
+    let rest = (start - destination);
+    rest = rest < 1 ? 1 : rest;
+
+    let amout = start - (timeFunction * rest );
+    
+    body.scrollTop = amout ;
+    console.log(amout)
+    if (amout <= destination) {
+      if (callback) callback();
+
+      
+      return;
+    }
+    
+   
+    requestAnimationFrame(scroll);
+  }
+  scroll();
 }

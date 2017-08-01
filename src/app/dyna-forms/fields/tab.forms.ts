@@ -47,6 +47,10 @@ export class TabComponent {
     }
 
     private setFilterData(value:any){
+
+      console.log("SET FILTER DATE FOR ", value);
+      //if(this._filter == value) return;//pe metre a jour les datas????
+
       this._filter = value;
       //console.log("valeur de cache ", value)
       //recupere la tab a afficher
@@ -55,8 +59,9 @@ export class TabComponent {
 
           //modifie le formulaire pour les validations
           this.clearFormCtrls();
-          this.addFormCtrls(tab);
+          
           this.selected_tab = tab;
+          this.addFormCtrls();
           break;
         }
       }
@@ -64,29 +69,40 @@ export class TabComponent {
     private clearFormCtrls(){
       if(this.selected_tab){
         //supprime
-        //console.log("Suppression des controls");
+        console.log("Suppression des controls");
         for(let question of this.selected_tab.fields){
-         let key = question.id;//la clé de la property a connaitre....
-        // console.log("control:",key,this.form.controls[key])
+         let key =question.id;//la clé de la property a connaitre....
+         console.log("control:",key,this.form.controls[key])
          //question.value = this.form.controls[key].value;
-        try{this.form.removeControl(key);}catch(err){}
+        try{this.form.removeControl(key);}catch(err){console.log(err)}
+        console.log("OK")
       }
       }
     }
-    private addFormCtrls(tab){
+    private addFormCtrls(){
+      let tab = this.selected_tab;
       if(!tab) return;
 
-      
+      console.log("selected tab: ", tab)
       for(let question of tab.fields){
         question.__value = question.value; //recupere les "vraies" valeurs pour les bindings
-        let key = question.id;//la clé de la property a connaitre....
+        let key =question.id;//la clé de la property a connaitre....
         
+                console.log("add control",key)
                 //cree un nouveau control pour cette clé 
                 //si a des contraintes, ajoute les 
-                let ctrl = new FormControl(question.__value || '', this.get_validators_for_field(question));
-                if(this.form[key])this.form.setControl(key,ctrl);
-                else this.form.addControl(key,ctrl);
+                let ctrl = new FormControl(undefined, this.get_validators_for_field(question));
+                console.log(this.form[key]);
 
+                if(this.form[key])this.form.setControl(key,ctrl);
+                else{
+                  console.log("add new control");
+                  try{this.form.addControl(key,ctrl);}catch(err){console.log(err);}
+                }
+
+
+                console.log("set value",question.__value);
+                ctrl.setValue(question.__value || '');
                 
       }
       

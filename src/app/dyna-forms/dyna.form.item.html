@@ -302,7 +302,9 @@
 
 
       </div>
-      <div *ngIf="isValid"  class="alert">
+      
+      <div *ngIf="isValid()"  class="alert">
+        
         <ul>
             <li *ngIf="error.required">
             Ce champs doit obligatoirement etre renseigné!

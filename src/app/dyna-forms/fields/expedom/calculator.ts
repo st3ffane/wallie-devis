@@ -100,6 +100,7 @@ export class Calculator  implements ControlValueAccessor, Validator{
 
   //pour me faire passer pour un composant
   writeValue(value: any) {
+    console.log("CALCULATOR WRITE ", value)
     if (value !== undefined) {
         this.volume = value;
     }
