@@ -18,7 +18,7 @@ export class MarchandiseTypePipes implements PipeTransform {
       //sinon, recherche le type de la valeur
       //let dv = this._devis.get_devis()[id];
       
-      console.log("formulaire:",field);
+      //console.log("formulaire:",field);
       let v= field.value;
       if(typeof v == "string") return v;
       if(v.filter && v.marchandise){

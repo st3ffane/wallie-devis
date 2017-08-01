@@ -115,14 +115,14 @@ export class DynamicFormComponent implements OnInit{
 
             //si tabs, cree un objet
             if(question.type=="tabs"){
-              console.log("validate tabs, create object", question);
+              //console.log("validate tabs, create object", question);
               let v= question.value;
 
               //recup la tab 
               for(let t of question.options){
                 if (t.id == v){
                   //youpi
-                  console.log("tab trouvée");
+                  //console.log("tab trouvée");
                   
                       let obj = {
                         filter: v
