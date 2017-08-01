@@ -100,7 +100,7 @@ export class Calculator  implements ControlValueAccessor, Validator{
 
   //pour me faire passer pour un composant
   writeValue(value: any) {
-    console.log("CALCULATOR WRITE ", value)
+    //console.log("CALCULATOR WRITE ", value)
     if (value !== undefined) {
         this.volume = value;
     }
@@ -130,7 +130,7 @@ export class Calculator  implements ControlValueAccessor, Validator{
           }
         
       };
-      console.log("Asking validation");
+      //console.log("Asking validation");
       return (this.volume <= 0) ? err: null;
   }
 }
@@ -144,7 +144,7 @@ function createCounterRangeValidator(minValue) {
           min: minValue
         }
       };
-      console.log("Asking validation");
+      //console.log("Asking validation");
       return (c.value <= minValue) ? err: null;
     
   }

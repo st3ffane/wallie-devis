@@ -276,7 +276,7 @@
                     <lght-box *ngIf="question.lightbox" [lightbox]="question.lightbox"></lght-box></label>
                     <small [innerHTML]="question.description | safeHTML"></small>
                     <tab-forms [question]="question" [form]="form" [(ngModel)]="question.__value" [formControlName]="question.id"
-                    [id]="question.id"></tab-forms> 
+                    [id]="question.id" [hasValidate]='hasValidate'></tab-forms> 
                 </div>
                 
             </div>

@@ -32,17 +32,18 @@ export class DynaFormItemComponent{
     isValid(){
       this.error = null;
         let frm = this.form.controls[this.question.id];        
-        
+        //console.log("ISVALID: form",frm);
         let has_errors = frm ?  !frm.valid  : false;
-        console.log(frm.errors, has_errors);
+        //console.log(frm.errors, has_errors);
         if(has_errors){
             //recup l'erreur actuelle de validation
-            console.log("pour: "+this.question.id);
-             console.log(frm.errors);
+            //console.log("pour: "+this.question.id);
+            // console.log(frm.errors);
             this.error = frm.errors;
             
 
         }
+        //console.log(this.hasValidate, this.error);
         return (this.hasValidate || frm.touched) && this.error!=null;
     }
    
