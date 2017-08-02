@@ -3,7 +3,7 @@ import {FormGroup, FormControl, Validators, FormGroupDirective} from "@angular/f
 import {DynaForm} from "./forms/dyna.form";
 import {verify_form_constraint} from "./forms/constraints/constraints";
 import * as validate from "./validators/constraints.validator";
-
+import {NgZone} from "@angular/core";
 
 import {DevisProvider} from "../providers/devis.provider";
 
@@ -33,7 +33,7 @@ export class DynamicFormComponent implements OnInit{
 
 
     @Output() submitted = new EventEmitter();//pour prevenir le component parent que le formulaire a ete submitted
-    constructor(private _devis:DevisProvider){
+    constructor(private _devis:DevisProvider, private _ngZone: NgZone){
       ////("here constructor")
     }
 
@@ -66,10 +66,12 @@ export class DynamicFormComponent implements OnInit{
          this.has_validate = true;
         if(!form.valid){
           console.log("INVALID!!!!!!!!!!!!!!!!");
-          //recup la premiere erreur
-          let elem = document.getElementsByClassName("ng-invalid")[1];
-          console.log(elem)
-          scrollIt(elem);
+          setTimeout(()=>{
+            //recup la premiere erreur
+            let elem = document.getElementsByClassName("ng-invalid")[1];
+            console.log(elem)
+            this._ngZone.runOutsideAngular(scrollIt)
+          }, 200);
 
           return;
         }
@@ -337,9 +339,16 @@ export class DynamicFormComponent implements OnInit{
     
 }
 
-function scrollIt(element, duration = 200, easing = 'linear', callback=null) {
+function scrollIt(element?:any, duration = 200, easing = 'linear', callback=null) {
   //let element = document.getElementById(elementID);
+  if(!element){
+    //recup le 1er element marqué error
+    let el = document.getElementById("error_alert");
+    element = el ? el.parentElement : null;
+  }
+  console.log("element? ",element)
   if(!element) return;
+
   console.log(element.offsetTop);
 
   // define timing functions
